@@ -9,9 +9,6 @@
   <IconUrl DefaultValue="https://michel-bodje.github.io/automate/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://michel-bodje.github.io/automate/assets/icon-128.png"/>
   <SupportUrl DefaultValue="https://michel-bodje.github.io/automate"/>
-  <AppDomains>
-    <AppDomain>https://localhost:3000</AppDomain>
-  </AppDomains>
   <Hosts>
     <Host Name="Mailbox"/>
   </Hosts>

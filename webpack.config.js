@@ -68,7 +68,7 @@ module.exports = async (env, options) => {
           },
           {
             from: "./app/styles/main.css",
-            to: "[name][ext]",
+            to: "main.css",
           },
           {
             from: "manifest*.xml",
@@ -92,6 +92,8 @@ module.exports = async (env, options) => {
     devServer: {
       headers: {
         "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
       },
       server: {
         type: "https",
