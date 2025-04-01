@@ -1,0 +1,189 @@
+/* General Reset */
+body {
+    font-family: Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Light background */
+    color: #333; /* Dark text */
+}
+
+/* Page Container */
+.page {
+    display: none;
+    padding: 20px;
+    background-color: #ffffff; /* White background */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Active Page */
+.page.active {
+    display: block;
+}
+
+/* Header Styling */
+h1 {
+    font-size: 20px; /* Reduced font size */
+    color: #0078d4; /* Accent color */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;    /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    text-align: center;     /* Center text */
+    padding: 20px;          /* Add some padding around the header */
+}
+
+/* Logo Section */
+.logo {
+    display: flex;
+    max-width: 200px;
+    max-height: 200px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: auto;
+    align-self: center;
+}
+
+/* Menu Buttons */
+#menu-page button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 8px; /* Reduced padding */
+    font-size: 12px; /* Reduced font size */
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #0078d4; /* Accent color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#menu-page button:hover {
+    background-color: #005a9e; /* Darker accent color */
+}
+
+/* Form Styling */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Labels */
+label {
+    font-size: 12px; /* Reduced font size */
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #f4f4f4; /* Light text for labels */
+}
+
+/* Inputs and Selects */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 8px; /* Reduced padding */
+    border: 1px solid #444; /* Darker border */
+    border-radius: 4px;
+    font-size: 12px; /* Reduced font size */
+    background-color: #333; /* Dark input background */
+    color: #f4f4f4; /* Light text */
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 60px; /* Reduced height */
+}
+
+/* Checkbox Styling */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #0078d4; /* Accent color for checkboxes */
+}
+
+/* Buttons */
+button {
+    padding: 8px 12px; /* Reduced padding */
+    font-size: 12px; /* Reduced font size */
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #0078d4; /* Accent color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #005a9e; /* Darker accent color */
+}
+
+button[type="button"] {
+    background-color: #444; /* Neutral dark button */
+    color: #f4f4f4;
+    border: 1px solid #666;
+}
+
+button[type="button"]:hover {
+    background-color: #555;
+}
+
+/* Case Details Section */
+#case-details {
+    padding: 15px;
+    border: 1px solid #0078d4; /* Accent border */
+    border-radius: 4px;
+    background-color: #333; /* Dark background */
+}
+
+/* Hidden Elements */
+[hidden] {
+    display: none !important;
+}
+
+/* File Upload Styling */
+input[type="file"] {
+    padding: 5px;
+    background-color: #333; /* Dark input background */
+    color: #f4f4f4; /* Light text */
+    border: 1px solid #444;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 18px; /* Reduced font size for smaller screens */
+    }
+
+    button {
+        font-size: 10px; /* Reduced font size for buttons */
+    }
+}
