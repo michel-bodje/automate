@@ -1,3 +1,5 @@
+export { default as css } from "./styles/main.css";
+
 export * from "./modules/auth.js";
 export * from "./modules/graph.js";
 export * from "./modules/mockEvents.js";
