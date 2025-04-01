@@ -1,3 +1,4 @@
+import "./styles/main.css";
 import {
   ELEMENT_IDS,
   formState,

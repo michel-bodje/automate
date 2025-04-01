@@ -25,14 +25,21 @@ module.exports = async (env, options) => {
     },
     output: {
       path: path.resolve(__dirname, "docs"),
-      publicPath: "/",
-      filename: "[name].bundle.js",
+      publicPath: "/automate/",
+      filename: dev ? "[name].bundle.js" : "[name].[contenthash].js"
     },
     resolve: {
       extensions: [".html", ".js"],
     },
     module: {
       rules: [
+        {
+          test: /\.css$/,
+          use: [
+            'style-loader',
+            'css-loader'
+          ]
+        },
         {
           test: /\.js$/,
           exclude: /node_modules/,
@@ -59,16 +66,13 @@ module.exports = async (env, options) => {
         filename: "taskpane.html",
         template: "./app/taskpane.html",
         chunks: ["polyfill", "taskpane"],
+        inject: true,
       }),
       new CopyWebpackPlugin({
         patterns: [
           {
             from: "assets/*",
             to: "assets/[name][ext][query]",
-          },
-          {
-            from: "./app/styles/main.css",
-            to: "main.css",
           },
           {
             from: "manifest*.xml",
