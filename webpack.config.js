@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-
+const path = require("path");
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -7,7 +7,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const urlDev = "https://localhost:3000/";
 
 // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
-const urlProd = "https://localhost:3000/";
+const urlProd = "https://michel-bodje.github.io/automate/";
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -20,11 +20,13 @@ module.exports = async (env, options) => {
     devtool: "source-map",
     entry: {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
-      taskpane: ["./src/taskpane/index.js", "./src/taskpane/taskpane.js", "./src/taskpane/taskpane.html"],
+      taskpane: ["./app/taskpane.js", "./app/taskpane.html"],
       commands: "./src/commands/commands.js",
     },
     output: {
-      clean: true,
+      path: path.resolve(__dirname, "docs"),
+      publicPath: "/",
+      filename: "[name].bundle.js",
     },
     resolve: {
       extensions: [".html", ".js"],
@@ -55,7 +57,7 @@ module.exports = async (env, options) => {
     plugins: [
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
-        template: "./src/taskpane/taskpane.html",
+        template: "./app/taskpane.html",
         chunks: ["polyfill", "taskpane"],
       }),
       new CopyWebpackPlugin({
