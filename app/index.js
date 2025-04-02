@@ -1,4 +1,4 @@
-export { default as css } from "./styles/main.css";
+import "./styles/main.css";
 
 export * from "./modules/auth.js";
 export * from "./modules/graph.js";
