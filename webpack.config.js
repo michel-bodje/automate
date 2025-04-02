@@ -1,12 +1,13 @@
-require("dotenv").config();
-
 /* eslint-disable no-undef */
 const path = require("path");
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const baseUrl = process.env.BASE_URL;
+const isProduction = process.env.NODE_ENV === 'production';
+const baseUrl = isProduction 
+  ? 'https://michel-bodje.github.io/automate/'
+  : 'https://localhost:3000/';
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
