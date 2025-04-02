@@ -4,13 +4,13 @@ const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+const devUrl = "https://localhost:2999/";
+const prodUrl = "https://michel-bodje.github.io/automate/";
+
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
   return { ca: httpsOptions.ca, key: httpsOptions.key, cert: httpsOptions.cert };
 }
-
-const devUrl = "https://localhost:3000/taskpane.html/";
-const prodUrl = "https://michel-bodje.github.io/automate/";
 
 module.exports = async (env, options) => {
   const isDev = options.mode === "development";
