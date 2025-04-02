@@ -20,12 +20,15 @@ module.exports = async (env, options) => {
     entry: {
       polyfill: ["core-js/stable", "regenerator-runtime/runtime"],
       taskpane: ["./app/taskpane.js", "./app/taskpane.html"],
-      commands: "./src/commands/commands.js",
+      commands: "./app/commands/commands.js",
     },
     output: {
+      /*
       path: path.resolve(__dirname, "docs"),
       publicPath: baseUrl,
       filename: isDev ? "[name].bundle.js" : "[name].[contenthash].js" 
+      */
+      clean: true,
     },
     resolve: {
       extensions: [".html", ".js"],
@@ -75,7 +78,7 @@ module.exports = async (env, options) => {
           },
           {
             from: "manifest*.xml",
-            to: "[name][ext]",
+            to: "[name]" + "[ext]",
             transform: isDev 
             ? undefined // leave as is (localhost)
             : (content) => content.toString().replace(devUrl, prodUrl),
@@ -85,7 +88,7 @@ module.exports = async (env, options) => {
       }),
       new HtmlWebpackPlugin({
         filename: "commands.html",
-        template: "./src/commands/commands.html",
+        template: "./app/commands/commands.html",
         chunks: ["polyfill", "commands"],
       }),
     ],
