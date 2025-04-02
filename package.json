@@ -12,10 +12,10 @@
     "dev_server_port": 3000
   },
   "scripts": {
-    "dev": "cross-env NODE_ENV=development webpack serve --mode development --open",
-    "build": "cross-env NODE_ENV=production rm -rf docs/ && webpack --mode production && copy manifest.xml docs/",
-    "start": "cross-env NODE_ENV=development office-addin-debugging start manifest.xml",
     "deploy": "npm run build && git add docs/ && git commit -m 'Deploy' && git push",
+    "dev": "webpack serve --mode development --open",
+    "build": "rm -rf docs/ && webpack --mode production",
+    "start": "office-addin-debugging start manifest.xml",
     "stop": "office-addin-debugging stop manifest.xml",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
