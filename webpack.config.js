@@ -1,13 +1,12 @@
+require("dotenv").config();
+
 /* eslint-disable no-undef */
 const path = require("path");
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const urlDev = "https://localhost:3000/";
-
-// CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
-const urlProd = "https://michel-bodje.github.io/automate/";
+const baseUrl = process.env.BASE_URL;
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -25,8 +24,10 @@ module.exports = async (env, options) => {
     },
     output: {
       path: path.resolve(__dirname, "docs"),
-      publicPath: "/automate/",
-      filename: dev ? "[name].bundle.js" : "[name].[contenthash].js"
+      publicPath: baseUrl,
+      filename: process.env.NODE_ENV === 'production' 
+      ? "[name].[contenthash].js" 
+      : "[name].bundle.js"
     },
     resolve: {
       extensions: [".html", ".js"],
@@ -78,12 +79,10 @@ module.exports = async (env, options) => {
             from: "manifest*.xml",
             to: "[name]" + "[ext]",
             transform(content) {
-              if (dev) {
-                return content;
-              } else {
-                return content.toString().replace(new RegExp(urlDev, "g"), urlProd);
-              }
-            },
+              return content.toString()
+                .replace(/https:\/\/localhost:3000/g, baseUrl)
+                .replace(/https:\/\/michel-bodje.github.io\/automate/g, baseUrl);
+            }
           },
         ],
       }),
