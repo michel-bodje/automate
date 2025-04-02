@@ -8,7 +8,7 @@
   <Description DefaultValue="Automation for Allen Madelin"/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-128.png"/>
-  <SupportUrl DefaultValue="https://localhost:3000"/>
+  <SupportUrl DefaultValue="https://localhost:3000/taskpane.html"/>
   <Hosts>
     <Host Name="Mailbox"/>
   </Hosts>

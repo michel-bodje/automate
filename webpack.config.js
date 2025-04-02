@@ -9,7 +9,7 @@ async function getHttpsOptions() {
   return { ca: httpsOptions.ca, key: httpsOptions.key, cert: httpsOptions.cert };
 }
 
-const devUrl = "https://localhost:3000/";
+const devUrl = "https://localhost:3000/taskpane.html/";
 const prodUrl = "https://michel-bodje.github.io/automate/";
 
 module.exports = async (env, options) => {
