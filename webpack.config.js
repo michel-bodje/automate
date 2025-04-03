@@ -14,7 +14,7 @@ async function getHttpsOptions() {
 
 module.exports = async (env, options) => {
   const dev = options.mode === "development";
-  const baseUrl = dev ? urlDev : prodUrl;
+  const baseUrl = dev ? urlDev : urlProd;
   const config = {
     devtool: "source-map",
     entry: {
@@ -77,10 +77,11 @@ module.exports = async (env, options) => {
             from: "manifest*.xml",
             to: "[name]" + "[ext]",
             transform(content) {
+              console.log("Transforming manifest.xml. Dev mode:", dev);
               if (dev) {
                 return content;
               } else {
-                return content.toString().replace(urlDev, urlProd);
+                return content.toString().replace(new RegExp(urlDev, "g"), urlProd);
               }
             },
           },
