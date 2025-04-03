@@ -1,5 +1,7 @@
 # Automate for Allen Madelin
 
+An Outlook Office Add-in for law firms.
+
 ## Setup locally (development)
 1. Clone this repo.
 2. Run `npm install`.
