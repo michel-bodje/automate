@@ -233,9 +233,9 @@ async function scheduleAppointment() {
     const lawyer = getLawyer(formState.lawyerId);
 
     // 3. Fetch calendar events
-    // needs to be in ISO 8601 format for Microsoft Graph
     const now = new Date();
     const timeRange = {
+      // need to be in ISO 8601 format for Microsoft Graph
       startDateTime: now.toISOString(),
       endDateTime: new Date(now.getTime() + 14 * 86400000).toISOString()
     };
