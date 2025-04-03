@@ -10,5 +10,7 @@
 This assumes that all targeted computers have access to the same Office account.
 
 1. Verify manifest.xml file contains a link to "https://michel-bodje.github.io/automate/".
-2. In the add-in menu (outlook.office.com/mail/inclientstore), upload the manifest.xml as a new user add-in.
+2. In the add-in menu (https://outlook.office.com/mail/inclientstore), upload the manifest.xml as a new user add-in.
 3. Enjoy!
+
+Link to the static version: https://michel-bodje.github.io/automate/taskpane.html
