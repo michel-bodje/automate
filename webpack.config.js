@@ -4,8 +4,8 @@ const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const devUrl = "https://localhost:2999/";
-const prodUrl = "https://michel-bodje.github.io/automate/";
+const urlDev = "https://localhost:3000/";
+const urlProd = "https://michel-bodje.github.io/automate/";
 
 async function getHttpsOptions() {
   const httpsOptions = await devCerts.getHttpsServerOptions();
@@ -13,8 +13,8 @@ async function getHttpsOptions() {
 }
 
 module.exports = async (env, options) => {
-  const isDev = options.mode === "development";
-  const baseUrl = isDev ? devUrl : prodUrl;
+  const dev = options.mode === "development";
+  const baseUrl = dev ? urlDev : prodUrl;
   const config = {
     devtool: "source-map",
     entry: {
@@ -23,12 +23,9 @@ module.exports = async (env, options) => {
       commands: "./app/commands/commands.js",
     },
     output: {
-      /*
       path: path.resolve(__dirname, "docs"),
       publicPath: baseUrl,
-      filename: isDev ? "[name].bundle.js" : "[name].[contenthash].js" 
-      */
-      clean: true,
+      filename: dev ? "[name].bundle.js" : "[name].[contenthash].js" 
     },
     resolve: {
       extensions: [".html", ".js"],
@@ -79,9 +76,13 @@ module.exports = async (env, options) => {
           {
             from: "manifest*.xml",
             to: "[name]" + "[ext]",
-            transform: isDev 
-            ? undefined // leave as is (localhost)
-            : (content) => content.toString().replace(devUrl, prodUrl),
+            transform(content) {
+              if (dev) {
+                return content;
+              } else {
+                return content.toString().replace(urlDev, urlProd);
+              }
+            },
           },
           { from: "assets/*", to: "assets/[name][ext]" },
         ],

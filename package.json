@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/michel-bodje/automate"
+    "url": "https://github.com/michel-bodje/automate.git"
   },
   "license": "MIT",
   "config": {
@@ -12,9 +12,10 @@
     "dev_server_port": 3000
   },
   "scripts": {
-    "deploy": "npm run build && git add docs/ && git commit -m 'Deploy' && git push",
-    "dev": "rm -rf docs/ && webpack serve --mode development",
     "build": "rm -rf docs/ && webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "dev-server": "webpack serve --mode development",
+    "deploy": "npm run build && git add docs/ && git commit -m 'Deploy' && git push",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
     "prettier": "office-addin-lint prettier",
