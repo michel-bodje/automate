@@ -1,5 +1,0 @@
-/*! @azure/msal-browser v4.9.1 2025-03-26 */
-
-/*! @azure/msal-common v15.4.0 2025-03-25 */
-
-/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
