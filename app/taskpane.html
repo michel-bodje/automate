@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Automation for Allen Madelin</title>
+    <title>Automate for Allen Madelin</title>
     
     <!-- Office JavaScript API -->
     <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
@@ -191,6 +191,12 @@
                 <select id="conf-location" required>
                     <!-- Options will be dynamically populated by JavaScript -->
                 </select>
+
+                <label for="conf-date">Appointment Date:</label>
+                <input type="date" id="conf-date" required>
+
+                <label for="conf-time">Appointment Time:</label>
+                <input type="time" id="conf-time" required>
 
                 <!-- End of page 2 -->
                 <button type="submit" id="send-confirmation-btn" class="submit-btn">Create</button>

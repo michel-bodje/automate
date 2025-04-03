@@ -42,6 +42,8 @@ export const ELEMENT_IDS = {
     contractClientLanguage: "contract-client-language",
     replyClientLanguage: "reply-client-language",
 
+    confDate: "conf-date",
+    confTime: "conf-time",
     contractDeposit: "contract-deposit",
 
     firstConsultation: "first-consultation",

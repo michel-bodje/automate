@@ -150,17 +150,39 @@ export async function createEmail(type) {
     }
 
     const lawyer = getLawyer(formState.lawyerId);
-    const date = new Date().toLocaleDateString(language === "fr" ? "fr-CA" : "en-CA");
-    const time = new Date().toLocaleTimeString(language === "fr" ? "fr-CA" : "en-CA", { hour: "2-digit", minute: "2-digit" });
+    let body = template;
+
+    // Only validate date and time for appointment confirmations
+    if (type === "office" || type === "teams" || type === "phone") {
+      if (!formState.appointmentDateTime) {
+        throw new Error("No appointment date and time provided.");
+      }
+      const dateTime = formState.appointmentDateTime;
+
+      const date = dateTime.toLocaleDateString(language == "fr" ? "fr-CA" : "en-US", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+  
+      const time = dateTime.toLocaleTimeString(language == "fr" ? "fr-CA" : "en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      body = body
+        .replace("{{date}}", date)
+        .replace("{{time}}", time)
+      ;
+  
+    }
 
     const depositAmount = parseFloat(formState.deposit);
     const totalAmount = (depositAmount * (1 + 0.05 + 0.09975) + 100).toFixed(2);
 
-    let body = template;
     body = body
       .replace("{{lawyerName}}", lawyer.name)
-      .replace("{{date}}", date)
-      .replace("{{time}}", time)
       .replace("{{depositAmount}}", depositAmount)
       .replace("{{totalAmount}}", totalAmount);
 

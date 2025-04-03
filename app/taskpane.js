@@ -94,6 +94,16 @@ function attachEventListeners() {
           // client language dropdown change
           formState.update("clientLanguage", value);
           break;
+        case ELEMENT_IDS.confDate:
+        case ELEMENT_IDS.confTime:
+          // appointment date and time input change
+          const dateInput = document.getElementById(ELEMENT_IDS.confDate).value;
+          const timeInput = document.getElementById(ELEMENT_IDS.confTime).value;
+          if (dateInput && timeInput) {
+            const dateTime = new Date(`${dateInput}T${timeInput}`);
+            formState.update("appointmentDateTime", dateTime);
+          }
+          break;
         case ELEMENT_IDS.firstConsultation:
           // first consultation checkbox change
           formState.update("isFirstConsultation", event.target.checked);
