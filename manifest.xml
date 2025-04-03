@@ -155,7 +155,7 @@
             </OfficeTab>
           </ExtensionPoint>
           -->
-          
+
         </DesktopFormFactor>
       </Host>
     </Hosts>
@@ -180,5 +180,6 @@
         <bt:String id="ActionButton.Tooltip" DefaultValue="Perform an automation script."/>
       </bt:LongStrings>
     </Resources>
+    
   </VersionOverrides>
 </OfficeApp>
