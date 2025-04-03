@@ -14,7 +14,7 @@
   "scripts": {
     "build": "rm -rf docs/ && webpack --mode production",
     "build:dev": "webpack --mode development",
-    "dev-server": "webpack serve --mode development",
+    "dev-server": "rm -rf docs/ && webpack serve --mode development",
     "deploy": "npm run build && git add docs/ && git commit -m 'Deploy' && git push",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
