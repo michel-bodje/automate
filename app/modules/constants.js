@@ -1,4 +1,11 @@
-/** Centralized object for HTML element IDs */
+/**
+ * @module constants
+ * @description This module contains constants used throughout the application,
+ * such as HTML element IDs for various components, including pages, buttons,
+ * form inputs, and dropdowns.
+ * This avoids hardcoding ID strings in multiple places and makes it easier to maintain the code.
+ * This way, if you need to change an ID, you only have to do it here.
+ */
 export const ELEMENT_IDS = {
     // Page IDs
     mainPage: "menu-page",
@@ -65,6 +72,9 @@ export const ELEMENT_IDS = {
     mandateDetails: "mandatate-details",
     otherPartyName: "other-party-name",
     commonField: "common-field",
+
+    conflictSearchDoneDivorce: "conflict-search-done-divorce",
+    conflictSearchDoneEstate: "conflict-search-done-estate",
 
     // Notes
     notes: "schedule-notes",

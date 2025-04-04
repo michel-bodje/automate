@@ -9,9 +9,11 @@ export const caseTypeHandlers = {
     label: "Divorce / Family Law",
     handler: function () {
       const spouseName = document.getElementById(ELEMENT_IDS.spouseName).value;
+      const conflictSearchDone = document.getElementById(ELEMENT_IDS.conflictSearchDoneDivorce).checked;
       return `
         <p><strong>Case Type:</strong> ${this.label}</p>
         <p><strong>Spouse Name:</strong> ${spouseName}</p>
+        <p>Conflict Search Done? ${conflictSearchDone ? "✔️" : "❌"}</p>
       `;
     },
   },
@@ -20,10 +22,12 @@ export const caseTypeHandlers = {
     handler: function () {
       const deceasedName = document.getElementById(ELEMENT_IDS.deceasedName).value;
       const executorName = document.getElementById(ELEMENT_IDS.executorName).value;
+      const conflictSearchDone = document.getElementById(ELEMENT_IDS.conflictSearchDoneEstate).checked;
       return `
         <p><strong>Case Type:</strong> ${this.label}</p>
         <p><strong>Deceased Name:</strong> ${deceasedName}</p>
         <p><strong>Executor Name:</strong> ${executorName}</p>
+        <p>Conflict Search Done? ${conflictSearchDone ? "✔️" : "❌"}</p>
       `;
     },
   },

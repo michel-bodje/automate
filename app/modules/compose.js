@@ -59,15 +59,55 @@ function setAttendees(attendees) {
 }
 
 /**
- * Sets the category in the draft item.
- * @param {string} category - The category to set for the email.
+ * Sets the category in the draft meeting.
+ * @param {string} category - The category string array.
+ *
  */
 function setCategory(category) {
-  Office.context.mailbox.item.categories.addAsync(category, (asyncResult) => {
-    if (asyncResult.status === Office.AsyncResultStatus.Failed) {
-      console.error("Failed to set category:", asyncResult.error.message);
-    }
-  });
+  // Function to remove all existing categories
+  function removeAllCategories(callback) {
+    Office.context.mailbox.item.categories.getAsync((getResult) => {
+      if (getResult.status === Office.AsyncResultStatus.Failed) {
+        console.error("Failed to retrieve existing categories:", getResult.error.message);
+        callback(); // Proceed to add the new category even if retrieval fails
+      } else {
+        const currentCategories = getResult.value;
+
+        if (currentCategories && currentCategories.length > 0) {
+          let pendingRemovals = currentCategories.length;
+
+          currentCategories.forEach((cat) => {
+            Office.context.mailbox.item.categories.removeAsync(cat, (removeResult) => {
+              if (removeResult.status === Office.AsyncResultStatus.Failed) {
+                console.error(`Failed to remove category "${cat}":`, removeResult.error.message);
+              }
+
+              pendingRemovals--;
+              if (pendingRemovals === 0) {
+                callback(); // All categories removed, proceed to add the new category
+              }
+            });
+          });
+        } else {
+          callback(); // No categories to remove, proceed to add the new category
+        }
+      }
+    });
+  }
+
+  // Function to add the new category
+  function addCategory() {
+    Office.context.mailbox.item.categories.addAsync(category, (addResult) => {
+      if (addResult.status === Office.AsyncResultStatus.Failed) {
+        console.error("Failed to set category:", addResult.error.message);
+      } else {
+        console.log(`Category "${category}" set successfully.`);
+      }
+    });
+  }
+
+  // First remove all categories, then add the new one
+  removeAllCategories(addCategory);
 }
 
 /**
@@ -213,13 +253,15 @@ export async function createMeeting(startTime, endTime) {
     // Construct the subject and body
     const subject = `${formState.clientName} (ma)`;
     const body = `
-      <p>${formState.clientPhone}<br>
+      <p><strong>Client:</strong>    ${formState.clientName}<br>
 
-      ${formState.clientEmail}<br>
+      <strong>Phone:</strong>    ${formState.clientPhone}<br>
 
-      Lang: ${formState.clientLanguage}</p>
+      <strong>Email:</strong>    ${formState.clientEmail}<br>
 
-      ${formState.isRefBarreau ? "<p><u><strong>Ref. Barreau</strong></u></p>" : ""}
+      <strong>Lang:</strong>    ${formState.clientLanguage}</p>
+
+      ${formState.isRefBarreau ? "<p><u><em>Ref. Barreau</em></u></p>" : ""}
 
       <p>${formState.isFirstConsultation ? '<span style="background-color: yellow;">First Consultation</span>' : "Follow-up"}</p>
       
