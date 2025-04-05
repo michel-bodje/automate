@@ -133,7 +133,7 @@ function getSubject(language, type) {
 
 /**
  * Creates an email draft with the specified type and language.
- * @param {string} type - The meeting type of email (e.g., "office", "teams", "phone").
+ * @param {string} type - The type of email (e.g., "office", "teams", "phone", "contract" or "reply").
  */
 export async function createEmail(type) {
   try {
@@ -145,8 +145,10 @@ export async function createEmail(type) {
       throw new Error("Please provide a valid email address.");
     }
 
+    // multilingual support
     const language = formState.clientLanguage === "Français" ? "fr" : "en";
     const template = templates[language][type];
+
     if (!template) {
       throw new Error(`No template found for type "${type}" in language "${language}".`);
     }
@@ -181,6 +183,8 @@ export async function createEmail(type) {
     }
 
     const depositAmount = parseFloat(formState.deposit);
+
+    // amount + tax calculation
     const totalAmount = (depositAmount * (1 + 0.05 + 0.09975) + 100).toFixed(2);
 
     body = body
@@ -197,6 +201,7 @@ export async function createEmail(type) {
 
   } catch (error) {
     console.error("createEmail:", error);
+    throw error; // Rethrow the error for further handling if needed
   }
 }
 
