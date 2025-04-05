@@ -82,12 +82,13 @@ export const ELEMENT_IDS = {
 };
 
 /**
- * @constant MSAL
+ * @constant MS
  * @description Constants related to the Microsoft Authentication Library (MSAL).
  * It includes the client ID, tenant ID, and URL for the application.
  */
-export const MSAL = {
+export const MS = {
     clientId: "768ccbfe-c251-4fe4-bfeb-eff27fdd356e",
     tenantId: "5ef3243e-fce7-454b-8508-f38fa4259f55",
-    url: "https://localhost:3000/taskpane.html",
+    urlDev: "https://localhost:3000/taskpane.html",
+    urlProd: "https://michel-bodje.github.io/automate/taskpane.html",
 };
