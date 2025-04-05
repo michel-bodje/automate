@@ -156,9 +156,16 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
      - Replaces placeholders with dynamic data from `formState`.
      - Sets the email subject, body, and recipients using the Office JavaScript API.
 
-    _**[Insert Screenshot of Email Drafting Workflow Here]**_
+<br>
 
-   4. **Authentication**:
+*In `compose.js`, the `createEmail` and `createMeeting` functions are the basis of this add-in.*
+<br>
+<div style="text-align: center;">
+  <img src="assets/example_compose.png" alt="Compose module" width="600">
+</div>
+<br>
+
+4. **Authentication**:
    - The `auth.js` module initializes the MSAL library for authentication.
    - Access tokens are acquired to interact with the Microsoft Graph API.
 

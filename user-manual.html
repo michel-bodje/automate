@@ -483,8 +483,7 @@ code {
 <p>The add-in is built using JavaScript and integrates with the Office JavaScript API. The codebase is modular, with each module handling a specific aspect of the add-in's functionality.</p>
 <h4 id="key-files-and-directories">Key Files and Directories</h4>
 <ul>
-<li>
-<p><strong><code>app/</code></strong>: Contains the main application logic.</p>
+<li><strong><code>app/</code></strong>: Contains the main application logic.
 <ul>
 <li><strong><code>taskpane.html</code></strong>: The main UI for the add-in.</li>
 <li><strong><code>taskpane.js</code></strong>: Handles user interactions and orchestrates the workflow.</li>
@@ -504,13 +503,8 @@ code {
 <li><strong><code>templates/</code></strong>: Stores email templates in English and French.</li>
 </ul>
 </li>
-<li>
-<p><strong><code>manifest.xml</code></strong>: Defines the add-in's metadata and configuration.</p>
-</li>
-<li>
-<p><strong><code>webpack.config.js</code></strong>: Configures the build process.</p>
-<p><em><strong>[Insert Screenshot of File Structure Here]</strong></em></p>
-</li>
+<li><strong><code>manifest.xml</code></strong>: Defines the add-in's metadata and configuration.</li>
+<li><strong><code>webpack.config.js</code></strong>: Configures the build process.</li>
 </ul>
 <h4 id="workflow-explanation">Workflow Explanation</h4>
 <ol>
@@ -541,7 +535,6 @@ code {
 </ul>
 </li>
 </ul>
-<p><em><strong>[Insert Screenshot of Appointment Scheduling Workflow Here]</strong></em></p>
 </li>
 <li>
 <p><strong>Drafting Emails</strong>:</p>
@@ -554,10 +547,18 @@ code {
 </ul>
 </li>
 </ul>
-<p><em><strong>[Insert Screenshot of Email Drafting Workflow Here]</strong></em></p>
-<ol start="4">
-<li><strong>Authentication</strong>:</li>
+</li>
 </ol>
+<br>
+<p><em>In <code>compose.js</code>, the <code>createEmail</code> and <code>createMeeting</code> functions are the basis of this add-in.</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/example_compose.png" alt="Compose module" width="600">
+</div>
+<br>
+<ol start="4">
+<li>
+<p><strong>Authentication</strong>:</p>
 <ul>
 <li>The <code>auth.js</code> module initializes the MSAL library for authentication.</li>
 <li>Access tokens are acquired to interact with the Microsoft Graph API.</li>
