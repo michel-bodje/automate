@@ -85,6 +85,9 @@ The add-in will:
 
 3. Click **Create** to generate the draft email.
 
+
+The add-in will populate the email body using predefined templates and insert the necessary details.
+
 <br>
 
 *Example confirmation email*
@@ -100,8 +103,6 @@ The add-in will:
   <img src="assets/example_email_contract_AM.png" alt="Example email contract" width="600">
 </div>
 <br>
-
-The add-in will populate the email body using predefined templates and insert the necessary details.
 
 ---
 
@@ -140,10 +141,52 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
 <br>
 
 *Most dropdowns are dynamically generated. Other fields only become visible conditionally.*
-<br>
-<div style="text-align: center;">
-  <img src="assets/example_html.png" alt="HTML source" width="600">
+
+```html
+<!-- taskpane.html -->
+
+<!-- previous code... -->
+
+<!-- Scheduler page -->
+<!--
+Creates a meeting for a client.
+The form is where client information is entered.
+-->
+<div id="schedule-page" class="page">
+  <h1>Appointment Scheduler</h1>
+    <form>
+      <label for="schedule-client-name">Client Name:</label>
+      <input type="text" id="schedule-client-name" required>
+
+      <label for="schedule-client-phone">Client Phone:</label>
+      <input type="tel" id="schedule-client-phone" required>
+
+      <label for="schedule-client-email">Client Email:</label>
+      <input type="email" id="schedule-client-email" required 
+      <label for="schedule-client-language">Preferred Language:</label>
+      <select id="schedule-client-language" required>
+          <!-- Options will be dynamically populated by JavaScript -->
+      </select  
+      <label for="schedule-lawyer-id">Lawyer ID:</label>
+      <select id="schedule-lawyer-id" required>
+          <!-- Options will be dynamically populated by JavaScript -->
+      </select>
+
+      <label for="schedule-location">Preferred Location:</label>
+      <select id="schedule-location" required>
+          <!-- Options will be dynamically populated by JavaScript -->
+      </select>
+
+      <!-- collapsed for brevity... -->  
+
+      <!-- End of page 1 -->
+      <button type="submit" id="schedule-appointment-btn  class="submit-btn">Schedule</button>
+      <button type="button" class="back-btn">Back</button>
+    </form>
 </div>
+
+<!-- further code... -->
+```
 <br>
 
 2. **Scheduling Appointments**:
@@ -163,10 +206,47 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
 
 *In `compose.js`, the `createEmail` and `createMeeting` functions are the basis of this add-in.*
 <br>
-<div style="text-align: center;">
-  <img src="assets/example_compose.png" alt="Compose module" width="600">
-</div>
-<br>
+
+```js
+// compose.js
+
+/**
+ * Creates an email draft with the specified type and language.
+ * @param {string} type - The type of email (e.g., "office", "teams", "phone", "contract" or "reply").
+ */
+export async function createEmail(type) {
+  try {
+    // ...
+
+    // multilingual support
+    const language = formState.clientLanguage === "Français" ? "fr" : "en";
+    const template = templates[language][type];
+
+    // ...
+
+    const depositAmount = parseFloat(formState.deposit);
+
+    // amount + tax calculation
+    const totalAmount = (depositAmount * (1 + 0.05 + 0.09975) + 100).toFixed(2);
+
+    body = body
+      .replace("{{lawyerName}}", lawyer.name)
+      .replace("{{depositAmount}}", depositAmount)
+      .replace("{{totalAmount}}", totalAmount)
+    ;
+
+    const subject = getSubject(language, type);
+    
+    setSubject(subject);
+    setRecipient(clientEmail);
+    setBody(body);
+
+  } catch (error) {
+    console.error("createEmail:", error);
+    throw error;
+  }
+}
+```
 
 4. **Authentication**:
    - The `auth.js` module initializes the MSAL library for authentication.
@@ -189,24 +269,90 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
   2. Add a handler for the case type in `util.js`.
   3. Update `taskpane.html` to include any additional fields required for the case type.
 
+- **Modifying Business Rules**:
+  - Update the `rules.js` module to implement new rules or modify existing ones.
+
 <br>
 
 *Lawyer representation in JSON*
-<br>
-<div style="text-align: center;">
-  <img src="assets/example_lawyerdata.png" alt="Lawyer representation in JSON" width="600">
-</div>
+
+```json
+lawyerData.json
+
+{
+  "lawyers": [
+    {
+      "id": "MM",
+      "name": "Marie Madelin",
+      "email": "marie.madelin@amlex.ca",
+      "workingHours": {"start": "9:00", "end": "17:00"},
+      "breakMinutes": 0,
+      "maxDailyAppointments": 5,
+      "specialties": ["estate", "mandates", "common"]
+    },
+    {
+      "id": "DH",
+      "name": "Dorin Holban",
+      "email": "dorin.holban@amlex.ca",
+      "workingHours": {"start": "10:30", "end": "17:00"},
+      "breakMinutes": 30,
+      "maxDailyAppointments": 5,
+      "specialties": ["divorce", "employment", "business", "common"]
+    },
+    {
+      "id": "TG",
+      "name": "Tim Gagin",
+      "email": "tim.gagin@amlex.ca",
+      "workingHours": {"start": "9:30", "end": "17:00"},
+      "breakMinutes": 30,
+      "maxDailyAppointments": 5,
+      "specialties": ["estate", "real_estate", "defamations", "contract", "common"]
+    },
+
+    collapsed for brevity...
+  ]
+}
+```
 <br>
 
 *Editing case types*
-<br>
-<div style="text-align: center;">
-  <img src="assets/example_casetypes.png" alt="Editing case types" width="600">
-</div>
-<br>
 
-- **Modifying Business Rules**:
-  - Update the `rules.js` module to implement new rules or modify existing ones.
+```js
+// util.js
+
+/** Handles the case type details based on the selected case type. */
+export const caseTypeHandlers = {
+  divorce: {
+    label: "Divorce / Family Law",
+    handler: function () {
+      const spouseName = document.getElementById(ELEMENT_IDS.spouseName).value;
+      const conflictSearchDone = document.getElementById(ELEMENT_IDS.conflictSearchDoneDivorce).checked;
+      return `
+        ${this.label}
+        <p><strong>Spouse Name:</strong> ${spouseName}</p>
+        <p>Conflict Search Done? ${conflictSearchDone ? "✔️" : "❌"}</p>
+      `;
+    },
+  },
+  estate: {
+    label: "Successions / Estate Law",
+    handler: function () {
+      const deceasedName = document.getElementById(ELEMENT_IDS.deceasedName).value;
+      const executorName = document.getElementById(ELEMENT_IDS.executorName).value;
+      const conflictSearchDone = document.getElementById(ELEMENT_IDS.conflictSearchDoneEstate).checked;
+      return `
+        ${this.label}
+        <p><strong>Deceased Name:</strong> ${deceasedName}</p>
+        <p><strong>Executor Name:</strong> ${executorName}</p>
+        <p>Conflict Search Done? ${conflictSearchDone ? "✔️" : "❌"}</p>
+      `;
+    },
+  },
+
+  // collapsed for brevity...
+}
+```
+<br>
 
 #### Debugging and Testing
 - To run the add-in locally, use the following npm scripts:

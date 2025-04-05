@@ -463,6 +463,7 @@ code {
 <p>Click <strong>Create</strong> to generate the draft email.</p>
 </li>
 </ol>
+<p>The add-in will populate the email body using predefined templates and insert the necessary details.</p>
 <br>
 <p><em>Example confirmation email</em>
 <br></p>
@@ -476,7 +477,6 @@ code {
   <img src="assets/example_email_contract_AM.png" alt="Example email contract" width="600">
 </div>
 <br>
-<p>The add-in will populate the email body using predefined templates and insert the necessary details.</p>
 <hr>
 <h2 id="developer-guide">Developer Guide</h2>
 <h3 id="codebase-overview">Codebase Overview</h3>
@@ -518,11 +518,51 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 </li>
 </ol>
 <br>
-<p><em>Most dropdowns are dynamically generated. Other fields only become visible conditionally.</em>
-<br></p>
-<div style="text-align: center;">
-  <img src="assets/example_html.png" alt="HTML source" width="600">
-</div>
+<p><em>Most dropdowns are dynamically generated. Other fields only become visible conditionally.</em></p>
+<pre class="hljs"><code><div><span class="hljs-comment">&lt;!-- taskpane.html --&gt;</span>
+
+<span class="hljs-comment">&lt;!-- previous code... --&gt;</span>
+
+<span class="hljs-comment">&lt;!-- Scheduler page --&gt;</span>
+<span class="hljs-comment">&lt;!--
+Creates a meeting for a client.
+The form is where client information is entered.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-page"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"page"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Appointment Scheduler<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">form</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"schedule-client-name"</span>&gt;</span>Client Name:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"text"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-client-name"</span> <span class="hljs-attr">required</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"schedule-client-phone"</span>&gt;</span>Client Phone:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"tel"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-client-phone"</span> <span class="hljs-attr">required</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"schedule-client-email"</span>&gt;</span>Client Email:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"email"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-client-email"</span> <span class="hljs-attr">required</span> 
+      &lt;<span class="hljs-attr">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"schedule-client-language"</span>&gt;</span>Preferred Language:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-client-language"</span> <span class="hljs-attr">required</span>&gt;</span>
+          <span class="hljs-comment">&lt;!-- Options will be dynamically populated by JavaScript --&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">select</span>  
+      &lt;<span class="hljs-attr">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"schedule-lawyer-id"</span>&gt;</span>Lawyer ID:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-lawyer-id"</span> <span class="hljs-attr">required</span>&gt;</span>
+          <span class="hljs-comment">&lt;!-- Options will be dynamically populated by JavaScript --&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">select</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"schedule-location"</span>&gt;</span>Preferred Location:<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">select</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-location"</span> <span class="hljs-attr">required</span>&gt;</span>
+          <span class="hljs-comment">&lt;!-- Options will be dynamically populated by JavaScript --&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">select</span>&gt;</span>
+
+      <span class="hljs-comment">&lt;!-- collapsed for brevity... --&gt;</span>  
+
+      <span class="hljs-comment">&lt;!-- End of page 1 --&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"submit"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"schedule-appointment-btn  class="</span><span class="hljs-attr">submit-btn</span>"&gt;</span>Schedule<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"button"</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"back-btn"</span>&gt;</span>Back<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+
+<span class="hljs-comment">&lt;!-- further code... --&gt;</span>
+</div></code></pre>
 <br>
 <ol start="2">
 <li>
@@ -554,10 +594,45 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 <br>
 <p><em>In <code>compose.js</code>, the <code>createEmail</code> and <code>createMeeting</code> functions are the basis of this add-in.</em>
 <br></p>
-<div style="text-align: center;">
-  <img src="assets/example_compose.png" alt="Compose module" width="600">
-</div>
-<br>
+<pre class="hljs"><code><div><span class="hljs-comment">// compose.js</span>
+
+<span class="hljs-comment">/**
+ * Creates an email draft with the specified type and language.
+ * <span class="hljs-doctag">@param <span class="hljs-type">{string}</span> <span class="hljs-variable">type</span></span> - The type of email (e.g., "office", "teams", "phone", "contract" or "reply").
+ */</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createEmail</span>(<span class="hljs-params">type</span>) </span>{
+  <span class="hljs-keyword">try</span> {
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-comment">// multilingual support</span>
+    <span class="hljs-keyword">const</span> language = formState.clientLanguage === <span class="hljs-string">"Français"</span> ? <span class="hljs-string">"fr"</span> : <span class="hljs-string">"en"</span>;
+    <span class="hljs-keyword">const</span> template = templates[language][type];
+
+    <span class="hljs-comment">// ...</span>
+
+    <span class="hljs-keyword">const</span> depositAmount = <span class="hljs-built_in">parseFloat</span>(formState.deposit);
+
+    <span class="hljs-comment">// amount + tax calculation</span>
+    <span class="hljs-keyword">const</span> totalAmount = (depositAmount * (<span class="hljs-number">1</span> + <span class="hljs-number">0.05</span> + <span class="hljs-number">0.09975</span>) + <span class="hljs-number">100</span>).toFixed(<span class="hljs-number">2</span>);
+
+    body = body
+      .replace(<span class="hljs-string">"{{lawyerName}}"</span>, lawyer.name)
+      .replace(<span class="hljs-string">"{{depositAmount}}"</span>, depositAmount)
+      .replace(<span class="hljs-string">"{{totalAmount}}"</span>, totalAmount)
+    ;
+
+    <span class="hljs-keyword">const</span> subject = getSubject(language, type);
+    
+    setSubject(subject);
+    setRecipient(clientEmail);
+    setBody(body);
+
+  } <span class="hljs-keyword">catch</span> (error) {
+    <span class="hljs-built_in">console</span>.error(<span class="hljs-string">"createEmail:"</span>, error);
+    <span class="hljs-keyword">throw</span> error;
+  }
+}
+</div></code></pre>
 <ol start="4">
 <li>
 <p><strong>Authentication</strong>:</p>
@@ -597,27 +672,88 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 <li>Update <code>taskpane.html</code> to include any additional fields required for the case type.</li>
 </ol>
 </li>
-</ul>
-<br>
-<p><em>Lawyer representation in JSON</em>
-<br></p>
-<div style="text-align: center;">
-  <img src="assets/example_lawyerdata.png" alt="Lawyer representation in JSON" width="600">
-</div>
-<br>
-<p><em>Editing case types</em>
-<br></p>
-<div style="text-align: center;">
-  <img src="assets/example_casetypes.png" alt="Editing case types" width="600">
-</div>
-<br>
-<ul>
-<li><strong>Modifying Business Rules</strong>:
+<li>
+<p><strong>Modifying Business Rules</strong>:</p>
 <ul>
 <li>Update the <code>rules.js</code> module to implement new rules or modify existing ones.</li>
 </ul>
 </li>
 </ul>
+<br>
+<p><em>Lawyer representation in JSON</em></p>
+<pre class="hljs"><code><div>lawyerData.json
+
+{
+  <span class="hljs-attr">"lawyers"</span>: [
+    {
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"MM"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Marie Madelin"</span>,
+      <span class="hljs-attr">"email"</span>: <span class="hljs-string">"marie.madelin@amlex.ca"</span>,
+      <span class="hljs-attr">"workingHours"</span>: {<span class="hljs-attr">"start"</span>: <span class="hljs-string">"9:00"</span>, <span class="hljs-attr">"end"</span>: <span class="hljs-string">"17:00"</span>},
+      <span class="hljs-attr">"breakMinutes"</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-attr">"maxDailyAppointments"</span>: <span class="hljs-number">5</span>,
+      <span class="hljs-attr">"specialties"</span>: [<span class="hljs-string">"estate"</span>, <span class="hljs-string">"mandates"</span>, <span class="hljs-string">"common"</span>]
+    },
+    {
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"DH"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Dorin Holban"</span>,
+      <span class="hljs-attr">"email"</span>: <span class="hljs-string">"dorin.holban@amlex.ca"</span>,
+      <span class="hljs-attr">"workingHours"</span>: {<span class="hljs-attr">"start"</span>: <span class="hljs-string">"10:30"</span>, <span class="hljs-attr">"end"</span>: <span class="hljs-string">"17:00"</span>},
+      <span class="hljs-attr">"breakMinutes"</span>: <span class="hljs-number">30</span>,
+      <span class="hljs-attr">"maxDailyAppointments"</span>: <span class="hljs-number">5</span>,
+      <span class="hljs-attr">"specialties"</span>: [<span class="hljs-string">"divorce"</span>, <span class="hljs-string">"employment"</span>, <span class="hljs-string">"business"</span>, <span class="hljs-string">"common"</span>]
+    },
+    {
+      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"TG"</span>,
+      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Tim Gagin"</span>,
+      <span class="hljs-attr">"email"</span>: <span class="hljs-string">"tim.gagin@amlex.ca"</span>,
+      <span class="hljs-attr">"workingHours"</span>: {<span class="hljs-attr">"start"</span>: <span class="hljs-string">"9:30"</span>, <span class="hljs-attr">"end"</span>: <span class="hljs-string">"17:00"</span>},
+      <span class="hljs-attr">"breakMinutes"</span>: <span class="hljs-number">30</span>,
+      <span class="hljs-attr">"maxDailyAppointments"</span>: <span class="hljs-number">5</span>,
+      <span class="hljs-attr">"specialties"</span>: [<span class="hljs-string">"estate"</span>, <span class="hljs-string">"real_estate"</span>, <span class="hljs-string">"defamations"</span>, <span class="hljs-string">"contract"</span>, <span class="hljs-string">"common"</span>]
+    },
+
+    collapsed for brevity...
+  ]
+}
+</div></code></pre>
+<br>
+<p><em>Editing case types</em></p>
+<pre class="hljs"><code><div><span class="hljs-comment">// util.js</span>
+
+<span class="hljs-comment">/** Handles the case type details based on the selected case type. */</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> caseTypeHandlers = {
+  <span class="hljs-attr">divorce</span>: {
+    <span class="hljs-attr">label</span>: <span class="hljs-string">"Divorce / Family Law"</span>,
+    <span class="hljs-attr">handler</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">const</span> spouseName = <span class="hljs-built_in">document</span>.getElementById(ELEMENT_IDS.spouseName).value;
+      <span class="hljs-keyword">const</span> conflictSearchDone = <span class="hljs-built_in">document</span>.getElementById(ELEMENT_IDS.conflictSearchDoneDivorce).checked;
+      <span class="hljs-keyword">return</span> <span class="hljs-string">`
+        <span class="hljs-subst">${<span class="hljs-keyword">this</span>.label}</span>
+        &lt;p&gt;&lt;strong&gt;Spouse Name:&lt;/strong&gt; <span class="hljs-subst">${spouseName}</span>&lt;/p&gt;
+        &lt;p&gt;Conflict Search Done? <span class="hljs-subst">${conflictSearchDone ? <span class="hljs-string">"✔️"</span> : <span class="hljs-string">"❌"</span>}</span>&lt;/p&gt;
+      `</span>;
+    },
+  },
+  <span class="hljs-attr">estate</span>: {
+    <span class="hljs-attr">label</span>: <span class="hljs-string">"Successions / Estate Law"</span>,
+    <span class="hljs-attr">handler</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">const</span> deceasedName = <span class="hljs-built_in">document</span>.getElementById(ELEMENT_IDS.deceasedName).value;
+      <span class="hljs-keyword">const</span> executorName = <span class="hljs-built_in">document</span>.getElementById(ELEMENT_IDS.executorName).value;
+      <span class="hljs-keyword">const</span> conflictSearchDone = <span class="hljs-built_in">document</span>.getElementById(ELEMENT_IDS.conflictSearchDoneEstate).checked;
+      <span class="hljs-keyword">return</span> <span class="hljs-string">`
+        <span class="hljs-subst">${<span class="hljs-keyword">this</span>.label}</span>
+        &lt;p&gt;&lt;strong&gt;Deceased Name:&lt;/strong&gt; <span class="hljs-subst">${deceasedName}</span>&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Executor Name:&lt;/strong&gt; <span class="hljs-subst">${executorName}</span>&lt;/p&gt;
+        &lt;p&gt;Conflict Search Done? <span class="hljs-subst">${conflictSearchDone ? <span class="hljs-string">"✔️"</span> : <span class="hljs-string">"❌"</span>}</span>&lt;/p&gt;
+      `</span>;
+    },
+  },
+
+  <span class="hljs-comment">// collapsed for brevity...</span>
+}
+</div></code></pre>
+<br>
 <h4 id="debugging-and-testing">Debugging and Testing</h4>
 <ul>
 <li>To run the add-in locally, use the following npm scripts:
