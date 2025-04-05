@@ -186,7 +186,8 @@ export async function createEmail(type) {
     body = body
       .replace("{{lawyerName}}", lawyer.name)
       .replace("{{depositAmount}}", depositAmount)
-      .replace("{{totalAmount}}", totalAmount);
+      .replace("{{totalAmount}}", totalAmount)
+    ;
 
     const subject = getSubject(language, type);
     

@@ -21,16 +21,20 @@ This manual is divided into two sections:
 2. Open a new **email** or **meeting** draft.
 3. Select **Automate** from the ribbon options.
 
+<br>
 <div style="text-align: center;">
-  <img src="assets/ribbon_location_message_AM.png" alt="Ribbon location" width="800">
+  <img src="assets/ribbon_location_message_AM.png" alt="Ribbon location" width="600">
 </div>
+<br>
 
 ### Scheduling Appointments
 1. From the main menu, click **Schedule Appointment**.
 
+<br>
 <div style="text-align: center;">
   <img src="assets/mainmenu_AM.png" alt="Main menu" width="200">
 </div>
+<br>
 
 2. Fill out the required fields in the form:
    - **Client Name**: Enter the client's full name.
@@ -42,10 +46,12 @@ This manual is divided into two sections:
    - **Type of Case**: Choose the type of case (e.g., Divorce, Estate, Employment).
    - Additional details may be required based on the case type (e.g., spouse name for divorce cases).
 
+<br>
 <div style="display: flex; justify-content: center; gap: 20px;">
   <img src="assets/appt-scheduler1.png" alt="Page 1 form (1)" width="300">
   <img src="assets/appt-scheduler2.png" alt="Page 1 form (2)" width="300">
 </div>
+<br>
 
 3. Check any applicable boxes:
    - **Réf. Barreau**: If the client is a referral from the Barreau.
@@ -54,9 +60,11 @@ This manual is divided into two sections:
 4. Add any **Notes** if necessary.
 5. Click **Schedule** to finalize the appointment.
 
+<br>
 <div style="text-align: center;">
-  <img src="assets/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
+  <img src="assets/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="600">
 </div>
+<br>
 
 The add-in will:
 - Validate the inputs.
@@ -77,18 +85,21 @@ The add-in will:
 
 3. Click **Create** to generate the draft email.
 
-<div style="text-align: center;">
-  <img src="assets/example_email_conf_AM.png" alt="Example email conf" width="800">
-</div>
+<br>
 
 *Example confirmation email*
-
+<br>
 <div style="text-align: center;">
-  <img src="assets/example_email_contract_AM.png" alt="Example email contract" width="800">
+  <img src="assets/example_email_conf_AM.png" alt="Example email conf" width="600">
 </div>
+<br>
 
 *Example contract email. Note that the amount + tax is automatically calculated.*
-
+<br>
+<div style="text-align: center;">
+  <img src="assets/example_email_contract_AM.png" alt="Example email contract" width="600">
+</div>
+<br>
 
 The add-in will populate the email body using predefined templates and insert the necessary details.
 
@@ -118,14 +129,19 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
 - **`manifest.xml`**: Defines the add-in's metadata and configuration.
 - **`webpack.config.js`**: Configures the build process.
 
-   _**[Insert Screenshot of File Structure Here]**_
-
 #### Workflow Explanation
 1. **User Interaction**:
    - The user interacts with the UI in `taskpane.html`.
    - Events are handled in `taskpane.js`, which updates the `formState` object and triggers the appropriate actions.
 
-   _**[Insert Screenshot of Taskpane UI Here]**_
+<br>
+
+*Most dropdowns are dynamically generated. Other fields only become visible conditionally.*
+<br>
+<div style="text-align: center;">
+  <img src="assets/example_html.png" alt="HTML source" width="600">
+</div>
+<br>
 
 2. **Scheduling Appointments**:
    - The `scheduleAppointment` function in `taskpane.js`:
@@ -133,8 +149,6 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
      - Fetches the lawyer's calendar events via `graph.js`.
      - Generates available time slots using `rules.js` and `timeUtils.js`.
      - Creates a meeting using `compose.js`.
-
-   _**[Insert Screenshot of Appointment Scheduling Workflow Here]**_
 
 3. **Drafting Emails**:
    - The `createEmail` function in `compose.js`:
@@ -165,17 +179,41 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
   2. Add a handler for the case type in `util.js`.
   3. Update `taskpane.html` to include any additional fields required for the case type.
 
-   _**[Insert Screenshot of case type handlers Here]**_
+<br>
+
+*Lawyer representation in json*
+<br>
+<div style="text-align: center;">
+  <img src="assets/example_lawyerdata.png" alt="Lawyer representation in json" width="600">
+</div>
+<br>
+
+*Editing case types*
+<br>
+<div style="text-align: center;">
+  <img src="assets/example_casetypes.png" alt="Editing case types" width="600">
+</div>
+<br>
 
 - **Modifying Business Rules**:
   - Update the `rules.js` module to implement new rules or modify existing ones.
 
 #### Debugging and Testing
-- Use the `Dev Server` task in `tasks.json` to run the add-in locally.
-- Use the `Lint` tasks to check for code quality issues.
-- Test the add-in in both development and production environments to ensure compatibility.
+- To run the add-in locally, use the following npm scripts:
+    1. Start the development server: `npm start`
+    2. Stop the development server: Press `Ctrl + C` in the terminal where the server is running.
+- Ensure that all dependencies are installed by running `npm install` before starting the server.
+- Use `npm run lint` to check for code quality issues.
+- Test the add-in in both development and production environments to ensure compatibility.  
+The `webpack.config.js` file is already configured to handle differences between development and production environments. To test the production build:
+    1. Run `npm run build` to generate the production files.
+    2. Access the production version of the add-in via Outlook logged to [admin@amlex.ca](mailto:admin@amlex.ca).
 
-_**[Insert Screenshot of npm start Here]**_
+<br>
+<div style="text-align: center;">
+  <img src="assets/webpack.png" alt="Web server" width="600">
+</div>
+<br>
 
 ---
 
