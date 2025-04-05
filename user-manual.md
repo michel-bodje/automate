@@ -111,6 +111,9 @@ The add-in will populate the email body using predefined templates and insert th
 
 The add-in is built using JavaScript and integrates with the Office JavaScript API. The codebase is modular, with each module handling a specific aspect of the add-in's functionality.
 
+The source code is hosted on Github at [https://github.com/michel-bodje/automate.git](https://github.com/michel-bodje/automate.git),
+and the add-in manifest points to its Github Pages URL at [https://michel-bodje.github.io/automate](https://michel-bodje.github.io/automate).
+
 #### Key Files and Directories
 - **`app/`**: Contains the main application logic.
   - **`taskpane.html`**: The main UI for the add-in.
@@ -188,10 +191,10 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
 
 <br>
 
-*Lawyer representation in json*
+*Lawyer representation in JSON*
 <br>
 <div style="text-align: center;">
-  <img src="assets/example_lawyerdata.png" alt="Lawyer representation in json" width="600">
+  <img src="assets/example_lawyerdata.png" alt="Lawyer representation in JSON" width="600">
 </div>
 <br>
 
