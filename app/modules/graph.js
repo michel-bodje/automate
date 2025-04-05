@@ -24,7 +24,6 @@ const authProvider = {
                 const result = await msalInstance.acquireTokenSilent({
                     scopes: ["Calendars.ReadWrite"],
                     account: accounts[0],
-                    authority: "https://login.microsoftonline.com/7d3dbdb0-f9e1-4027-9481-ea91a040f43b",
                     forceRefresh: true
                 });
                 return result.accessToken;
@@ -33,7 +32,6 @@ const authProvider = {
             // 3. Interactive login with explicit tenant
             const login = await msalInstance.loginPopup({
                 scopes: ["Calendars.ReadWrite"],
-                authority: "https://login.microsoftonline.com/7d3dbdb0-f9e1-4027-9481-ea91a040f43b",
                 prompt: "select_account"
             });
             return login.accessToken;

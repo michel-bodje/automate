@@ -1,10 +1,11 @@
 import { PublicClientApplication } from "@azure/msal-browser";
+import { MSAL } from "../index.js";
 
 const msalConfig = {
     auth: {
-        clientId: "a948091c-c2dd-42a8-9e27-c2092740ab74",
-        authority: "https://login.microsoftonline.com/7d3dbdb0-f9e1-4027-9481-ea91a040f43b",
-        redirectUri: "https://localhost:3000/taskpane.html",
+        clientId: `${MSAL.clientId}`,
+        authority: `https://login.microsoftonline.com/${MSAL.tenantId}`,
+        redirectUri: `${MSAL.url}`,
     },
     cache: {
         cacheLocation: "sessionStorage",
