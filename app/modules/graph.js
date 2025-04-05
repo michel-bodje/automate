@@ -16,7 +16,7 @@ const authProvider = {
     getAccessToken: async () => {
         try {
             // 1. Clear cache to prevent stale tokens
-            msalInstance.clearCache();
+            // msalInstance.clearCache();
 
             // 2. Get active account with authority hint
             const accounts = msalInstance.getAllAccounts();
