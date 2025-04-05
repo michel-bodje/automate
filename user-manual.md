@@ -1,7 +1,8 @@
 # User Manual for Allen Madelin Outlook Add-In
 
-_**[Insert Logo Here]**_
-![Corporate Logo](assets/AM-INC.jpg)
+<div style="text-align: center;">
+  <img src="assets/AM-INC.jpg" alt="Corporate Logo" width="200">
+</div>
 
 ## Overview
 
