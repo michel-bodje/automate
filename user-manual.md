@@ -1,5 +1,8 @@
 # User Manual for Allen Madelin Outlook Add-In
 
+_**[Insert Logo Here]**_
+![Corporate Logo](assets/AM-INC.jpg)
+
 ## Overview
 
 The Allen Madelin Outlook Add-In (Automate) is designed to streamline appointment scheduling and email drafting for the law firm. It integrates directly into Outlook, allowing users to perform these tasks efficiently without leaving their email client.
@@ -17,8 +20,13 @@ This manual is divided into two sections:
 2. Navigate to the **Add-Ins** section.
 3. Select **Automate** from the list of available add-ins.
 
+   _**[Insert Screenshot of Add-Ins Section Here]**_
+
 ### Scheduling Appointments
 1. From the main menu, click **Schedule Appointment**.
+
+   _**[Insert Screenshot of Main Menu Here]**_
+
 2. Fill out the required fields in the form:
    - **Client Name**: Enter the client's full name.
    - **Client Phone**: Provide the client's phone number.
@@ -28,12 +36,17 @@ This manual is divided into two sections:
    - **Preferred Location**: Select the meeting location (Office, Phone, or Teams).
    - **Type of Case**: Choose the type of case (e.g., Divorce, Estate, Employment).
    - Additional details may be required based on the case type (e.g., spouse name for divorce cases).
+
+   _**[Insert Screenshot of Appointment Form Here]**_
+
 3. Check any applicable boxes:
    - **Réf. Barreau**: If the client is a referral from the Barreau.
    - **First Consultation**: If this is the client's first consultation.
    - **Payment Made**: If the payment has already been made.
 4. Add any **Notes** if necessary.
 5. Click **Schedule** to finalize the appointment.
+
+   _**[Insert Screenshot of Scheduled Appointment Confirmation Here]**_
 
 The add-in will:
 - Validate the inputs.
@@ -46,12 +59,20 @@ The add-in will:
    - **Send Confirmation**: Draft a confirmation email for an appointment.
    - **Send Contract**: Draft an email with a service contract.
    - **Send Reply**: Draft a reply to a client inquiry.
+
+   _**[Insert Screenshot of Email Drafting Menu Here]**_
+
 2. Fill out the required fields in the form:
    - **Client Email**: Enter the recipient's email address.
    - **Preferred Language**: Select the language for the email.
    - **Lawyer ID**: Choose the lawyer associated with the email.
    - Additional fields may appear depending on the email type (e.g., deposit amount for contracts).
+
+   _**[Insert Screenshot of Email Draft Form Here]**_
+
 3. Click **Create** to generate the draft email.
+
+   _**[Insert Screenshot of Drafted Email Here]**_
 
 The add-in will populate the email body using predefined templates and insert the necessary details.
 
@@ -81,10 +102,14 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
 - **`manifest.xml`**: Defines the add-in's metadata and configuration.
 - **`webpack.config.js`**: Configures the build process.
 
+   _**[Insert Screenshot of File Structure Here]**_
+
 #### Workflow Explanation
 1. **User Interaction**:
    - The user interacts with the UI in `taskpane.html`.
    - Events are handled in `taskpane.js`, which updates the `formState` object and triggers the appropriate actions.
+
+   _**[Insert Screenshot of Taskpane UI Here]**_
 
 2. **Scheduling Appointments**:
    - The `scheduleAppointment` function in `taskpane.js`:
@@ -93,13 +118,17 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
      - Generates available time slots using `rules.js` and `timeUtils.js`.
      - Creates a meeting using `compose.js`.
 
+   _**[Insert Screenshot of Appointment Scheduling Workflow Here]**_
+
 3. **Drafting Emails**:
    - The `createEmail` function in `compose.js`:
      - Retrieves the appropriate email template from `templates.js`.
      - Replaces placeholders with dynamic data from `formState`.
      - Sets the email subject, body, and recipients using the Office JavaScript API.
 
-4. **Authentication**:
+    _**[Insert Screenshot of Email Drafting Workflow Here]**_
+
+   4. **Authentication**:
    - The `auth.js` module initializes the MSAL library for authentication.
    - Access tokens are acquired to interact with the Microsoft Graph API.
 
@@ -120,6 +149,8 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
   2. Add a handler for the case type in `util.js`.
   3. Update `taskpane.html` to include any additional fields required for the case type.
 
+   _**[Insert Screenshot of case type handlers Here]**_
+
 - **Modifying Business Rules**:
   - Update the `rules.js` module to implement new rules or modify existing ones.
 
@@ -127,6 +158,8 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
 - Use the `Dev Server` task in `tasks.json` to run the add-in locally.
 - Use the `Lint` tasks to check for code quality issues.
 - Test the add-in in both development and production environments to ensure compatibility.
+
+_**[Insert Screenshot of npm start Here]**_
 
 ---
 
