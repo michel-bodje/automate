@@ -284,12 +284,10 @@ async function scheduleAppointment() {
 
   } catch(error) {
     console.error("Scheduling Error:", error);
-    showError(error.message.includes("AADSTS") 
-        ? "Authentication error. Please reload and try again."
-        : error.message
-    );
+    showError(error.message);
+    throw error;
   } finally {
     // Hide loading spinner
-    showLoading(false);
+    setTimeout(() => showLoading(false), 1000); // Safety delay
   }
 }

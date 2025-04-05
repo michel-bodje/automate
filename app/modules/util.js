@@ -11,7 +11,7 @@ export const caseTypeHandlers = {
       const spouseName = document.getElementById(ELEMENT_IDS.spouseName).value;
       const conflictSearchDone = document.getElementById(ELEMENT_IDS.conflictSearchDoneDivorce).checked;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
         <p><strong>Spouse Name:</strong> ${spouseName}</p>
         <p>Conflict Search Done? ${conflictSearchDone ? "✔️" : "❌"}</p>
       `;
@@ -24,7 +24,7 @@ export const caseTypeHandlers = {
       const executorName = document.getElementById(ELEMENT_IDS.executorName).value;
       const conflictSearchDone = document.getElementById(ELEMENT_IDS.conflictSearchDoneEstate).checked;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
         <p><strong>Deceased Name:</strong> ${deceasedName}</p>
         <p><strong>Executor Name:</strong> ${executorName}</p>
         <p>Conflict Search Done? ${conflictSearchDone ? "✔️" : "❌"}</p>
@@ -36,7 +36,7 @@ export const caseTypeHandlers = {
     handler: function () {
       const employerName = document.getElementById(ELEMENT_IDS.employerName).value;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
         <p><strong>Employer Name:</strong> ${employerName}</p>
       `;
     },
@@ -46,7 +46,7 @@ export const caseTypeHandlers = {
     handler: function () {
       const otherPartyName = document.getElementById(ELEMENT_IDS.otherPartyName).value;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
         <p><strong>Other Party:</strong> ${otherPartyName}</p>
       `;
     },
@@ -56,8 +56,7 @@ export const caseTypeHandlers = {
     handler: function () {
       const otherPartyName = document.getElementById(ELEMENT_IDS.otherPartyName).value;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
-        <p><strong>Other Party:</strong> ${otherPartyName}</p>
+        ${this.label}
       `;
     },
   },
@@ -65,7 +64,7 @@ export const caseTypeHandlers = {
     label: "Real Estate",
     handler: function () {
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
       `;
     },
   },
@@ -73,7 +72,7 @@ export const caseTypeHandlers = {
     label: "Changement de Nom",
     handler: function () {
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
       `;
     },
   },
@@ -81,7 +80,7 @@ export const caseTypeHandlers = {
     label: "Adoptions",
     handler: function () {
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
       `;
     },
   },
@@ -90,7 +89,7 @@ export const caseTypeHandlers = {
     handler: function () {
       const mandateDetails = document.getElementById(ELEMENT_IDS.mandateDetails).value;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
         <p><strong>Mandate Details:</strong> ${mandateDetails}</p>
       `;
     },
@@ -100,7 +99,7 @@ export const caseTypeHandlers = {
     handler: function () {
       const businessName = document.getElementById(ELEMENT_IDS.businessName).value;
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
         <p><strong>Business Name:</strong> ${businessName}</p>
       `;
     },
@@ -109,7 +108,7 @@ export const caseTypeHandlers = {
     label: "Assermentation",
     handler: function () {
       return `
-        <p><strong>Case Type:</strong> ${this.label}</p>
+        ${this.label}
       `;
     },
   },

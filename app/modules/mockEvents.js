@@ -71,10 +71,10 @@ export function generateMockEvents(daysToGenerate = 14) {
                     end: { 
                         dateTime: adjustedSlot.end, 
                     },
-                    categories: [lawyers[Math.floor(Math.random() * lawyers.length)]],
                     location: { 
                         displayName: ["Office", "Teams", "Phone"][Math.floor(Math.random() * 3)] 
-                    }
+                    },
+                    categories: [lawyers[Math.floor(Math.random() * lawyers.length)]],
                 });
             }
         }

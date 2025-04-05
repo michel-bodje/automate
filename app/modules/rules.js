@@ -11,17 +11,7 @@ export const locationRules = {
   
   // List of unavailability for each lawyer
   lawyerUnavailability: {
-    DH: { // Dorin Holban
-      office: ["Monday",],
-      telephone: [],
-      teams: [], 
-    },
-    TG: { // Tim Gagin
-      office: ["Friday",],
-      telephone: [],
-      teams: [],
-    },
-    // If a lawyer is not listed here, they are assumed to be fully available
+    // TODO: Implement location restrictions
   },
 };
 
@@ -34,7 +24,7 @@ export function getAvailableLocations(lawyerId) {
   // Get current day
   const today = new Date().toLocaleString("en-US", { weekday: "long" });
 
-  const unavailability = locationRules.lawyerUnavailability[lawyerId];
+  const unavailability = locationRules.lawyerUnavailability?.lawyerId || null;
 
   // If the lawyer is not predefined, assume full availability
   if (lawyerId in locationRules.lawyerUnavailability === false) {
@@ -42,7 +32,12 @@ export function getAvailableLocations(lawyerId) {
   }
 
   // Filter locations that are not in the unavailability list for today
-  return locationRules.locations.filter((location) => !unavailability[location.toLowerCase()]?.includes(today));
+  return locationRules.locations.filter((location) => {
+    if (!unavailability) {
+      return true; // If unavailability is null or undefined, all locations are available
+    }
+    return !unavailability[location.toLowerCase()]?.includes(today);
+  });
 }
 
 /**
@@ -51,7 +46,7 @@ export function getAvailableLocations(lawyerId) {
  * based on the lawyer's working hours and required break times between appointments.
  *
  * @param {Object} lawyer - The lawyer object containing working hours and break details.
- * @param {Array} allEvents - Array of existing events to check for conflicts when generating slots.
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts when generating slots.
  * @returns {Array} - An array of available time slot objects with start and end times.
  */
 export function generateSlots(lawyer, allEvents) {
@@ -127,13 +122,13 @@ export function generateSlots(lawyer, allEvents) {
  *
  * @param {string} lawyerId - The ID of the lawyer
  * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
- * @param {Array} allEvents - Array of existing events to check for conflicts
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts
  * @returns {boolean} - true if the proposed time slot is valid, false otherwise
  */
 export function isValidSlot(lawyerId, proposedSlot, allEvents) {
   const proposedEvent = {
-    start: { dateTime: proposedSlot.start.toISOString() },
-    end: { dateTime: proposedSlot.end.toISOString() },
+    start: { dateTime: proposedSlot.start.toString() },
+    end: { dateTime: proposedSlot.end.toString() },
     location: { displayName: proposedSlot.location },
     categories: [lawyerId],
   };
@@ -153,7 +148,7 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
  * at the same time.
  *
  * @param {Object} proposedEvent - The event to check, with location and start/end times.
- * @param {Array} allEvents - Array of existing events to check for conflicts.
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts.
  * @returns {boolean} - true if there is a location conflict, false otherwise.
  */
 function hasOfficeConflict(proposedEvent, allEvents) {
@@ -187,7 +182,7 @@ function hasOfficeConflict(proposedEvent, allEvents) {
  * either Dorin Holban or Tim Gagin at the same time.
  *
  * @param {Object} proposedEvent - The event to check, with location and start/end times.
- * @param {Array} allEvents - Array of existing events to check for conflicts.
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts.
  * @param {string} lawyerId - The ID of the lawyer.
  * @returns {boolean} - true if there is a virtual conflict, false otherwise.
  */
@@ -228,7 +223,7 @@ function hasVirtualConflict(lawyerId, proposedEvent, allEvents) {
  *
  * @param {string} lawyerId - The ID of the lawyer.
  * @param {{ start: Date, end: Date }} proposedSlot - The proposed appointment slot.
- * @param {Array} allEvents - Array of existing events to check against.
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check against.
  * @returns {boolean} - true if the daily limit has been reached for any day, false otherwise.
  */
 function hasDailyLimitConflict(lawyerId, allEvents) {
@@ -261,7 +256,7 @@ function hasDailyLimitConflict(lawyerId, allEvents) {
  *
  * @param {string} lawyerId - The ID of the lawyer.
  * @param {{ start: Date, end: Date }} proposedSlot - The proposed appointment slot.
- * @param {Array} allEvents - Array of existing events to check against.
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check against.
  * @returns {boolean} - true if there is a break conflict, false otherwise.
  */
 function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
