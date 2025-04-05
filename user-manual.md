@@ -1,7 +1,7 @@
 # User Manual for Allen Madelin Outlook Add-In
 
 <div style="text-align: center;">
-  <img src="assets/AM-INC.jpg" alt="Corporate Logo" width="200">
+  <img src="assets/AM-INC.jpg" alt="Corporate Logo">
 </div>
 
 ## Overview
@@ -18,15 +18,19 @@ This manual is divided into two sections:
 
 ### Accessing the Add-In
 1. Open Outlook.
-2. Navigate to the **Add-Ins** section.
-3. Select **Automate** from the list of available add-ins.
+2. Open a new **email** or **meeting** draft.
+3. Select **Automate** from the ribbon options.
 
-   _**[Insert Screenshot of Add-Ins Section Here]**_
+<div style="text-align: center;">
+  <img src="assets/ribbon_location_message_AM.png" alt="Ribbon location" width="800">
+</div>
 
 ### Scheduling Appointments
 1. From the main menu, click **Schedule Appointment**.
 
-   _**[Insert Screenshot of Main Menu Here]**_
+<div style="text-align: center;">
+  <img src="assets/mainmenu_AM.png" alt="Main menu" width="200">
+</div>
 
 2. Fill out the required fields in the form:
    - **Client Name**: Enter the client's full name.
@@ -38,7 +42,10 @@ This manual is divided into two sections:
    - **Type of Case**: Choose the type of case (e.g., Divorce, Estate, Employment).
    - Additional details may be required based on the case type (e.g., spouse name for divorce cases).
 
-   _**[Insert Screenshot of Appointment Form Here]**_
+<div style="display: flex; justify-content: center; gap: 20px;">
+  <img src="assets/appt-scheduler1.png" alt="Page 1 form (1)" width="300">
+  <img src="assets/appt-scheduler2.png" alt="Page 1 form (2)" width="300">
+</div>
 
 3. Check any applicable boxes:
    - **Réf. Barreau**: If the client is a referral from the Barreau.
@@ -47,13 +54,14 @@ This manual is divided into two sections:
 4. Add any **Notes** if necessary.
 5. Click **Schedule** to finalize the appointment.
 
-   _**[Insert Screenshot of Scheduled Appointment Confirmation Here]**_
+<div style="text-align: center;">
+  <img src="assets/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
+</div>
 
 The add-in will:
 - Validate the inputs.
-- Check the lawyer's availability.
-- Schedule the appointment in the lawyer's calendar.
-- Draft a confirmation email for the client.
+- Check the calendar for a suitable time.
+- Fill out the draft meeting with the chosen date and time.
 
 ### Writing Draft Emails
 1. From the main menu, select the type of email you want to draft:
@@ -61,19 +69,26 @@ The add-in will:
    - **Send Contract**: Draft an email with a service contract.
    - **Send Reply**: Draft a reply to a client inquiry.
 
-   _**[Insert Screenshot of Email Drafting Menu Here]**_
-
 2. Fill out the required fields in the form:
    - **Client Email**: Enter the recipient's email address.
    - **Preferred Language**: Select the language for the email.
    - **Lawyer ID**: Choose the lawyer associated with the email.
    - Additional fields may appear depending on the email type (e.g., deposit amount for contracts).
 
-   _**[Insert Screenshot of Email Draft Form Here]**_
-
 3. Click **Create** to generate the draft email.
 
-   _**[Insert Screenshot of Drafted Email Here]**_
+<div style="text-align: center;">
+  <img src="assets/example_email_conf_AM.png" alt="Example email conf" width="800">
+</div>
+
+*Example confirmation email*
+
+<div style="text-align: center;">
+  <img src="assets/example_email_contract_AM.png" alt="Example email contract" width="800">
+</div>
+
+*Example contract email. Note that the amount + tax is automatically calculated.*
+
 
 The add-in will populate the email body using predefined templates and insert the necessary details.
 
