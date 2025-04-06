@@ -24,7 +24,6 @@ const authProvider = {
                 const result = await msalInstance.acquireTokenSilent({
                     scopes: ["Calendars.ReadWrite"],
                     account: accounts[0],
-                    forceRefresh: true
                 });
                 return result.accessToken;
             }
@@ -35,7 +34,6 @@ const authProvider = {
                 prompt: "select_account"
             });
             return login.accessToken;
-
         } catch (error) {
             console.error("Token Debug:", {
                 errorCode: error.errorCode,
@@ -74,7 +72,7 @@ export async function fetchCalendarEvents(lawyer, timeRange) {
                 $select: 'subject,start,end,location,attendees,categories',
                 $expand: 'instances',
                 $orderby: 'start/dateTime',
-                $top: 30,
+                $top: 99,
             })
             .get();
         return events.value;
