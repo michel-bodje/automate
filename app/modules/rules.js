@@ -190,9 +190,15 @@ function hasVirtualConflict(lawyerId, proposedEvent, allEvents) {
   try {
     // If the lawyer is not DH or TG, return false
     if (!["DH", "TG"].includes(lawyerId)) {
+      // log no conflict
+      console.warn(`No virtual conflict for lawyer ${lawyer.name} on ${proposedEvent.start.dateTime}`);
       return false;
     }
-    const otherLawyer = lawyerId === "DH" ? "TG" : "DH"; 
+
+    const lawyer = getLawyer(lawyerId);
+    const otherLawyerId = lawyerId === "DH" ? "TG" : "DH"; 
+    const otherLawyer = getLawyer(otherLawyerId);
+
     const proposedIsVirtual = isVirtualMeeting(proposedEvent);
 
     // Check if any existing event is scheduled in a virtual meeting 
