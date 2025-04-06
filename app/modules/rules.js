@@ -272,6 +272,7 @@ function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
       const lastEventEnd = new Date(previousEvents[0].end.dateTime);
       const breakTime = proposedSlot.start.getTime() - lastEventEnd.getTime();
       if (breakTime < requiredBreak) {
+        // log the conflict
         console.warn(`Break conflict: ${proposedSlot.start} with ${previousEvents[0].subject}`);
         return true;
       }
@@ -286,6 +287,7 @@ function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
   if (nextEvent) {
       const breakTime = new Date(nextEvent.start.dateTime) - proposedSlot.end.getTime();
       if (breakTime < requiredBreak) {
+        // log the conflict
         console.warn(`Break conflict: ${proposedSlot.end} with ${nextEvent.subject}`);
         return true;
       }
@@ -300,11 +302,12 @@ function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
  * @returns {Object} - A time slot object with start, end, and location properties.
  */
 function createSlot(start, end) {
-  return {
+  const slot = {
       start: new Date(start),
       end: new Date(end),
       location: formState.location
   };
+  return slot;
 }
 
 /**
@@ -318,7 +321,9 @@ function createSlot(start, end) {
  */
 function isVirtualMeeting(event) {
   const location = event.location?.displayName?.toLowerCase() ?? "";
-  return location.includes('phone') || location.includes('teams');
+  const isVirtual = location.includes('phone') || location.includes('teams');
+  console.log(`Event location: ${location}, is virtual: ${isVirtual}`);
+  return isVirtual;
 }
 
 /**
