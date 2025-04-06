@@ -387,7 +387,7 @@ code {
 </ol>
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/ribbon_location_message_AM.png" alt="Ribbon location" width="600">
+  <img src="assets/images/ribbon_location_message_AM.png" alt="Ribbon location" width="800">
 </div>
 <br>
 <h3 id="scheduling-appointments">Scheduling Appointments</h3>
@@ -434,7 +434,7 @@ code {
 </ol>
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="600">
+  <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
 </div>
 <br>
 <p>The add-in will:</p>
@@ -471,21 +471,21 @@ code {
 <p><em>Example confirmation email</em>
 <br></p>
 <div style="text-align: center;">
-  <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="600">
+  <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="800">
 </div>
 <br>
 <p><em>Example contract email. Note that the amount + tax is automatically calculated.</em>
 <br></p>
 <div style="text-align: center;">
-  <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="600">
+  <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="800">
 </div>
 <br>
 <hr>
 <h2 id="developer-guide">Developer Guide</h2>
 <h3 id="codebase-overview">Codebase Overview</h3>
 <p>The add-in is built using JavaScript and integrates with the Office JavaScript API. The codebase is modular, with each module handling a specific aspect of the add-in's functionality.</p>
-<p>The source code is hosted on Github at <a href="https://github.com/michel-bodje/automate.git">https://github.com/michel-bodje/automate.git</a>,
-and the add-in manifest points to its Github Pages URL at <a href="https://michel-bodje.github.io/automate">https://michel-bodje.github.io/automate</a>.</p>
+<p>The source code is hosted on Github at <a href="https://github.com/michel-bodje/automate.git">https://github.com/michel-bodje/automate.git</a>.</p>
+<p>The add-in manifest points to its Github Pages URL at <a href="https://michel-bodje.github.io/automate">https://michel-bodje.github.io/automate</a>, but it is not recommended to open in a browser as the app breaks outside of Outlook.</p>
 <h4 id="key-files-and-directories">Key Files and Directories</h4>
 <ul>
 <li><strong><code>app/</code></strong>: Contains the main application logic.
@@ -524,7 +524,7 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 <p><em>Most dropdowns are dynamically generated. Other fields only become visible conditionally.</em>
 <br></p>
 <div style="text-align: center;">
-  <img src="assets/images/example_html.png" alt="HTML source" width="600">
+  <img src="assets/images/example_html.png" alt="HTML source" width="800">
 </div>
 <br>
 <ol start="2">
@@ -558,7 +558,7 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 <p><em>In <code>compose.js</code>, the <code>createEmail</code> and <code>createMeeting</code> functions are the basis of this add-in.</em>
 <br></p>
 <div style="text-align: center;">
-  <img src="assets/images/example_compose.png" alt="Compose module" width="600">
+  <img src="assets/images/example_compose.png" alt="Compose module" width="800">
 </div>
 <br>
 <ol start="4">
@@ -611,13 +611,13 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 <p><em>Lawyer representation in JSON</em>
 <br></p>
 <div style="text-align: center;">
-  <img src="assets/images/example_lawyerdata.png" alt="Lawyer representation in JSON" width="600">
+  <img src="assets/images/example_lawyerdata.png" alt="Lawyer representation in JSON" width="800">
 </div>
 <br>
 <p><em>Editing case types</em>
 <br></p>
 <div style="text-align: center;">
-  <img src="assets/images/example_casetypes.png" alt="Editing case types" width="600">
+  <img src="assets/images/example_casetypes.png" alt="Editing case types" width="800">
 </div>
 <br>
 <ul>
@@ -629,16 +629,24 @@ and the add-in manifest points to its Github Pages URL at <a href="https://miche
 </ul>
 <h4 id="debugging-and-testing">Debugging and Testing</h4>
 <ul>
-<li>To run the add-in locally, use the following npm scripts:
+<li>
+<p>To run the add-in locally, use the following npm scripts:</p>
 <ol>
 <li>Start the development server: <code>npm start</code></li>
-<li>Stop the development server: Press <code>Ctrl + C</code> in the terminal where the server is running.</li>
+<li>Stop the development server: Press <code>npm stop</code>.</li>
 </ol>
 </li>
-<li>Ensure that all dependencies are installed by running <code>npm install</code> before starting the server.</li>
-<li>Use <code>npm run lint</code> to check for code quality issues.</li>
-<li>Test the add-in in both development and production environments to ensure compatibility.<br>
-The <code>webpack.config.js</code> file is already configured to handle differences between development and production environments. To test the production build:
+<li>
+<p>Ensure that all dependencies are installed by running <code>npm install</code> before starting the server.</p>
+</li>
+<li>
+<p>Use <code>npm run lint</code> to check for code quality issues.</p>
+</li>
+<li>
+<p>Test the add-in in both development and production environments to ensure compatibility.</p>
+</li>
+<li>
+<p>The <code>webpack.config.js</code> file is already configured to handle differences between development and production environments. To test the production build:</p>
 <ol>
 <li>Run <code>npm run build</code> to generate the production files.</li>
 <li>Access the production version of the add-in via Outlook logged to <a href="mailto:admin@amlex.ca">admin@amlex.ca</a>.</li>
@@ -647,7 +655,7 @@ The <code>webpack.config.js</code> file is already configured to handle differen
 </ul>
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/webpack.png" alt="Web server" width="600">
+  <img src="assets/images/webpack.png" alt="Web server" width="800">
 </div>
 <br>
 <hr>

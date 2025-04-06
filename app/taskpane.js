@@ -164,7 +164,7 @@ function attachEventListeners() {
               body {
                 background-color: #1e1e1e;
                 color: #f4f4f4;
-                font-family: 'Arial', 'Helvetica', sans-serif;
+                font-family: 'Trebuchet MS', 'Tahoma', 'Arial', sans-serif;
                 line-height: 1.6;
                 margin: 0;
                 padding: 1rem;

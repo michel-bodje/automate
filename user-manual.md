@@ -23,7 +23,7 @@ This manual is divided into two sections:
 
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/ribbon_location_message_AM.png" alt="Ribbon location" width="600">
+  <img src="assets/images/ribbon_location_message_AM.png" alt="Ribbon location" width="800">
 </div>
 <br>
 
@@ -64,7 +64,7 @@ This manual is divided into two sections:
 
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="600">
+  <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
 </div>
 <br>
 
@@ -95,14 +95,14 @@ The add-in will populate the email body using predefined templates and insert th
 *Example confirmation email*
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="600">
+  <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="800">
 </div>
 <br>
 
 *Example contract email. Note that the amount + tax is automatically calculated.*
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="600">
+  <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="800">
 </div>
 <br>
 
@@ -114,8 +114,9 @@ The add-in will populate the email body using predefined templates and insert th
 
 The add-in is built using JavaScript and integrates with the Office JavaScript API. The codebase is modular, with each module handling a specific aspect of the add-in's functionality.
 
-The source code is hosted on Github at [https://github.com/michel-bodje/automate.git](https://github.com/michel-bodje/automate.git),
-and the add-in manifest points to its Github Pages URL at [https://michel-bodje.github.io/automate](https://michel-bodje.github.io/automate).
+The source code is hosted on Github at [https://github.com/michel-bodje/automate.git](https://github.com/michel-bodje/automate.git).
+
+The add-in manifest points to its Github Pages URL at [https://michel-bodje.github.io/automate](https://michel-bodje.github.io/automate), but it is not recommended to open in a browser as the app breaks outside of Outlook.
 
 #### Key Files and Directories
 - **`app/`**: Contains the main application logic.
@@ -145,7 +146,7 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
 *Most dropdowns are dynamically generated. Other fields only become visible conditionally.*
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_html.png" alt="HTML source" width="600">
+  <img src="assets/images/example_html.png" alt="HTML source" width="800">
 </div>
 <br>
 
@@ -167,7 +168,7 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
 *In `compose.js`, the `createEmail` and `createMeeting` functions are the basis of this add-in.*
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_compose.png" alt="Compose module" width="600">
+  <img src="assets/images/example_compose.png" alt="Compose module" width="800">
 </div>
 <br>
 
@@ -200,14 +201,14 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
 *Lawyer representation in JSON*
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_lawyerdata.png" alt="Lawyer representation in JSON" width="600">
+  <img src="assets/images/example_lawyerdata.png" alt="Lawyer representation in JSON" width="800">
 </div>
 <br>
 
 *Editing case types*
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/example_casetypes.png" alt="Editing case types" width="600">
+  <img src="assets/images/example_casetypes.png" alt="Editing case types" width="800">
 </div>
 <br>
 
@@ -217,17 +218,19 @@ and the add-in manifest points to its Github Pages URL at [https://michel-bodje.
 #### Debugging and Testing
 - To run the add-in locally, use the following npm scripts:
     1. Start the development server: `npm start`
-    2. Stop the development server: Press `Ctrl + C` in the terminal where the server is running.
+    2. Stop the development server: Press `npm stop`.
+    
 - Ensure that all dependencies are installed by running `npm install` before starting the server.
 - Use `npm run lint` to check for code quality issues.
-- Test the add-in in both development and production environments to ensure compatibility.  
-The `webpack.config.js` file is already configured to handle differences between development and production environments. To test the production build:
+- Test the add-in in both development and production environments to ensure compatibility.
+
+- The `webpack.config.js` file is already configured to handle differences between development and production environments. To test the production build:
     1. Run `npm run build` to generate the production files.
     2. Access the production version of the add-in via Outlook logged to [admin@amlex.ca](mailto:admin@amlex.ca).
 
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/webpack.png" alt="Web server" width="600">
+  <img src="assets/images/webpack.png" alt="Web server" width="800">
 </div>
 <br>
 
