@@ -280,7 +280,6 @@ async function scheduleAppointment() {
 
     // 6. Create meeting and email
     await createMeeting(validSlot.start, validSlot.end);
-    // await createEmail(formState.location.toLowerCase());
 
   } catch(error) {
     console.error("Scheduling Error:", error);
