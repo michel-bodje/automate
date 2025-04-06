@@ -47,8 +47,10 @@ This manual is divided into two sections:
    - Additional details may be required based on the case type (e.g., spouse name for divorce cases).
 
 <br>
-<div style="display: flex; justify-content: center; gap: 20px;">
+<div style="text-align: center;">
   <img src="assets/images/appt-scheduler1.png" alt="Page 1 form (1)" width="300">
+</div>
+<div style="text-align: center;">
   <img src="assets/images/appt-scheduler2.png" alt="Page 1 form (2)" width="300">
 </div>
 <br>
