@@ -1,6 +1,6 @@
 import { 
     getLawyer,
-    lawyers as Lawyers,
+    getAllLawyers,
     overlapsLunch,
     adjustForLunch
 } from "../index.js";
@@ -17,7 +17,11 @@ export function generateMockEvents(daysToGenerate = 14) {
     try {
         const events = [];
         const now = new Date();
-        const lawyers = Lawyers.map((lawyer) => lawyer.name);
+        const lawyers = getAllLawyers();
+        
+        // Map to lawyer names for display
+        lawyers = lawyers.map((lawyer) => lawyer.name);
+
         const slotDuration = 30 * 60 * 1000; // 30 minutes base slot
         let appointmentCounter = 1;
         const caseTypes = [

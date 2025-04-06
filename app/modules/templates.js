@@ -1,17 +1,17 @@
-import teamsTemplateEn from "../templates/en/Teams.html";
-import teamsTemplateFr from "../templates/fr/Teams.html";
-import officeTemplateEn from "../templates/en/Office.html";
-import officeTemplateFr from "../templates/fr/Office.html";
-import phoneTemplateEn from "../templates/en/Phone.html";
-import phoneTemplateFr from "../templates/fr/Phone.html";
-import contractTemplateEn from "../templates/en/Contract.html";
-import contractTemplateFr from "../templates/fr/Contract.html";
-import replyTemplateEn from "../templates/en/Reply.html";
-import replyTemplateFr from "../templates/fr/Reply.html";
-import feedbackTemplateEn from "../templates/en/Feedback.html";
-import feedbackTemplateFr from "../templates/fr/Feedback.html";
-import suiviTemplateEn from "../templates/en/Suivi.html";
-import suiviTemplateFr from "../templates/fr/Suivi.html";
+import teamsTemplateEn from "../../assets/templates/en/Teams.html";
+import teamsTemplateFr from "../../assets/templates/fr/Teams.html";
+import officeTemplateEn from "../../assets/templates/en/Office.html";
+import officeTemplateFr from "../../assets/templates/fr/Office.html";
+import phoneTemplateEn from "../../assets/templates/en/Phone.html";
+import phoneTemplateFr from "../../assets/templates/fr/Phone.html";
+import contractTemplateEn from "../../assets/templates/en/Contract.html";
+import contractTemplateFr from "../../assets/templates/fr/Contract.html";
+import replyTemplateEn from "../../assets/templates/en/Reply.html";
+import replyTemplateFr from "../../assets/templates/fr/Reply.html";
+import feedbackTemplateEn from "../../assets/templates/en/Feedback.html";
+import feedbackTemplateFr from "../../assets/templates/fr/Feedback.html";
+import suiviTemplateEn from "../../assets/templates/en/Suivi.html";
+import suiviTemplateFr from "../../assets/templates/fr/Suivi.html";
 
 /**
  * A dictionary of email templates, indexed by language and email type.

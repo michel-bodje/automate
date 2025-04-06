@@ -70,7 +70,7 @@ module.exports = async (env, options) => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: "assets/*",
+            from: "assets/images/*",
             to: "assets/[name][ext][query]",
           },
           {
@@ -85,7 +85,7 @@ module.exports = async (env, options) => {
               }
             },
           },
-          { from: "assets/*", to: "assets/[name][ext]" },
+          { from: "assets/images/*", to: "assets/[name][ext]" },
         ],
       }),
       new HtmlWebpackPlugin({
