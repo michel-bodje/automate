@@ -82,6 +82,10 @@ module.exports = async (env, options) => {
             to: "assets/templates/fr/[name][ext][query]",
           },
           {
+            from: "./user-manual.html",
+            to: "[name][ext]",
+          },
+          {
             from: "manifest*.xml",
             to: "[name]" + "[ext]",
             transform(content) {

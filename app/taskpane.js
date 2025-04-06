@@ -155,6 +155,31 @@ function attachEventListeners() {
         case ELEMENT_IDS.replyMenuBtn:
           showPage(ELEMENT_IDS.replyPage);
           break;
+        case ELEMENT_IDS.userManualMenuBtn:
+          const manualWindow = window.open('./user-manual.html', '_blank', 'width=684,height=800', false);
+          manualWindow.document.title = "User Manual";
+          manualWindow.onload = () => {
+            const style = manualWindow.document.createElement('style');
+            style.textContent = `
+              body {
+                background-color: #1e1e1e;
+                color: #f4f4f4;
+                font-family: monospace;
+                line-height: 1.6;
+                margin: 0;
+                padding: 1rem;
+              }
+              a {
+                color: #0078d4;
+                text-decoration: none;
+              }
+              a:hover {
+                text-decoration: underline;
+              }
+            `;
+            manualWindow.document.head.appendChild(style);
+          };
+          break;
         default:
           break;
       }

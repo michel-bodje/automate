@@ -21,6 +21,7 @@ export const ELEMENT_IDS = {
     confirmMenuBtn: "conf-menu-btn",
     contractMenuBtn: "contract-menu-btn",
     replyMenuBtn: "reply-menu-btn",
+    userManualMenuBtn: "user-manual-btn",
 
     scheduleSubmitBtn: "schedule-appointment-btn",
     confirmSubmitBtn: "send-confirmation-btn",
@@ -79,6 +80,10 @@ export const ELEMENT_IDS = {
     // Notes
     notes: "schedule-notes",
     notesContainer: "notes-container",
+
+    // Misc
+    loadingOverlay: "loading-overlay",
+    errorMessage: "error-message",
 };
 
 /**
