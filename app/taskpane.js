@@ -94,13 +94,44 @@ function attachEventListeners() {
           // client language dropdown change
           formState.update("clientLanguage", value);
           break;
+        case ELEMENT_IDS.scheduleMode:
+          // appointment mode dropdown change
+          const manualDate = document.getElementById(ELEMENT_IDS.manualDate);
+          const manualTime = document.getElementById(ELEMENT_IDS.manualTime);
+          const manualDateLabel = document.querySelector(`label[for=${ELEMENT_IDS.manualDate}]`);
+          const manualTimeLabel = document.querySelector(`label[for=${ELEMENT_IDS.manualTime}]`);
+
+          // Show/hide manual date/time inputs based on selected mode          
+          if (event.target.value === "manual") {
+            manualDateLabel.classList.remove("hidden");
+            manualTimeLabel.classList.remove("hidden");
+            manualDate.classList.remove("hidden");
+            manualTime.classList.remove("hidden");
+            manualDate.required = true;
+            manualTime.required = true;
+          } else {
+            manualDateLabel.classList.add("hidden");
+            manualTimeLabel.classList.add("hidden");
+            manualDate.classList.add("hidden");
+            manualTime.classList.add("hidden");
+            manualDate.required = false;
+            manualTime.required = false;
+          }
         case ELEMENT_IDS.confDate:
         case ELEMENT_IDS.confTime:
-          // appointment date and time input change
-          const dateInput = document.getElementById(ELEMENT_IDS.confDate).value;
-          const timeInput = document.getElementById(ELEMENT_IDS.confTime).value;
+        case ELEMENT_IDS.manualDate:
+        case ELEMENT_IDS.manualTime:
+          // date/time input change
+          // Determine the active page (confirmation or schedule)
+          const activeDateInput = document.getElementById(ELEMENT_IDS.manualDate) || document.getElementById(ELEMENT_IDS.confDate);
+          const activeTimeInput = document.getElementById(ELEMENT_IDS.manualTime) || document.getElementById(ELEMENT_IDS.confTime);
+
+          const dateInput = activeDateInput?.value;
+          const timeInput = activeTimeInput?.value;
+
           if (dateInput && timeInput) {
             const dateTime = new Date(`${dateInput}T${timeInput}`);
+            console.log("Selected date/time:", dateTime); // debug
             formState.update("appointmentDateTime", dateTime);
           }
           break;
@@ -249,6 +280,39 @@ async function sendConfirmation() {
 }
 
 /**
+ * Finds an available time slot for the lawyer's calendar
+ * within the next 14 days.
+ * @async
+ * @returns {Promise<{start: Date, end: Date}>} - The available time slot.
+ */
+async function findAutoScheduleSlot() {
+  const lawyer = getLawyer(formState.lawyerId);
+  const location = formState.location;
+  const startDateTime = new Date();
+  const endDateTime = new Date(startDateTime.getTime() + (14 * 24 * 60 * 60 * 1000));
+  // Two weeks from now
+
+  // Fetch calendar events for the lawyer
+  const events = await fetchCalendarEvents(lawyer.id, startDateTime, endDateTime);
+
+  // Generate available slots based on the fetched events
+  const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
+
+  // Return the first valid slot
+  const validSlot = find(slots, (slot) =>
+    isValidSlot(
+      lawyer.id, { start: slot.start, end: slot.end, location: location }, events
+    )
+  );
+
+  if (!validSlot) {
+    throw new Error("No available slots found in next 2 weeks.");
+  }
+  console.log("Valid slot selected:", validSlot);
+  return validSlot;
+}
+
+/**
  * Schedules an appointment with a lawyer
  * and sends a confirmation email to the client.
  * (TODO: link to confirmation email)
@@ -259,52 +323,33 @@ async function scheduleAppointment() {
     // Show loading spinner
     showLoading(true);
 
-    // 1: Validate inputs
     if (!isValidInputs()) {
       throw new Error("Invalid inputs.");
     };
 
-    // 2. Get lawyer
-    const lawyer = getLawyer(formState.lawyerId);
+    const scheduleMode = document.getElementById(ELEMENT_IDS.scheduleMode)?.value;
 
-    // 3. Fetch calendar events
-    const now = new Date();
-    const timeRange = {
-      // need to be in ISO 8601 format for Microsoft Graph
-      startDateTime: now.toISOString(),
-      endDateTime: new Date(now.getTime() + 14 * 86400000).toISOString()
-    };
+    let selectedSlot;
 
-    const allEvents = await fetchCalendarEvents(lawyer, timeRange);
-    
-    if (!allEvents) {
-      throw new Error("Failed to fetch calendar events.");
+    if (scheduleMode === 'manual') {
+      const appointmentDateTime = formState.appointmentDateTime;
+      if (!appointmentDateTime) {
+      throw new Error("Please provide both date and time for manual scheduling.");
+      }
+      selectedSlot = {
+        start: new Date(appointmentDateTime),
+        end: new Date(appointmentDateTime.getTime() + (60 * 60 * 1000)),
+        // Default to 1 hour duration
+      };
+      console.log("Scheduled appointment at:", selectedSlot.start);
+    } else {
+      // Auto-scheduling mode
+      selectedSlot = await findAutoScheduleSlot();
+      console.log("Auto-scheduled appointment at:", selectedSlot.start);
     }
 
-    console.log("Fetched events:", allEvents);
-
-    // 4. Generate candidate slots with breaks
-    const candidateSlots = generateSlots(lawyer, allEvents);
-
-    console.log("Generated slots:", candidateSlots.map(s => ({
-      start: s.start,
-      end: s.end,
-      location: s.location
-    })));
-    
-    // 5. Find first valid slot
-    const validSlot = candidateSlots.find((slot) => {
-      return isValidSlot(lawyer.id, slot, allEvents);
-    });
-
-    if (!validSlot) {
-      throw new Error("No available slots in next 2 weeks.");
-    }
-
-    console.log("Valid slot selected:", validSlot);
-
-    // 6. Create meeting and email
-    await createMeeting(validSlot.start, validSlot.end);
+    // Draft the calendar event
+    await createMeeting(selectedSlot.start, selectedSlot.end);
 
   } catch(error) {
     console.error("Scheduling Error:", error);

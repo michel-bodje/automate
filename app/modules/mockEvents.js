@@ -17,7 +17,7 @@ export function generateMockEvents(daysToGenerate = 14) {
     try {
         const events = [];
         const now = new Date();
-        const lawyers = getAllLawyers();
+        let lawyers = getAllLawyers();
         
         // Map to lawyer names for display
         lawyers = lawyers.map((lawyer) => lawyer.name);

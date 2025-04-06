@@ -52,6 +52,10 @@ export const ELEMENT_IDS = {
 
     confDate: "conf-date",
     confTime: "conf-time",
+    scheduleMode: "schedule-mode",
+    manualDate: "manual-date",
+    manualTime: "manual-time",
+    
     contractDeposit: "contract-deposit",
 
     firstConsultation: "first-consultation",

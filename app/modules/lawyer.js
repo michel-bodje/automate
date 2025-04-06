@@ -5,7 +5,7 @@ import { default as lawyerData } from '../lawyerData.json';
  * Lawyers are defined in lawyerData.json
  * @class
  */
-class Lawyer {
+export class Lawyer {
   /**
    * Constructor for the Lawyer class.
    * @param {string} id - The unique ID of the lawyer.

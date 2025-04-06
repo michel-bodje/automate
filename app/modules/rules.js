@@ -1,5 +1,5 @@
 import { 
-  formState,
+  Lawyer,
   getLawyer,
   overlapsLunch,
   adjustForLunch
@@ -45,18 +45,22 @@ export function getAvailableLocations(lawyerId) {
  * avoiding weekends and considering existing events and lunch breaks. Slots are generated
  * based on the lawyer's working hours and required break times between appointments.
  *
- * @param {Object} lawyer - The lawyer object containing working hours and break details.
  * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts when generating slots.
- * @returns {Array} - An array of available time slot objects with start and end times.
+ * @param {Lawyer} lawyer - The lawyer object containing working hours and break details.
+ * @param {string} location - The location for the appointment slots.
+ * @param {Date} startDateTime - The start date and time for generating slots.
+ * @param {Date} endDateTime - The end date and time for generating slots.
+ * @returns {Array<{ start: Date, end: Date, location: string}>} - An array of available time slots with start and end times.
  */
-export function generateSlots(lawyer, allEvents) {
+export function generateSlots(allEvents, lawyer, location, startDateTime, endDateTime) {
   const slots = [];
   const slotDuration = 60 * 60 * 1000; // 60 minutes
-  const requiredBreak = lawyer.breakMinutes * 60 * 1000;
-  const daysToCheck = 14;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const daysToCheck = Math.ceil((endDateTime - startDateTime) / (1000 * 60 * 60 * 24));
+
+  const requiredBreak = lawyer.breakMinutes * 60 * 1000;
+
+  const today = startDateTime;
 
   for (let day = 0; day < daysToCheck; day++) {
     const dayStart = new Date(today);
@@ -95,7 +99,7 @@ export function generateSlots(lawyer, allEvents) {
         const adjustedSlot = adjustForLunch(lastEventEnd, potentialSlotEnd, slotDuration);
         
         if (adjustedSlot && adjustedSlot.end <= eventStart) {
-          slots.push(createSlot(adjustedSlot.start, adjustedSlot.end));
+          slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
         }
       }
 
@@ -108,10 +112,16 @@ export function generateSlots(lawyer, allEvents) {
       const adjustedSlot = adjustForLunch(lastEventEnd, potentialSlotEnd, slotDuration);
       
       if (adjustedSlot && adjustedSlot.end <= workEnd) {
-        slots.push(createSlot(adjustedSlot.start, adjustedSlot.end));
+        slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
       }
     }
   }
+
+  console.log("Generated slots:", slots.map(s => ({
+    start: s.start,
+    end: s.end,
+    location: s.location
+  })));
 
   return slots;
 }
@@ -302,16 +312,17 @@ function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
 }
 
 /**
- * Creates a time slot object given start and end times.
- * @param {Date} start - The start time of the slot.
- * @param {Date} end - The end time of the slot.
- * @returns {Object} - A time slot object with start, end, and location properties.
+ * Creates a time slot given start and end times.
+ * @param {Date} start - The start time of the event.
+ * @param {Date} end - The end time of the event.
+ * @param {string} location - The location of the event.
+ * @returns {{start: Date, end: Date, location: string}} slot - A time slot object with start, end, and location properties.
  */
-function createSlot(start, end) {
+function createSlot(start, end, location) {
   const slot = {
-      start: new Date(start),
-      end: new Date(end),
-      location: formState.location
+    start: start,
+    end: end,
+    location: location
   };
   return slot;
 }

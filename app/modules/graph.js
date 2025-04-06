@@ -50,13 +50,14 @@ const client = Client.initWithMiddleware({ authProvider });
 
 /**
  * Fetches a list of upcoming events from the given lawyer's calendar, within
- * the given time range. The events are ordered by start time.
+ * the given start and end date range. The events are ordered by start time.
  *
- * @param {Lawyer} lawyer - The lawyer to fetch events for.
- * @param {TimeRange} timeRange - The time range to fetch events within.
+ * @param {string} lawyerId - The lawyer to fetch events for.
+ * @param {Date} start - The start date of the time range.
+ * @param {Date} end - The end date of the time range.
  * @returns {Promise<Array<MicrosoftGraph.Event>>} - A promise resolving to an array of events.
  */
-export async function fetchCalendarEvents(lawyer, timeRange) {
+export async function fetchCalendarEvents(lawyerId, start, end) {
     if (process.env.NODE_ENV === "development") {
         console.warn("Using mock calendar data for testing");
         return generateMockEvents();
@@ -67,8 +68,8 @@ export async function fetchCalendarEvents(lawyer, timeRange) {
             .api('/me/calendarView')
             .header('Prefer', `outlook.timezone="${FIRM_TIMEZONE}"`)
             .query({
-                startDateTime: timeRange.startDateTime,
-                endDateTime: timeRange.endDateTime,
+                startDateTime: start.toISOString(),
+                endDateTime: end.toISOString(),
                 $select: 'subject,start,end,location,attendees,categories',
                 $expand: 'instances',
                 $orderby: 'start/dateTime',
@@ -78,12 +79,11 @@ export async function fetchCalendarEvents(lawyer, timeRange) {
         return events.value;
     } catch (error) {
         console.error('Graph API Error:', {
-            message: error.message,
-            code: error.code,
-            statusCode: error.statusCode,
-            timeRange,
-            lawyer: lawyer.id
+            error,
+            lawyerId,
+            start,
+            end,
         });
-        return [];
+        throw error;
     }
 }

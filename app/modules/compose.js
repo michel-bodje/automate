@@ -214,6 +214,7 @@ export async function createMeeting(startTime, endTime) {
   try {
     // Fetch the lawyer's details from lawyers.json
     const lawyer = getLawyer(formState.lawyerId);
+    const location = formState.location;
 
     // Construct the case details
     const caseDetails = getCaseDetails();
@@ -245,12 +246,12 @@ export async function createMeeting(startTime, endTime) {
     `;
 
     // Set details for the draft meeting
-    setSubject(subject);
-    setBody(body);
-    setLocation(formState.location);
-    setAttendees([{ displayName: lawyer.name, emailAddress: lawyer.email }]);
     setCategory([lawyer.name]);
+    setSubject(subject);
     setMeetingTimes(startTime, endTime);
+    setAttendees([{ displayName: lawyer.name, emailAddress: lawyer.email }]);
+    setLocation(location);
+    setBody(body);
 
   } catch (error) {
     console.error("createMeeting:", error);
