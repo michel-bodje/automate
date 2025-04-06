@@ -55,7 +55,7 @@ module.exports = async (env, options) => {
           test: /\.(png|jpg|jpeg|gif|ico)$/,
           type: "asset/resource",
           generator: {
-            filename: "assets/[name][ext][query]",
+            filename: "assets/images/[name][ext][query]",
           },
         },
       ],
@@ -71,7 +71,15 @@ module.exports = async (env, options) => {
         patterns: [
           {
             from: "assets/images/*",
-            to: "assets/[name][ext][query]",
+            to: "assets/images/[name][ext][query]",
+          },
+          {
+            from: "assets/templates/en/*",
+            to: "assets/templates/en/[name][ext][query]",
+          },
+          {
+            from: "assets/templates/fr/*",
+            to: "assets/templates/fr/[name][ext][query]",
           },
           {
             from: "manifest*.xml",
@@ -85,7 +93,6 @@ module.exports = async (env, options) => {
               }
             },
           },
-          { from: "assets/images/*", to: "assets/[name][ext]" },
         ],
       }),
       new HtmlWebpackPlugin({
