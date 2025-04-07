@@ -7,7 +7,6 @@ import {
   resetPage,
   setupWordMenu,
   setupOutlookMenu,
-  loadTemplate,
   populateLawyerDropdown,
   populateLanguageDropdown,
   populateLocationDropdown,
@@ -36,9 +35,6 @@ Office.onReady(async (info) => {
     populateLanguageDropdown();
     attachEventListeners();
   } else if (info.host === Office.HostType.Word) {
-    // Load the Word contract template for both languages
-    await loadTemplate("en");
-    await loadTemplate("fr");
     // Setup UI components for Word
     setupWordMenu();
     populateLanguageDropdown();

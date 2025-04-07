@@ -9,33 +9,24 @@
   "scripts": {
     "deploy": "npm run build && git add docs/ && git commit -m 'Deploy' && git push",
     "prebuild": "npm run validate:outlook && npm run validate:word",
-
     "build": "rm -rf docs/* && webpack --mode production && cp app/404.html docs/404.html",
-
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
     "prettier": "office-addin-lint prettier",
     "signin": "office-addin-dev-settings m365-account login",
     "signout": "office-addin-dev-settings m365-account logout",
-
     "dev:outlook": "cross-env DEV_SERVER_PORT=3000 APP_TO_DEBUG=outlook webpack serve --mode development",
     "dev:word": "cross-env DEV_SERVER_PORT=3001 APP_TO_DEBUG=word webpack serve --mode development",
-  
     "wait:outlook": "wait-on https://localhost:3000/taskpane.html",
     "wait:word": "wait-on https://localhost:3001/taskpane.html",
-  
     "debug:outlook": "office-addin-debugging start manifests/manifest.outlook.xml --dev-server-port 3000",
     "debug:word": "office-addin-debugging start manifests/manifest.word.xml --dev-server-port 3001",
-
     "start": "concurrently -n OUTL,WORD \"npm run start:outlook\" \"npm run start:word\"",
     "stop": "concurrently -n OUTL,WORD \"npm run stop:outlook\" \"npm run stop:word\"",
-  
     "start:outlook": "concurrently -n SERVER,DEBUG -c magenta,green \"npm run dev:outlook\" \"npm run wait:outlook && npm run debug:outlook\"",
     "start:word": "concurrently -n SERVER,DEBUG -c black,blue \"npm run dev:word\" \"npm run wait:word && npm run debug:word\"",
-  
     "stop:outlook": "office-addin-debugging stop manifests/manifest.outlook.xml",
     "stop:word": "office-addin-debugging stop manifests/manifest.word.xml",
-
     "validate:outlook": "office-addin-manifest validate manifests/manifest.outlook.xml",
     "validate:word": "office-addin-manifest validate manifests/manifest.word.xml",
     "watch": "webpack --mode development --watch"
@@ -45,6 +36,10 @@
     "@azure/msal-browser": "^4.9.1",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "core-js": "^3.36.0",
+    "docxtemplater": "^3.61.0",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "pizzip": "^3.1.8",
     "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {

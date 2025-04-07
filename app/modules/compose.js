@@ -3,6 +3,7 @@ import {
   getLawyer,
   getCaseDetails,
   templates,
+  loadTemplate,
   isValidEmail,
 } from "../index.js";
 
@@ -308,46 +309,69 @@ export async function createContract() {
   }
 
   const language = formState.clientLanguage === "Français" ? "fr" : "en";
-  const templateBase64 = templates[language].docxContract;
-  if (!templateBase64) {
-    console.error("No template found for the selected language.");
-    return;
-  }
 
   try {
+    // Load the DOCX template
+    const doc = await loadTemplate(language);
+
+    // Define a mapping between the placeholders and the input values
+    const placeholders = {
+      clientName,
+      contractTitle,
+      depositAmount,
+      totalAmount,
+      date: new Date().toLocaleDateString(),
+    };
+
+    // Render the document with the placeholders replaced
+    doc.render(placeholders);
+
+    // Generate the final document as a base64 string
+    const base64Template = doc.getZip().generate({ type: "base64" });
+
+    // Insert the generated document into Word
     await Word.run(async (context) => {
-      // Insert the template document and replace the current content.
-      context.document.body.insertFileFromBase64(templateBase64, Word.InsertLocation.replace);
+      context.document.body.insertFileFromBase64(
+        base64Template,
+        Word.InsertLocation.replace
+      );
       await context.sync();
 
-      // Define a mapping between the placeholders and the input values.
-      const placeholders = {
-        "{{clientName}}": clientName,
-        "{{clientEmail}}": clientEmail,
-        "{{contractTitle}}": contractTitle,
-        "{{depositAmount}}": depositAmount,
-        "{{totalAmount}}": totalAmount,
-        "{{date}}": new Date().toLocaleDateString(),
-      };
+      const body = context.document.body;
+      const searchResults = body.search("{clientEmail}", { matchWholeWord: true });
 
-      // For each placeholder, search the document and replace it with the corresponding value.
-      for (const [placeholder, value] of Object.entries(placeholders)) {
-        // Search for the placeholder text with case sensitivity.
-        const searchResults = context.document.body.search(placeholder, {
-          matchCase: true,
-          matchWholeWord: false
-        });
-        context.load(searchResults);
-        await context.sync();
-
-        // Replace each found instance with the user input.
-        searchResults.items.forEach(item => {
-          item.insertText(value, Word.InsertLocation.replace);
-        });
+      // Replace the placeholder email with a clickable mailto: link
+      if (searchResults.items.length > 0) {
+        const emailPlaceholder = searchResults.items[0];
+        emailPlaceholder.insertHyperlink(
+          clientEmail, // Display text
+          `mailto:${clientEmail}`, // Hyperlink URL
+          Word.InsertLocation.replace
+        );
       }
+    
       await context.sync();
     });
   } catch (error) {
     console.error("Error generating contract:", error);
   }
+}
+
+/**
+ * Fetches an image as a base64 string.
+ * @param {string} imagePath - The path to the image.
+ * @returns {Promise<string>} The base64 string of the image.
+ */
+async function fetchImageAsBase64(imagePath) {
+  const response = await fetch(imagePath);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
+  }
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result.split(",")[1]); // Remove the data URL prefix
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }

@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 const path = require("path");
+const webpack = require("webpack");
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -31,6 +32,9 @@ module.exports = async (env, options) => {
     },
     resolve: {
       extensions: [".html", ".js"],
+      fallback: {
+        process: require.resolve("process"),
+      },
     },
     module: {
       rules: [
@@ -107,6 +111,9 @@ module.exports = async (env, options) => {
         filename: "commands.html",
         template: "./app/commands/commands.html",
         chunks: ["polyfill", "commands"],
+      }),
+      new webpack.ProvidePlugin({
+        process: "process/browser",
       }),
     ],
     devServer: {

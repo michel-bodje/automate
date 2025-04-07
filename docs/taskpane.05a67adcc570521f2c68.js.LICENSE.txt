@@ -2,4 +2,6 @@
 
 /*! @azure/msal-common v15.4.0 2025-03-25 */
 
+/*! pako 2.1.0 https://github.com/nodeca/pako @license (MIT AND Zlib) */
+
 /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
