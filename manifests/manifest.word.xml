@@ -5,7 +5,7 @@
   xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
   xsi:type="TaskPaneApp">
 
-  <Id>4d546269-e983-4e12-aa50-ed569039df51</Id>
+  <Id>607de257-2aa6-4c5c-bdd4-e122d47e9d9e</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>Allen Madelin</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
