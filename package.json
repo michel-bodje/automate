@@ -26,9 +26,12 @@
   
     "debug:outlook": "office-addin-debugging start manifests/manifest.outlook.xml --dev-server-port 3000",
     "debug:word": "office-addin-debugging start manifests/manifest.word.xml --dev-server-port 3001",
+
+    "start": "concurrently -n OUTL,WORD \"npm run start:outlook\" \"npm run start:word\"",
+    "stop": "concurrently -n OUTL,WORD \"npm run stop:outlook\" \"npm run stop:word\"",
   
-    "start:outlook": "concurrently -n SERVER,DEBUG -c green,blue \"npm run dev:outlook\" \"npm run wait:outlook && npm run debug:outlook\"",
-    "start:word": "concurrently -n SERVER,DEBUG -c green,blue \"npm run dev:word\" \"npm run wait:word && npm run debug:word\"",
+    "start:outlook": "concurrently -n SERVER,DEBUG -c magenta,green \"npm run dev:outlook\" \"npm run wait:outlook && npm run debug:outlook\"",
+    "start:word": "concurrently -n SERVER,DEBUG -c black,blue \"npm run dev:word\" \"npm run wait:word && npm run debug:word\"",
   
     "stop:outlook": "office-addin-debugging stop manifests/manifest.outlook.xml",
     "stop:word": "office-addin-debugging stop manifests/manifest.word.xml",
