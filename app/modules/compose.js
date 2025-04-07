@@ -173,12 +173,16 @@ export async function createEmail(type) {
     const lawyer = getLawyer(formState.lawyerId);
     let body = template;
 
+    const appointmentDateTime = new Date(
+      `${formState.appointmentDate}T${formState.appointmentTime}`
+    );
+
     // Only validate date and time for appointment confirmations
     if (type === "office" || type === "teams" || type === "phone") {
-      if (!formState.appointmentDateTime) {
+      if (!appointmentDateTime) {
         throw new Error("No appointment date and time provided.");
       }
-      const dateTime = formState.appointmentDateTime;
+      const dateTime = appointmentDateTime;
 
       const date = dateTime.toLocaleDateString(language == "fr" ? "fr-CA" : "en-US", {
         weekday: "long",

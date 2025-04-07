@@ -129,22 +129,14 @@ function attachEventListeners() {
           }
           break;
         case ELEMENT_IDS.confDate:
-        case ELEMENT_IDS.confTime:
         case ELEMENT_IDS.manualDate:
+          console.log("Date changed:", value);
+          formState.update("appointmentDate", value);
+          break;
+        case ELEMENT_IDS.confTime:
         case ELEMENT_IDS.manualTime:
-          // date/time input change
-          // Determine the active page (confirmation or schedule)
-          const activeDateInput = document.getElementById(ELEMENT_IDS.manualDate) || document.getElementById(ELEMENT_IDS.confDate);
-          const activeTimeInput = document.getElementById(ELEMENT_IDS.manualTime) || document.getElementById(ELEMENT_IDS.confTime);
-
-          const dateInput = activeDateInput?.value;
-          const timeInput = activeTimeInput?.value;
-
-          if (dateInput && timeInput) {
-            const dateTime = new Date(`${dateInput}T${timeInput}`);
-            console.log("Selected date/time:", dateTime); // debug
-            formState.update("appointmentDateTime", dateTime);
-          }
+          console.log("Time changed:", value);
+          formState.update("appointmentTime", value); 
           break;
         case ELEMENT_IDS.firstConsultation:
           // first consultation checkbox change
@@ -330,7 +322,7 @@ async function findAutoScheduleSlot() {
   );
 
   if (!validSlot) {
-    throw new Error("No available slots found in next 2 weeks.");
+    console.error("No available slots found in next 2 weeks.");
   }
   console.log("Valid slot selected:", validSlot);
   return validSlot;
@@ -356,7 +348,9 @@ async function scheduleAppointment() {
     let selectedSlot;
 
     if (scheduleMode === 'manual') {
-      const appointmentDateTime = formState.appointmentDateTime;
+      const appointmentDateTime = new Date(
+        `${formState.appointmentDate}T${formState.appointmentTime}`
+      );
       if (!appointmentDateTime) {
       throw new Error("Please provide both date and time for manual scheduling.");
       }

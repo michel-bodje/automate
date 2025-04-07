@@ -17,7 +17,8 @@ class FormState {
     this.clientEmail = "";
     this.clientLanguage = "";
     this.caseType = "";
-    this.appointmentDateTime = null;
+    this.appointmentDate = null;
+    this.appointmentTime = null;
     this.isFirstConsultation = false;
     this.isRefBarreau = false;
     this.isPaymentMade = false;
