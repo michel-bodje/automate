@@ -332,60 +332,42 @@ export async function createContract() {
 
     // Insert the generated document into Word
     await Word.run(async (context) => {
-    // Insert the rendered document
-    context.document.body.insertFileFromBase64(
-      base64Template,
-      Word.InsertLocation.end
-    );
-    await context.sync();
-    // Find all instances of the email
-    const searchResults = context.document.body.search(clientEmail, {
-      matchCase: false,
-      matchWholeWord: true
-    });
-    searchResults.load("items");
-    context.sync();
-    // Process each found instance
-    if (searchResults.items.length > 0) {
-      const promises = searchResults.items.map(async (range) => {
-        range.load("text");
-        await context.sync()
-          .then(() => {
-            // Only replace if it's the exact email match
-            if (range.text === clientEmail) {
-              range.insertHtml(
-                `<a href="mailto:${clientEmail}">${clientEmail}</a>`,
-                Word.InsertLocation.replace
-              );
-            }
-          }
-        );
-      });
-      await Promise.all(promises);
+      // Insert the rendered document
+      context.document.body.insertFileFromBase64(
+        base64Template,
+        Word.InsertLocation.end
+      );
       await context.sync();
-    }
-    });
+      // Find all instances of the email
+      const searchResults = context.document.body.search(clientEmail, {
+        matchCase: false,
+        matchWholeWord: true
+      });
+      searchResults.load("items");
+      await context.sync();
 
+      // Replace the email text with a mailto link
+      if (searchResults.items.length > 0) {
+        const promises = searchResults.items.map(async (range) => {
+          range.load("text");
+          return context.sync()
+            .then(() => {
+              // Only replace if it's the exact email match
+              if (range.text === clientEmail) {
+                range.insertHtml(
+                  `<a href="mailto:${clientEmail}">${clientEmail}</a>`,
+                  Word.InsertLocation.replace
+                );
+              }
+            });
+        });
+
+        await Promise.all(promises);
+        await context.sync();
+      }
+   });
   } catch (error) {
     console.error("Error generating contract:", error);
+    throw error;
   }
-}
-
-/**
- * Fetches an image as a base64 string.
- * @param {string} imagePath - The path to the image.
- * @returns {Promise<string>} The base64 string of the image.
- */
-async function fetchImageAsBase64(imagePath) {
-  const response = await fetch(imagePath);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image: ${response.statusText}`);
-  }
-  const blob = await response.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result.split(",")[1]); // Remove the data URL prefix
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
 }
