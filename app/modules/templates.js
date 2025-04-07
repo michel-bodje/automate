@@ -42,8 +42,8 @@ export const templates = {
 // The path to the DOCX contract templates
 // TODO: Test these paths in production
 const docxContractPath = {
-  en: "../../assets/templates/en/Contract.docx",
-  fr: "../../assets/templates/fr/Contract.docx",
+  en: "assets/templates/en/Contract.docx",
+  fr: "assets/templates/fr/Contract.docx",
 };
 
 /**
