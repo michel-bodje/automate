@@ -21,11 +21,16 @@ export function showPage(pageId) {
   // Hide all pages
   const pages = document.querySelectorAll(".page");
   pages.forEach(page => page.classList.remove("active"));
-  
+
   // Show the selected page
   const selectedPage = document.getElementById(pageId);
   if (selectedPage) {
     selectedPage.classList.add("active");
+
+    // If the "Create Contract" page is shown, unhide all elements
+    if (pageId === ELEMENT_IDS.wordContractPage) {
+      selectedPage.classList.remove("hidden");
+    }
   }
 }
 
@@ -38,44 +43,47 @@ export function resetPage() {
   // Clear state
   formState.reset();
 
-  // Reset dropdowns to their placeholder values
-  const dropdowns = document.querySelectorAll("select");
-  dropdowns.forEach(dropdown => {
-    dropdown.selectedIndex = 0;
-  });
-
   // Hide extra case details fields
   hideExtraFields();
-
-  // Depopulate lawyer-specific dropdowns in-between resets
-  populateLocationDropdown();
-  populateCaseTypeDropdown();
 
   // Reset payment options
   handlePaymentOptions();
 
   // Navigate back to main menu
   showPage(ELEMENT_IDS.mainPage);
+
+  // Reset dropdowns
+  populateLawyerDropdown();
+  populateLanguageDropdown();
 }
 
-/** Utility function to hide all extra form fields and reset their values. */
-export function hideExtraFields() {
-  // Select all extra fields
-  const caseDetailsFields = document.querySelectorAll("div[id$='-details']");
-
-  // Clear their input values
-  caseDetailsFields.forEach(field => {
-    field.hidden = true;
-    const inputs = field.querySelectorAll("input, textarea");
-    inputs.forEach(input => input.value = "");
-  });
-
-  // Hide the entire section
-  const caseDetailsElement = document.getElementById(ELEMENT_IDS.caseDetails);
-
-  if (caseDetailsElement) {
-    caseDetailsElement.hidden = true;
+/**
+ * Sets up the Outlook menu by hiding the "Create Contract" button.
+ * This function is called when the application initializes.
+ */
+export function setupOutlookMenu() {
+  // Hide the "Create Contract" button in Outlook
+  const createContractBtn = document.getElementById(ELEMENT_IDS.wordContractMenuBtn);
+  if (createContractBtn) {
+    createContractBtn.classList.add("hidden");
   }
+}
+
+/**
+ * Sets up the Word menu by hiding all buttons except for the Word contract and user manual buttons.
+ * This function is called when the application initializes.
+ */
+export function setupWordMenu() {
+  // Hide all buttons except for the Word contract and user manual buttons
+  const menuButtons = document.querySelectorAll('.menu-btn');
+  menuButtons.forEach((button) => {
+    if (
+      button.id !== ELEMENT_IDS.wordContractMenuBtn &&
+      button.id !== ELEMENT_IDS.userManualMenuBtn
+    ) {
+      button.classList.add("hidden");
+    }
+  });
 }
 
 /**
@@ -100,21 +108,32 @@ export function showError(message) {
   setTimeout(() => errorBar.classList.add("hidden"), 5000);
 }
 
-/** 
- * Utility function to populate a dropdown with options.
- * @param {string} elementId - The ID of the dropdown element.
- * @param {Array} options - The options to populate the dropdown with.
- * @param {string} [placeholder="Select an option"] - The placeholder text for the dropdown.
- */
-export function populateDropdown(elementId, options, placeholder = "Select an option") {
-  // Select the dropdown
-  const dropdown = document.getElementById(elementId);
+/** Utility function to hide all extra form fields and reset their values. */
+function hideExtraFields() {
+  // Select all extra fields
+  const caseDetailsFields = document.querySelectorAll("div[id$='-details']");
 
-  if (!dropdown) {
-    console.error(`Dropdown with ID ${elementId} not found.`);
-    return;
+  // Clear their input values
+  caseDetailsFields.forEach(field => {
+    field.hidden = true;
+    const inputs = field.querySelectorAll("input, textarea");
+    inputs.forEach(input => input.value = "");
+  });
+
+  // Hide the entire section
+  const caseDetailsElement = document.getElementById(ELEMENT_IDS.caseDetails);
+
+  if (caseDetailsElement) {
+    caseDetailsElement.hidden = true;
   }
+}
 
+/** Utility function to clear a dropdown and add a placeholder option.
+ * @param {HTMLSelectElement} dropdown - The dropdown element to clear.
+ * This function clears all existing options and adds a placeholder option.
+ * @param {string} placeholder - The placeholder text for the dropdown.
+*/
+function emptyDropdown(dropdown, placeholder) {
   // Clear existing options
   dropdown.innerHTML = "";
 
@@ -125,6 +144,24 @@ export function populateDropdown(elementId, options, placeholder = "Select an op
   placeholderOption.disabled = true;
   placeholderOption.selected = true;
   dropdown.appendChild(placeholderOption);
+}
+
+/** 
+ * Utility function to populate a dropdown with options.
+ * @param {string} elementId - The ID of the dropdown element.
+ * @param {Array} options - The options to populate the dropdown with.
+ * @param {string} [placeholder="Select an option"] - The placeholder text for the dropdown.
+ */
+function populateDropdown(elementId, options, placeholder = "Select an option") {
+  // Select the dropdown
+  const dropdown = document.getElementById(elementId);
+
+  if (!dropdown) {
+    console.error(`Dropdown with ID ${elementId} not found.`);
+    return;
+  }
+
+  emptyDropdown(dropdown, placeholder);
 
   // Add options
   options.forEach(option => {
@@ -143,6 +180,7 @@ export function populateLanguageDropdown() {
     ELEMENT_IDS.confClientLanguage,
     ELEMENT_IDS.contractClientLanguage,
     ELEMENT_IDS.replyClientLanguage,
+    ELEMENT_IDS.wordClientLanguage,
   ];
 
   // Populate dropdowns

@@ -132,6 +132,23 @@ function getSubject(language, type) {
 }
 
 /**
+ * Adds taxes to the given amount.
+ * @param {number} amount - The amount to which taxes will be added.
+ * @returns {number} The total amount with taxes.
+ * @throws {Error} If the amount is not a number.
+ */
+function addTaxes(amount) {
+  if (isNaN(amount)) {
+    console.error("Amount is not a number:", amount);
+    throw new Error("Amount is not a valid number.");
+  }
+  // GST + QST + 100$ file opening fee
+  // GST: 5% + QST: 9.975% 
+  let total = (amount * (1 + 0.05 + 0.09975) + 100);
+  return total;
+}
+
+/**
  * Creates an email draft with the specified type and language.
  * @param {string} type - The type of email (e.g., "office", "teams", "phone", "contract" or "reply").
  */
@@ -182,10 +199,11 @@ export async function createEmail(type) {
   
     }
 
-    const depositAmount = parseFloat(formState.deposit);
+    let depositAmount = formState.depositAmount;
+    let totalAmount = addTaxes(formState.depositAmount);
 
-    // amount + tax calculation
-    const totalAmount = (depositAmount * (1 + 0.05 + 0.09975) + 100).toFixed(2);
+    depositAmount = Number(depositAmount).toFixed(2);
+    totalAmount = Number(totalAmount).toFixed(2);
 
     body = body
       .replace("{{lawyerName}}", lawyer.name)
@@ -256,5 +274,76 @@ export async function createMeeting(startTime, endTime) {
   } catch (error) {
     console.error("createMeeting:", error);
     throw error; // Rethrow the error for further handling if needed
+  }
+}
+
+/**
+ * Creates a contract document in Word using the Office.js API.
+ * @returns {Promise<void>}
+ */
+export async function createContract() {
+  // Retrieve user inputs from your taskpane UI
+  const clientName = formState.clientName;
+  const clientEmail = formState.clientEmail;
+  const contractTitle = formState.contractTitle;
+  let depositAmount = formState.depositAmount;
+  let totalAmount = addTaxes(formState.depositAmount);
+
+  depositAmount = Number(depositAmount).toFixed(2);
+  totalAmount = Number(totalAmount).toFixed(2);
+
+  // Basic input validation
+  if (!clientName || !clientEmail || !contractTitle || !depositAmount) {
+    console.log("One or more inputs are missing.");
+    return;
+  }
+
+  if (!isValidEmail(clientEmail)) {
+    console.log("Invalid email format.");
+    return;
+  }
+
+  const language = formState.clientLanguage === "Français" ? "fr" : "en";
+  const templateBase64 = templates[language].docxContract;
+  if (!templateBase64) {
+    console.error("No template found for the selected language.");
+    return;
+  }
+
+  try {
+    await Word.run(async (context) => {
+      // Insert the template document and replace the current content.
+      context.document.body.insertFileFromBase64(templateBase64, Word.InsertLocation.replace);
+      await context.sync();
+
+      // Define a mapping between the placeholders and the input values.
+      const placeholders = {
+        "{{clientName}}": clientName,
+        "{{clientEmail}}": clientEmail,
+        "{{contractTitle}}": contractTitle,
+        "{{depositAmount}}": depositAmount,
+        "{{totalAmount}}": totalAmount,
+        "{{date}}": new Date().toLocaleDateString(),
+      };
+
+      // For each placeholder, search the document and replace it with the corresponding value.
+      for (const [placeholder, value] of Object.entries(placeholders)) {
+        // Search for the placeholder text with case sensitivity.
+        const searchResults = context.document.body.search(placeholder, {
+          matchCase: true,
+          matchWholeWord: false
+        });
+        context.load(searchResults);
+        await context.sync();
+
+        // Replace each found instance with the user input.
+        searchResults.items.forEach(item => {
+          item.insertText(value, Word.InsertLocation.replace);
+        });
+      }
+      await context.sync();
+    });
+  } catch (error) {
+    console.error("Error generating contract:", error);
   }
 }

@@ -179,7 +179,7 @@ export function isValidInputs() {
  * */
 export function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  return emailRegex.test(email.toLowerCase());
 }
 
 /** Utility function to validate an international phone number in E.164 format.

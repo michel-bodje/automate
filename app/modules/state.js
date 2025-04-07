@@ -22,7 +22,7 @@ class FormState {
     this.isRefBarreau = false;
     this.isPaymentMade = false;
     this.paymentMethod = "";
-    this.deposit = 0;
+    this.depositAmount = 0;
     this.notes = "";
   }
 

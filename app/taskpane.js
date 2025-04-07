@@ -5,6 +5,9 @@ import {
   getLawyer,
   showPage,
   resetPage,
+  setupWordMenu,
+  setupOutlookMenu,
+  loadTemplate,
   populateLawyerDropdown,
   populateLanguageDropdown,
   populateLocationDropdown,
@@ -18,24 +21,28 @@ import {
   fetchCalendarEvents,
   createEmail,
   createMeeting,
+  createContract,
   showLoading,
-  showError
+  showError,
 } from "./index.js";
 
 Office.onReady(async (info) => {
   if (info.host === Office.HostType.Outlook) {
-    // 1. Initialize MSAL for authentication
+    // Initialize MSAL for authentication
     await msalInstance.initialize();
-
-    // 2. Populate static UI components
+    // Setup UI components for Outlook
+    setupOutlookMenu();
     populateLawyerDropdown();
     populateLanguageDropdown();
-
-    // 3. Setup form interactions
     attachEventListeners();
-
-    // 4. Reset to main menu
-    resetPage();
+  } else if (info.host === Office.HostType.Word) {
+    // Load the Word contract template for both languages
+    await loadTemplate("en");
+    await loadTemplate("fr");
+    // Setup UI components for Word
+    setupWordMenu();
+    populateLanguageDropdown();
+    attachEventListeners();
   }
 });
 
@@ -73,6 +80,7 @@ function attachEventListeners() {
           handleCaseDetails();
           break;
         case ELEMENT_IDS.scheduleClientName:
+        case ELEMENT_IDS.wordClientName:
           // client name input change
           formState.update("clientName", value);
           break;
@@ -84,6 +92,7 @@ function attachEventListeners() {
         case ELEMENT_IDS.confClientEmail:
         case ELEMENT_IDS.contractClientEmail:
         case ELEMENT_IDS.replyClientEmail:
+        case ELEMENT_IDS.wordClientEmail:
           // client email input change
           formState.update("clientEmail", value);
           break;
@@ -91,6 +100,7 @@ function attachEventListeners() {
         case ELEMENT_IDS.confClientLanguage:
         case ELEMENT_IDS.contractClientLanguage:
         case ELEMENT_IDS.replyClientLanguage:
+        case ELEMENT_IDS.wordClientLanguage:
           // client language dropdown change
           formState.update("clientLanguage", value);
           break;
@@ -102,21 +112,22 @@ function attachEventListeners() {
           const manualTimeLabel = document.querySelector(`label[for=${ELEMENT_IDS.manualTime}]`);
 
           // Show/hide manual date/time inputs based on selected mode          
-          if (event.target.value === "manual") {
-            manualDateLabel.classList.remove("hidden");
-            manualTimeLabel.classList.remove("hidden");
-            manualDate.classList.remove("hidden");
-            manualTime.classList.remove("hidden");
-            manualDate.required = true;
-            manualTime.required = true;
-          } else {
+          if (event.target.value === "auto") {
             manualDateLabel.classList.add("hidden");
             manualTimeLabel.classList.add("hidden");
             manualDate.classList.add("hidden");
             manualTime.classList.add("hidden");
             manualDate.required = false;
             manualTime.required = false;
+          } else {
+            manualDateLabel.classList.remove("hidden");
+            manualTimeLabel.classList.remove("hidden");
+            manualDate.classList.remove("hidden");
+            manualTime.classList.remove("hidden");
+            manualDate.required = true;
+            manualTime.required = true;
           }
+          break;
         case ELEMENT_IDS.confDate:
         case ELEMENT_IDS.confTime:
         case ELEMENT_IDS.manualDate:
@@ -156,9 +167,14 @@ function attachEventListeners() {
           // schedule notes textarea change
           formState.update("notes", value);
           break;
-        case ELEMENT_IDS.contractDeposit:
+        case ELEMENT_IDS.emailContractDeposit:
+        case ELEMENT_IDS.wordContractDeposit:
           // contract deposit input change
-          formState.update("deposit", value);
+          formState.update("depositAmount", value);
+          break;
+        case ELEMENT_IDS.wordContractTitle:
+          // contract title input change
+          formState.update("contractTitle", value);
           break;
         default:
           // no change
@@ -211,6 +227,9 @@ function attachEventListeners() {
             manualWindow.document.head.appendChild(style);
           };
           break;
+        case ELEMENT_IDS.wordContractMenuBtn:
+          showPage(ELEMENT_IDS.wordContractPage);
+          break;
         default:
           break;
       }
@@ -246,6 +265,9 @@ function attachEventListeners() {
           break;
         case ELEMENT_IDS.replySubmitBtn:
           sendReply();
+          break;
+        case ELEMENT_IDS.wordContractSubmitBtn:
+          createContract();
           break;
         default:
           break;
@@ -299,6 +321,8 @@ async function findAutoScheduleSlot() {
   const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
 
   // Return the first valid slot
+  // TODO: add a more sophisticated slot selection algorithm
+  // e.g., based on client preferences, lawyer availability, etc.
   const validSlot = find(slots, (slot) =>
     isValidSlot(
       lawyer.id, { start: slot.start, end: slot.end, location: location }, events

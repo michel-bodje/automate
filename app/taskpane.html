@@ -46,6 +46,7 @@
                 <button type="button" id="conf-menu-btn" class="menu-btn">Send Confirmation</button>
                 <button type="button" id="contract-menu-btn" class="menu-btn">Send Contract</button>
                 <button type="button" id="reply-menu-btn" class="menu-btn">Send Reply</button>
+                <button type="button" id="word-contract-menu-btn" class="menu-btn">Create Contract</button>
                 <br>
                 <button type="button" id="user-manual-btn" class="menu-btn">User Manual</button>
             </div>
@@ -146,15 +147,15 @@
 
                 <label for="schedule-mode">Scheduling Mode:</label>
                 <select id="schedule-mode" required>
-                    <option value="auto" selected>Auto</option>
-                    <option value="manual">Manual</option>
+                    <option value="manual" selected>Manual</option>
+                    <option value="auto">Auto (Experimental)</option>
                 </select>
                 
-                <label for="manual-date" class="hidden">Appointment Date:</label>
-                <input type="date" id="manual-date" class="hidden">
+                <label for="manual-date">Appointment Date:</label>
+                <input type="date" id="manual-date" required>
                 
-                <label for="manual-time" class="hidden">Appointment Time:</label>
-                <input type="time" id="manual-time" class="hidden">
+                <label for="manual-time">Appointment Time:</label>
+                <input type="time" id="manual-time" required>
 
                 <!-- Checkboxes -->
                 <div class="checkbox-container">
@@ -250,8 +251,8 @@
                     <!-- Options will be dynamically populated by JavaScript -->
                 </select>
 
-                <label for="contract-deposit">Deposit:</label>
-                <input type="number" id="contract-deposit" placeholder="Enter deposit amount" required>
+                <label for="contract-email-deposit">Deposit:</label>
+                <input type="number" id="contract-email-deposit" placeholder="Enter required deposit" required>
 
                 <!-- End of page 3 -->
                 <button type="submit" id="send-contract-btn" class="submit-btn">Create</button>
@@ -278,6 +279,33 @@
             <!-- End of page 4 -->
             <button type="submit" id="send-reply-btn" class="submit-btn">Create</button>
             <button type="button" class="back-btn">Back</button>
+            </form>
+        </div>
+
+        <!-- Contract Creation Page -->
+        <!-- Should only show in MS Word, not Outlook. -->
+        <div id="word-contract-page" class="page hidden">
+            <h1>Create Contract</h1>
+            <form>
+                <label for="word-client-name">Client Name:</label>
+                <input type="text" id="word-client-name" required>
+            
+                <label for="word-client-email">Client Email:</label>
+                <input type="email" id="word-client-email" required>
+
+                <label for="word-client-language">Preferred Language:</label>
+                <select id="word-client-language" required>
+                    <!-- Options will be dynamically populated by JavaScript -->
+                </select>
+            
+                <label for="word-contract-title">Contract Title:</label>
+                <input type="text" id="word-contract-title" required>
+            
+                <label for="word-contract-deposit">Deposit:</label>
+                <input type="number" id="word-contract-deposit" placeholder="Enter required deposit" required>
+            
+                <button type="button" id="generate-word-contract-btn" class="submit-btn">Generate</button>
+                <button type="button" class="back-btn">Back</button>
             </form>
         </div>
     </main>

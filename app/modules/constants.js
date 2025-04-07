@@ -13,6 +13,7 @@ export const ELEMENT_IDS = {
     confirmPage: "confirmation-page",
     contractPage: "contract-page",
     replyPage: "reply-page",
+    wordContractPage: "word-contract-page",
 
     // Button IDs
     backBtn: "back-btn",
@@ -22,11 +23,13 @@ export const ELEMENT_IDS = {
     contractMenuBtn: "contract-menu-btn",
     replyMenuBtn: "reply-menu-btn",
     userManualMenuBtn: "user-manual-btn",
+    wordContractMenuBtn: "word-contract-menu-btn",
 
     scheduleSubmitBtn: "schedule-appointment-btn",
     confirmSubmitBtn: "send-confirmation-btn",
     contractSubmitBtn: "send-contract-btn",
     replySubmitBtn: "send-reply-btn",
+    wordContractSubmitBtn: "generate-word-contract-btn",
 
     // Form input IDs
     scheduleLawyerId: "schedule-lawyer-id",
@@ -39,16 +42,19 @@ export const ELEMENT_IDS = {
 
     scheduleClientName: "schedule-client-name",
     scheduleClientPhone: "schedule-client-phone",
+    wordClientName: "word-client-name",
 
     scheduleClientEmail: "schedule-client-email",
     confClientEmail: "conf-client-email",
     contractClientEmail: "contract-client-email",
     replyClientEmail: "reply-client-email",
+    wordClientEmail: "word-client-email",
 
     scheduleClientLanguage: "schedule-client-language",
     confClientLanguage: "conf-client-language",
     contractClientLanguage: "contract-client-language",
     replyClientLanguage: "reply-client-language",
+    wordClientLanguage: "word-client-language",
 
     confDate: "conf-date",
     confTime: "conf-time",
@@ -56,7 +62,9 @@ export const ELEMENT_IDS = {
     manualDate: "manual-date",
     manualTime: "manual-time",
     
-    contractDeposit: "contract-deposit",
+    emailContractDeposit: "email-contract-deposit",
+    wordContractDeposit: "word-contract-deposit",
+    wordContractTitle: "word-contract-title",
 
     firstConsultation: "first-consultation",
     refBarreau: "ref-barreau",
