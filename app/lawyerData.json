@@ -46,6 +46,15 @@
             "specialties": ["name_change", "estate", "common"]
         },
         {
+            "id": "AA",
+            "name": "Andrea Arruda",
+            "email": "andrea.arruda@amlex.ca",
+            "workingHours": {"start": "9:30", "end": "17:00"},
+            "breakMinutes": 30,
+            "maxDailyAppointments": 5,
+            "specialties": ["assermentation", "common"]
+        },
+        {
             "id": "AR",
             "name": "Alexia Robert",
             "email": "alexia.robert@amlex.ca",
@@ -55,13 +64,13 @@
             "specialties": ["assermentation", "common"]
         },
         {
-            "id": "AA",
-            "name": "Andrea Arruda",
-            "email": "andrea.arruda@amlex.ca",
+            "id": "MG",
+            "name": "Marine Garnier",
+            "email": "marine.garnier@umontreal.ca",
             "workingHours": {"start": "9:30", "end": "17:00"},
             "breakMinutes": 30,
             "maxDailyAppointments": 5,
-            "specialties": ["assermentation", "common"]
+            "specialties": ["common"]
         }
     ]
 }

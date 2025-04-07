@@ -4,7 +4,9 @@ const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const urlDev = "https://localhost:3000/";
+const devServerPort = process.env.DEV_SERVER_PORT ? parseInt(process.env.DEV_SERVER_PORT, 10) : 3000;
+
+const urlDev = `https://localhost:${devServerPort}/`;
 const urlProd = "https://michel-bodje.github.io/automate/";
 
 async function getHttpsOptions() {
@@ -86,10 +88,10 @@ module.exports = async (env, options) => {
             to: "[name][ext]",
           },
           {
-            from: "manifest*.xml",
-            to: "[name]" + "[ext]",
-            transform(content) {
-              console.log("Transforming manifest.xml. Dev mode:", dev);
+            from: "manifests/manifest.*.xml",
+            to: "manifests/[name][ext]",
+            transform(content, filename) {
+              console.log(`Transforming ${filename}. Dev mode:`, dev);
               if (dev) {
                 return content;
               } else {
@@ -115,7 +117,7 @@ module.exports = async (env, options) => {
         type: "https",
         options: env.WEBPACK_BUILD || options.https !== undefined ? options.https : await getHttpsOptions(),
       },
-      port: process.env.npm_package_config_dev_server_port || 3000,
+      port: devServerPort,
     },
   };
 

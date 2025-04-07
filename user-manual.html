@@ -433,6 +433,8 @@ code {
 <li>Click <strong>Schedule</strong> to finalize the appointment.</li>
 </ol>
 <br>
+<p><em>Example appointment automation. By default, (ma) is appended to subject and payment method 😉</em>
+<br></p>
 <div style="text-align: center;">
   <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
 </div>
@@ -485,7 +487,7 @@ code {
 <h3 id="codebase-overview">Codebase Overview</h3>
 <p>The add-in is built using JavaScript and integrates with the Office JavaScript API. The codebase is modular, with each module handling a specific aspect of the add-in's functionality.</p>
 <p>The source code is hosted on Github at <a href="https://github.com/michel-bodje/automate.git">https://github.com/michel-bodje/automate.git</a>.</p>
-<p>The add-in manifest points to its Github Pages URL at <a href="https://michel-bodje.github.io/automate">https://michel-bodje.github.io/automate</a>, but it is not recommended to open in a browser as the app breaks outside of Outlook.</p>
+<p>The add-in manifest files point to the Github Pages URL at <a href="https://michel-bodje.github.io/automate">https://michel-bodje.github.io/automate</a>, but it is not recommended to open in a browser as the app breaks outside of Office.</p>
 <h4 id="key-files-and-directories">Key Files and Directories</h4>
 <ul>
 <li><strong><code>app/</code></strong>: Contains the main application logic.
@@ -505,11 +507,12 @@ code {
 <li><strong><code>timeUtils.js</code></strong>: Provides time-related utilities for scheduling.</li>
 </ul>
 </li>
-<li><strong><code>templates/</code></strong>: Stores email templates in English and French.</li>
 </ul>
 </li>
-<li><strong><code>manifest.xml</code></strong>: Defines the add-in's metadata and configuration.</li>
+<li><strong><code>assets/templates/</code></strong>: Stores email and docx templates in English and French.</li>
+<li><strong><code>manifests/</code></strong>: Defines the add-in's metadata and configuration for Outlook and Word.</li>
 <li><strong><code>webpack.config.js</code></strong>: Configures the build process.</li>
+<li><strong><code>package.json</code></strong>: Configures the build scripts.</li>
 </ul>
 <h4 id="workflow-explanation">Workflow Explanation</h4>
 <ol>
@@ -620,20 +623,13 @@ code {
   <img src="assets/images/example_casetypes.png" alt="Editing case types" width="800">
 </div>
 <br>
-<ul>
-<li><strong>Modifying Business Rules</strong>:
-<ul>
-<li>Update the <code>rules.js</code> module to implement new rules or modify existing ones.</li>
-</ul>
-</li>
-</ul>
 <h4 id="debugging-and-testing">Debugging and Testing</h4>
 <ul>
 <li>
 <p>To run the add-in locally, use the following npm scripts:</p>
 <ol>
 <li>Start the development server: <code>npm start</code></li>
-<li>Stop the development server: Press <code>npm stop</code>.</li>
+<li>Stop the development server: <code>npm stop</code>.</li>
 </ol>
 </li>
 <li>
@@ -655,12 +651,12 @@ code {
 </ul>
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/webpack.png" alt="Web server" width="800">
+  <img src="assets/images/webpack-console.png" alt="Web server" width="800">
 </div>
 <br>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
-<p>This add-in simplifies appointment scheduling and email drafting for Allen Madelin. The modular codebase ensures maintainability and extensibility, allowing future developers to adapt the add-in to evolving business needs.</p>
+<p>This add-in simplifies appointment scheduling, email drafting, and contract making for Allen Madelin. The modular codebase ensures maintainability and extensibility, allowing future developers to adapt the add-in to evolving business needs.</p>
 
 </body>
 </html>

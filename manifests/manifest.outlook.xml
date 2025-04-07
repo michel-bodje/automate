@@ -12,7 +12,7 @@
   <DefaultLocale>en-US</DefaultLocale>
 
   <DisplayName DefaultValue="Automate"/>
-  <Description DefaultValue="Automation for Allen Madelin"/>
+  <Description DefaultValue="Automate for Allen Madelin"/>
   <IconUrl DefaultValue="https://localhost:3000/assets/images/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/images/icon-128.png"/>
   <SupportUrl DefaultValue="https://localhost:3000/taskpane.html"/>
@@ -55,33 +55,6 @@
       <Host xsi:type="MailHost">
         <DesktopFormFactor>
           <FunctionFile resid="Commands.Url"/>
-
-          <!--
-          Optional extension point for read mode.
-
-          <ExtensionPoint xsi:type="MessageReadCommandSurface">
-            <OfficeTab id="TabDefault">
-              <Group id="msgReadGroup">
-                <Label resid="GroupLabel"/>
-                <Control xsi:type="Button" id="msgReadOpenPaneButton">
-                  <Label resid="TaskpaneButton.Label"/>
-                  <Supertip>
-                    <Title resid="TaskpaneButton.Label"/>
-                    <Description resid="TaskpaneButton.Tooltip"/>
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16x16"/>
-                    <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
-                  </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="Taskpane.Url"/>
-                  </Action>
-                </Control>
-              </Group>
-            </OfficeTab>
-          </ExtensionPoint>
-          -->
 
           <ExtensionPoint xsi:type="MessageComposeCommandSurface">
             <OfficeTab id="TabDefault">
@@ -128,33 +101,6 @@
               </Group>
             </OfficeTab>
           </ExtensionPoint>
-          
-          <!--
-          Optional extension point for appointment attendees surface.
-
-          <ExtensionPoint xsi:type="AppointmentAttendeeCommandSurface">
-            <OfficeTab id="TabDefault">
-              <Group id="appointmentAttendeeGroup">
-                <Label resid="GroupLabel"/>
-                <Control xsi:type="Button" id="appointmentAttendeeOpenPaneButton">
-                  <Label resid="TaskpaneButton.Label"/>
-                  <Supertip>
-                    <Title resid="TaskpaneButton.Label"/>
-                    <Description resid="TaskpaneButton.Tooltip"/>
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16x16"/>
-                    <bt:Image size="32" resid="Icon.32x32"/>
-                    <bt:Image size="80" resid="Icon.80x80"/>
-                  </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="Taskpane.Url"/>
-                  </Action>
-                </Control>
-              </Group>
-            </OfficeTab>
-          </ExtensionPoint>
-          -->
 
         </DesktopFormFactor>
       </Host>
@@ -173,11 +119,9 @@
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="Allen Madelin"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Automate"/>
-        <bt:String id="ActionButton.Label" DefaultValue="Perform an action"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Automation for Allen Madelin"/>
-        <bt:String id="ActionButton.Tooltip" DefaultValue="Perform an automation script."/>
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Automate for Allen Madelin"/>
       </bt:LongStrings>
     </Resources>
     

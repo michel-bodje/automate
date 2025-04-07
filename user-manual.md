@@ -63,6 +63,9 @@ This manual is divided into two sections:
 5. Click **Schedule** to finalize the appointment.
 
 <br>
+
+*Example appointment automation. By default, (ma) is appended to subject and payment method 😉*
+<br>
 <div style="text-align: center;">
   <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
 </div>
@@ -116,7 +119,7 @@ The add-in is built using JavaScript and integrates with the Office JavaScript A
 
 The source code is hosted on Github at [https://github.com/michel-bodje/automate.git](https://github.com/michel-bodje/automate.git).
 
-The add-in manifest points to its Github Pages URL at [https://michel-bodje.github.io/automate](https://michel-bodje.github.io/automate), but it is not recommended to open in a browser as the app breaks outside of Outlook.
+The add-in manifest files point to the Github Pages URL at [https://michel-bodje.github.io/automate](https://michel-bodje.github.io/automate), but it is not recommended to open in a browser as the app breaks outside of Office.
 
 #### Key Files and Directories
 - **`app/`**: Contains the main application logic.
@@ -132,9 +135,10 @@ The add-in manifest points to its Github Pages URL at [https://michel-bodje.gith
     - **`ui.js`**: Handles UI interactions and updates.
     - **`util.js`**: Contains utility functions for validation and formatting.
     - **`timeUtils.js`**: Provides time-related utilities for scheduling.
-  - **`templates/`**: Stores email templates in English and French.
-- **`manifest.xml`**: Defines the add-in's metadata and configuration.
+- **`assets/templates/`**: Stores email and docx templates in English and French.
+- **`manifests/`**: Defines the add-in's metadata and configuration for Outlook and Word.
 - **`webpack.config.js`**: Configures the build process.
+- **`package.json`**: Configures the build scripts.
 
 #### Workflow Explanation
 1. **User Interaction**:
@@ -212,13 +216,10 @@ The add-in manifest points to its Github Pages URL at [https://michel-bodje.gith
 </div>
 <br>
 
-- **Modifying Business Rules**:
-  - Update the `rules.js` module to implement new rules or modify existing ones.
-
 #### Debugging and Testing
 - To run the add-in locally, use the following npm scripts:
     1. Start the development server: `npm start`
-    2. Stop the development server: Press `npm stop`.
+    2. Stop the development server: `npm stop`.
     
 - Ensure that all dependencies are installed by running `npm install` before starting the server.
 - Use `npm run lint` to check for code quality issues.
@@ -230,7 +231,7 @@ The add-in manifest points to its Github Pages URL at [https://michel-bodje.gith
 
 <br>
 <div style="text-align: center;">
-  <img src="assets/images/webpack.png" alt="Web server" width="800">
+  <img src="assets/images/webpack-console.png" alt="Web server" width="800">
 </div>
 <br>
 
@@ -238,4 +239,4 @@ The add-in manifest points to its Github Pages URL at [https://michel-bodje.gith
 
 ## Conclusion
 
-This add-in simplifies appointment scheduling and email drafting for Allen Madelin. The modular codebase ensures maintainability and extensibility, allowing future developers to adapt the add-in to evolving business needs.
+This add-in simplifies appointment scheduling, email drafting, and contract making for Allen Madelin. The modular codebase ensures maintainability and extensibility, allowing future developers to adapt the add-in to evolving business needs.
