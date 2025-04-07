@@ -46,37 +46,23 @@ const docxContractPath = {
   fr: path.resolve("assets/templates/fr/Contract.docx"),
 };
 
-
 /**
  * Loads the DOCX contract template for the specified language and prepares it for manipulation.
  * @param {string} language - The language code (e.g., 'en' or 'fr').
  */
 export async function loadTemplate(language) {
   const templatePath = docxContractPath[language];
-  if (!templatePath) {
-    throw new Error(`Template not found for language: ${language}`);
-  }
 
-  try {
-    // Fetch the DOCX file as an ArrayBuffer
-    const response = await fetch(templatePath);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch template: ${response.statusText}`);
-    }
-    const content = await response.arrayBuffer()
+  const content = await fetch(templatePath).then(res => res.arrayBuffer());
 
-    // Load the DOCX file into PizZip
-    const zip = new PizZip(content);
+  // Load the DOCX file into PizZip
+  const zip = new PizZip(content)
 
-    // Initialize Docxtemplater with the zip content
-    const doc = new Docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-    });
+  // Initialize Docxtemplater with the zip content
+  const doc = new Docxtemplater(zip, {
+    paragraphLoop: true,
+    linebreaks: true,
+  });
 
-    return doc; // Return the Docxtemplater instance for further use
-  } catch (error) {
-    console.error("Failed to load template:", error);
-    throw error;
-  }
+  return doc; // Return the Docxtemplater instance for further use
 }

@@ -325,19 +325,20 @@ export async function createContract() {
     };
 
     // Render the document with the placeholders replaced
-    doc.render(placeholders);
-
     // Generate the final document as a base64 string
+    doc.render(placeholders);
     const base64Template = doc.getZip().generate({ type: "base64" });
 
     // Insert the generated document into Word
     await Word.run(async (context) => {
-      // Insert the rendered document
-      context.document.body.insertFileFromBase64(
-        base64Template,
-        Word.InsertLocation.end
-      );
+      // Create new document from the base64 string
+      const newDoc = context.application.createDocument(base64Template);
       await context.sync();
+      
+      // Open in new window
+      newDoc.open();
+      await context.sync();
+      
       // Find all instances of the email
       const searchResults = context.document.body.search(clientEmail, {
         matchCase: false,
@@ -346,6 +347,7 @@ export async function createContract() {
       searchResults.load("items");
       await context.sync();
 
+      // It's replacing in the first document, not the new one...
       // Replace the email text with a mailto link
       if (searchResults.items.length > 0) {
         const promises = searchResults.items.map(async (range) => {
@@ -360,8 +362,8 @@ export async function createContract() {
                 );
               }
             });
-        });
-
+          }
+        );
         await Promise.all(promises);
         await context.sync();
       }
