@@ -317,6 +317,7 @@ export async function createContract() {
     // Define a mapping between the placeholders and the input values
     const placeholders = {
       clientName,
+      clientEmail,
       contractTitle,
       depositAmount,
       totalAmount,
@@ -331,27 +332,40 @@ export async function createContract() {
 
     // Insert the generated document into Word
     await Word.run(async (context) => {
-      context.document.body.insertFileFromBase64(
-        base64Template,
-        Word.InsertLocation.replace
-      );
-      await context.sync();
-
-      const body = context.document.body;
-      const searchResults = body.search("{clientEmail}", { matchWholeWord: true });
-
-      // Replace the placeholder email with a clickable mailto: link
-      if (searchResults.items.length > 0) {
-        const emailPlaceholder = searchResults.items[0];
-        emailPlaceholder.insertHyperlink(
-          clientEmail, // Display text
-          `mailto:${clientEmail}`, // Hyperlink URL
-          Word.InsertLocation.replace
-        );
-      }
-    
-      await context.sync();
+    // Insert the rendered document
+    context.document.body.insertFileFromBase64(
+      base64Template,
+      Word.InsertLocation.end
+    );
+    await context.sync();
+    // Find all instances of the email
+    const searchResults = context.document.body.search(clientEmail, {
+      matchCase: false,
+      matchWholeWord: true
     });
+    searchResults.load("items");
+    context.sync();
+    // Process each found instance
+    if (searchResults.items.length > 0) {
+      const promises = searchResults.items.map(async (range) => {
+        range.load("text");
+        await context.sync()
+          .then(() => {
+            // Only replace if it's the exact email match
+            if (range.text === clientEmail) {
+              range.insertHtml(
+                `<a href="mailto:${clientEmail}">${clientEmail}</a>`,
+                Word.InsertLocation.replace
+              );
+            }
+          }
+        );
+      });
+      await Promise.all(promises);
+      await context.sync();
+    }
+    });
+
   } catch (error) {
     console.error("Error generating contract:", error);
   }

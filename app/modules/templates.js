@@ -12,8 +12,8 @@ import feedbackTemplateEn from "../../assets/templates/en/Feedback.html";
 import feedbackTemplateFr from "../../assets/templates/fr/Feedback.html";
 import suiviTemplateEn from "../../assets/templates/en/Suivi.html";
 import suiviTemplateFr from "../../assets/templates/fr/Suivi.html";
-import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
+import PizZip from "pizzip";
 import path from "path";
 
 /**
