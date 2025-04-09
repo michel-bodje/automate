@@ -392,6 +392,7 @@ function isVirtualMeeting(event) {
     'telephone',
     'téléphone',
     'teams',
+    'ms teams',
     'microsoft teams meeting',
   ].some(keyword => location.includes(keyword));
   
