@@ -66,7 +66,7 @@ export async function fetchCalendarEvents(lawyerId, start, end) {
     try {
         const events = await client
             .api('/me/calendarView')
-            .header('Prefer', `outlook.timezone="${FIRM_TIMEZONE}"`)
+            //.header('Prefer', `outlook.timezone="${FIRM_TIMEZONE}"`)
             .query({
                 startDateTime: start.toISOString(),
                 endDateTime: end.toISOString(),
