@@ -24,6 +24,7 @@ class FormState {
     this.isPaymentMade = false;
     this.paymentMethod = "";
     this.depositAmount = 0;
+    this.contractTitle = "";
     this.notes = "";
   }
 

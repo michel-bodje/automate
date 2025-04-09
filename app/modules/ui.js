@@ -290,6 +290,42 @@ export function populateCaseTypeDropdown() {
   );
 }
 
+/**
+ * Dynamically populates the contract title dropdown based on the selected language.
+ */
+export function populateContractTitles() {
+  const language = formState.clientLanguage; // Get the selected language from formState
+  const contractTitleDropdown = document.getElementById(ELEMENT_IDS.wordContractTitle);
+
+  if (!contractTitleDropdown) {
+    console.error("Contract title dropdown not found.");
+    return;
+  }
+
+  // Define contract title options for each language
+  const titles = {
+    English: [
+      "Representation in Divorce",
+      "Representation in Estate Law",
+      "Limited Mandate",
+    ],
+    Français: [
+      "Représentation en divorce",
+      "Représentation en droit des successions",
+      "Mandat Limité",
+    ],
+  };
+
+  // Get the appropriate titles based on the selected language
+  const options = (titles[language] || []).map(title => ({ value: title, label: title }));
+
+  // Add an "Other" option
+  options.push({ value: "other", label: "Other (Specify)" });
+
+  // Populate the dropdown
+  populateDropdown(ELEMENT_IDS.wordContractTitle, options, "Select Contract Title");
+}
+
 /** Handles the case type dropdown change event. */
 export function handleCaseDetails() {
   const caseType = formState.caseType;

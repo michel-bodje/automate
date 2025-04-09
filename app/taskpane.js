@@ -11,6 +11,7 @@ import {
   populateLanguageDropdown,
   populateLocationDropdown,
   populateCaseTypeDropdown,
+  populateContractTitles,
   handleCaseDetails,
   handlePaymentOptions,
   isValidInputs,
@@ -99,6 +100,9 @@ function attachEventListeners() {
         case ELEMENT_IDS.wordClientLanguage:
           // client language dropdown change
           formState.update("clientLanguage", value);
+          if (Office.context.host === Office.HostType.Word) {
+            populateContractTitles();
+          }
           break;
         case ELEMENT_IDS.scheduleMode:
           // appointment mode dropdown change
@@ -161,7 +165,19 @@ function attachEventListeners() {
           formState.update("depositAmount", value);
           break;
         case ELEMENT_IDS.wordContractTitle:
-          // contract title input change
+          // Show/hide custom contract title input based on selection
+          const customTitleInput = document.getElementById(ELEMENT_IDS.customContractTitle);
+          if (value === "other") {
+            customTitleInput.classList.remove("hidden");
+            customTitleInput.required = true;
+          } else {
+            customTitleInput.classList.add("hidden");
+            customTitleInput.required = false;
+            formState.update("contractTitle", value);
+          }
+          break;
+        case ELEMENT_IDS.customContractTitle:
+          // Update form state with custom contract title
           formState.update("contractTitle", value);
           break;
         default:

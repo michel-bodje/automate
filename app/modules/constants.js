@@ -65,6 +65,7 @@ export const ELEMENT_IDS = {
     emailContractDeposit: "email-contract-deposit",
     wordContractDeposit: "word-contract-deposit",
     wordContractTitle: "word-contract-title",
+    customContractTitle: "custom-contract-title",
 
     firstConsultation: "first-consultation",
     refBarreau: "ref-barreau",
