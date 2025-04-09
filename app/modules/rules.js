@@ -327,7 +327,7 @@ function hasDailyLimitConflict(lawyerId, allEvents) {
 
     if (lawyerEventsForDay.length >= maxDailyAppointments) {
       // log the conflict
-      console.warn(`Daily limit reached for lawyer ${lawyerId} on ${day.toISOString()}`);
+      console.warn(`Daily limit reached for lawyer ${lawyerId} on`, day);
       return true; // Daily limit reached for this day
     }
   }

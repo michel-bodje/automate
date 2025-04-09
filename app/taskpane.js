@@ -387,14 +387,21 @@ async function scheduleAppointment() {
 
       // TODO: Show the valid slots to the user for selection here
       // (e.g., in a dropdown or modal)
-      const slotOptions = validSlots.map(slot => {
+
+      // Display the slots in a popup
+      const popupWindow = window.open("", "Available Slots", "width=400,height=300");
+      popupWindow.document.write("<html><head><title>Available Slots</title></head><body>");
+      popupWindow.document.write("<h3>Available Slots</h3>");
+      popupWindow.document.write("<ul>");
+      validSlots.forEach(slot => {
         const date = slot.start.toLocaleDateString();
         const time = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        return `Date: ${date} - Time: ${time}`;
-      }).join('\n');
-
-      // Display the slots in a modal
-      showErrorModal(`Available Slots:\n${slotOptions}`);
+        popupWindow.document.write(`<li>Date: ${date} - Time: ${time}</li>`);
+      });
+      popupWindow.document.write("</ul>");
+      popupWindow.document.write("<button onclick='window.close()'>Close</button>");
+      popupWindow.document.write("</body></html>");
+      popupWindow.document.close();
       
       console.log("Auto-scheduled appointment at:", selectedSlot.start);
     }
