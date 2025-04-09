@@ -55,6 +55,9 @@ export function resetPage() {
   // Reset dropdowns
   populateLawyerDropdown();
   populateLanguageDropdown();
+  if (Office.context.host === Office.HostType.Word) {
+    populateContractTitles();
+  }
 }
 
 /**

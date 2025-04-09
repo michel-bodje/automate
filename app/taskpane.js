@@ -39,6 +39,7 @@ Office.onReady(async (info) => {
     // Setup UI components for Word
     setupWordMenu();
     populateLanguageDropdown();
+    populateContractTitles();
     attachEventListeners();
   }
 });
