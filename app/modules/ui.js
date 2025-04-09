@@ -100,16 +100,31 @@ export function showLoading(visible) {
 }
 
 /**
- * Shows an error message in the UI for a short duration.
- *
- * @param {string} message - The error message to display.
+ * Displays a modal error message window with an "OK" button.
+ * @param {string} errorMessage - The error message to display.
  */
-export function showError(message) {
-  const errorBar = document.getElementById("error-message");
-  errorBar.querySelector(".ms-MessageBar-text").textContent = message;
-  errorBar.classList.remove("hidden");
-  setTimeout(() => errorBar.classList.add("hidden"), 5000);
+export function showErrorModal(errorMessage) {
+  const modal = document.getElementById("error-modal");
+  const messageElement = document.getElementById("error-message");
+  const okButton = document.getElementById("error-ok-button");
+
+  if (!modal || !messageElement || !okButton) {
+    console.error("Error modal elements not found.");
+    return;
+  }
+
+  // Set the error message
+  messageElement.textContent = errorMessage;
+
+  // Show the modal
+  modal.classList.remove("hidden");
+
+  // Add event listener to the OK button to close the modal
+  okButton.onclick = () => {
+    modal.classList.add("hidden");
+  };
 }
+
 
 /** Utility function to hide all extra form fields and reset their values. */
 function hideExtraFields() {

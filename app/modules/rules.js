@@ -338,7 +338,15 @@ function createSlot(start, end, location) {
  */
 function isVirtualMeeting(event) {
   const location = event.location?.displayName?.toLowerCase() ?? "";
-  const isVirtual = location.includes('phone') || location.includes('teams');
+  const isVirtual = [
+    'phone',
+    'tel',
+    'telephone',
+    'téléphone',
+    'teams',
+    'microsoft teams meeting',
+  ].some(keyword => location.includes(keyword));
+  
   console.log(`Event location: ${location}, is virtual: ${isVirtual}`);
   return isVirtual;
 }

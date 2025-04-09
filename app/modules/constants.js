@@ -96,7 +96,6 @@ export const ELEMENT_IDS = {
 
     // Misc
     loadingOverlay: "loading-overlay",
-    errorMessage: "error-message",
 };
 
 /**

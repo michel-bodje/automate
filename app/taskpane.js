@@ -23,7 +23,7 @@ import {
   createMeeting,
   createContract,
   showLoading,
-  showError,
+  showErrorModal,
 } from "./index.js";
 
 Office.onReady(async (info) => {
@@ -385,7 +385,7 @@ async function scheduleAppointment() {
 
   } catch(error) {
     console.error("Scheduling Error:", error);
-    showError(error.message);
+    showErrorModal(error.message);
     throw error;
   } finally {
     // Hide loading spinner
