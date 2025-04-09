@@ -313,33 +313,37 @@ async function sendConfirmation() {
  * @returns {Promise<{start: Date, end: Date}>} - The available time slot.
  */
 async function findAutoScheduleSlot() {
-  const lawyer = getLawyer(formState.lawyerId);
-  const location = formState.location;
-  const startDateTime = new Date();
-  const endDateTime = new Date(startDateTime.getTime() + (14 * 24 * 60 * 60 * 1000));
-  // Two weeks from now
-
-  // Fetch calendar events for the lawyer
-  const events = await fetchCalendarEvents(lawyer.id, startDateTime, endDateTime);
-
-  // Generate available slots based on the fetched events
-  const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
-
-  // Return the first valid slot
-  // TODO: add a more sophisticated slot selection algorithm
-  // e.g., based on client preferences, lawyer availability, etc.
-  const validSlot = find(slots, (slot) =>
-    isValidSlot(
-      lawyer.id, { start: slot.start, end: slot.end, location: location }, events
-    )
-  );
-
-  if (!validSlot) {
-    console.error("No available slots found in next 2 weeks.");
-    throw new Error("No available slots found in the next 2 weeks.");
+  try {
+    const lawyer = getLawyer(formState.lawyerId);
+    const location = formState.location;
+    const startDateTime = new Date();
+    const endDateTime = new Date(startDateTime.getTime() + (14 * 24 * 60 * 60 * 1000));
+    // Two weeks from now
+    
+    // Fetch calendar events for the lawyer
+    const events = await fetchCalendarEvents(lawyer.id, startDateTime, endDateTime);
+    
+    // Generate available slots based on the fetched events
+    const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
+    
+    // Return the first valid slot
+    // TODO: add a more sophisticated slot selection algorithm
+    // e.g., based on client preferences, lawyer availability, etc.
+    const validSlot = find(slots, (slot) =>
+      isValidSlot(
+        lawyer.id, { start: slot.start, end: slot.end, location: location }, events
+      )
+    );
+  
+    if (!validSlot) {
+      throw new Error("No available slots found in the next 2 weeks.");
+    }
+    console.log("Valid slot selected:", validSlot);
+    return validSlot;
+} catch (error) {
+    console.error("Error finding auto-schedule slot:", error);
+    throw error;
   }
-  console.log("Valid slot selected:", validSlot);
-  return validSlot;
 }
 
 /**
@@ -389,6 +393,6 @@ async function scheduleAppointment() {
     throw error;
   } finally {
     // Hide loading spinner
-    setTimeout(() => showLoading(false), 1000); // Safety delay
+    showLoading(false);
   }
 }
