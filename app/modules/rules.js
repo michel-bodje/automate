@@ -380,7 +380,7 @@ function isVirtualMeeting(event) {
  * @param {Date} dateB - The second date.
  * @returns {boolean} - True if the dates are the same day, false otherwise.
  */
-function isSameDay(dateA, dateB) {
+export function isSameDay(dateA, dateB) {
   return dateA.getFullYear() === dateB.getFullYear() &&
          dateA.getMonth() === dateB.getMonth() &&
          dateA.getDate() === dateB.getDate();

@@ -16,6 +16,7 @@ import {
   handlePaymentOptions,
   isValidInputs,
   isValidSlot,
+  isSameDay,
   generateSlots,
   msalInstance,
   fetchCalendarEvents,
@@ -382,8 +383,11 @@ async function scheduleAppointment() {
       // Auto-scheduling mode
       const validSlots = await findAutoScheduleSlots();
       
-      // Use the first valid slot
-      selectedSlot = validSlots[0]; 
+      // Use the first valid slot that's after the current time if on the same day
+      const now = new Date();
+      selectedSlot = validSlots.find(slot => {
+        return !isSameDay(slot.start, now) || slot.start > now;
+      }) || validSlots[0]; // Fallback to the first valid slot if no such slot is found
 
       // TODO: Show the valid slots to the user for selection here
       // (e.g., in a dropdown or modal)
