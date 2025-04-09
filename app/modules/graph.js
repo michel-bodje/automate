@@ -77,7 +77,7 @@ export async function fetchCalendarEvents(lawyerId, start, end) {
             })
             .get();
         
-        console.log("Fetched events:", events.map(event => ({
+        console.log("Fetched events:", events.value.map(event => ({
             subject: event.subject,
             start: event.start.dateTime,
             end: event.end.dateTime,
