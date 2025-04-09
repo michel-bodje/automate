@@ -125,7 +125,6 @@ export function showErrorModal(errorMessage) {
   };
 }
 
-
 /** Utility function to hide all extra form fields and reset their values. */
 function hideExtraFields() {
   // Select all extra fields

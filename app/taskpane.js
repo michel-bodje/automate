@@ -394,14 +394,51 @@ async function scheduleAppointment() {
       popupWindow.document.write("<h3>Available Slots</h3>");
       popupWindow.document.write("<ul>");
       validSlots.forEach(slot => {
-        const date = slot.start.toLocaleDateString();
-        const time = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        popupWindow.document.write(`<li>Date: ${date} - Time: ${time}</li>`);
+        const startDate = slot.start.toLocaleDateString();
+        const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        popupWindow.document.write(`<li>Date: ${startDate} - Time: ${startTime} to ${endTime}</li>`);
       });
       popupWindow.document.write("</ul>");
       popupWindow.document.write("<button onclick='window.close()'>Close</button>");
       popupWindow.document.write("</body></html>");
       popupWindow.document.close();
+
+      // Apply the same style as in the user manual
+      const style = popupWindow.document.createElement('style');
+      style.textContent = `
+        body {
+          background-color: #1e1e1e;
+          color: #f4f4f4;
+          font-family: 'Trebuchet MS', 'Tahoma', 'Arial', sans-serif;
+          line-height: 1.6;
+          margin: 0;
+          padding: 1rem;
+        }
+        h3 {
+          color: #0078d4;
+        }
+        ul {
+          list-style-type: none;
+          padding: 0;
+        }
+        li {
+          margin: 0.5rem 0;
+        }
+        button {
+          background-color: #0078d4;
+          color: #fff;
+          border: none;
+          padding: 0.5rem 1rem;
+          font-size: 1rem;
+          cursor: pointer;
+          border-radius: 4px;
+        }
+        button:hover {
+          background-color: #005a9e;
+        }
+      `;
+      popupWindow.document.head.appendChild(style);
       
       console.log("Auto-scheduled appointment at:", selectedSlot.start);
     }

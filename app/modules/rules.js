@@ -79,8 +79,8 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
     // Filter and sort events for the current day
     const dayEvents = allEvents
       .filter(event => 
-        event.categories?.includes(lawyer.name) &&
-        isSameDay(new Date(event.start.dateTime), currentDay)
+      event.attendees?.some(attendee => attendee.emailAddress?.name === lawyer.name) &&
+      isSameDay(new Date(event.start.dateTime), currentDay)
       )
       .sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
 
