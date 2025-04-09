@@ -398,10 +398,10 @@ async function scheduleAppointment() {
       popupWindow.document.write("<h3>Available Slots</h3>");
       popupWindow.document.write("<ul>");
       validSlots.forEach(slot => {
-        const startDate = slot.start.toLocaleDateString();
+        const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        popupWindow.document.write(`<li>Date: ${startDate} - Time: ${startTime} to ${endTime}</li>`);
+        popupWindow.document.write(`<li>${startDate} - Time: ${startTime} to ${endTime}</li>`);
       });
       popupWindow.document.write("</ul>");
       popupWindow.document.write("<button onclick='window.close()'>Close</button>");
