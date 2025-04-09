@@ -310,7 +310,7 @@ async function sendConfirmation() {
  * Finds all available time slots for the lawyer's calendar
  * within the next 14 days.
  * @async
- * @returns {Promise<{start: Date, end: Date}>} - The available time slot.
+ * @returns {Promise<Array<{start: Date, end: Date}>>} - An array of valid time slots.
  */
 async function findAutoScheduleSlots() {
   try {
@@ -387,6 +387,14 @@ async function scheduleAppointment() {
 
       // TODO: Show the valid slots to the user for selection here
       // (e.g., in a dropdown or modal)
+      const slotOptions = validSlots.map(slot => {
+        const date = slot.start.toLocaleDateString();
+        const time = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `Date: ${date} - Time: ${time}`;
+      }).join('\n');
+
+      // Display the slots in a modal
+      showErrorModal(`Available Slots:\n${slotOptions}`);
       
       console.log("Auto-scheduled appointment at:", selectedSlot.start);
     }

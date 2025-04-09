@@ -134,18 +134,40 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
     categories: [lawyerId],
   };
 
+  // Helper function to map an event to the slot format
+  const mapEventToSlotFormat = (event) => ({
+    start: new Date(event.start.dateTime),
+    end: new Date(event.end.dateTime),
+    location: event.location?.displayName || "Unknown",
+  });
+
   // Check the proposed slot against each event individually
   for (const event of allEvents) {
     if (hasOfficeConflict(proposedEvent, [event])) {
-      console.warn(`Slot rejected due to office conflict:`, proposedSlot, event);
+      console.warn(
+        `Slot rejected due to office conflict:`,
+        proposedSlot,
+        `Conflicting event:`,
+        mapEventToSlotFormat(event)
+      );
       return false;
     }
     if (hasVirtualConflict(lawyerId, proposedEvent, [event])) {
-      console.warn(`Slot rejected due to virtual conflict:`, proposedSlot, event);
+      console.warn(
+        `Slot rejected due to virtual conflict:`,
+        proposedSlot,
+        `Conflicting event:`,
+        mapEventToSlotFormat(event)
+      );
       return false;
     }
     if (hasBreakConflict(lawyerId, proposedSlot, [event])) {
-      console.warn(`Slot rejected due to break conflict:`, proposedSlot, event);
+      console.warn(
+        `Slot rejected due to break conflict:`,
+        proposedSlot,
+        `Conflicting event:`,
+        mapEventToSlotFormat(event)
+      );
       return false;
     }
   }
