@@ -228,11 +228,10 @@ function hasVirtualConflict(lawyerId, proposedEvent, allEvents) {
     // If the lawyer is not DH or TG, return false
     if (!["DH", "TG"].includes(lawyerId)) {
       // log no conflict
-      console.warn(`No virtual conflict for lawyer ${lawyer.name} on ${proposedEvent.start.dateTime}`);
+      console.warn(`No virtual conflict for lawyer ${lawyerId} on ${proposedEvent.start.dateTime}`);
       return false;
     }
 
-    const lawyer = getLawyer(lawyerId);
     const otherLawyerId = lawyerId === "DH" ? "TG" : "DH"; 
     const otherLawyer = getLawyer(otherLawyerId);
 
