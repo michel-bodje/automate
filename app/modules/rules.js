@@ -112,11 +112,7 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
     }
   }
 
-  console.log("Generated slots:", slots.map(s => ({
-    start: s.start,
-    end: s.end,
-    location: s.location
-  })));
+  console.log("Generated slots:", slots);
 
   return slots;
 }
@@ -140,20 +136,27 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
 
   // Check the proposed slot against each event individually
   for (const event of allEvents) {
-    if (
-      hasOfficeConflict(proposedEvent, [event]) ||
-      hasVirtualConflict(lawyerId, proposedEvent, [event]) ||
-      hasBreakConflict(lawyerId, proposedEvent, [event])
-    ) {
-      return false; // If any conflict exists with the current event, the slot is invalid
+    if (hasOfficeConflict(proposedEvent, [event])) {
+      console.warn(`Slot rejected due to office conflict:`, proposedSlot, event);
+      return false;
+    }
+    if (hasVirtualConflict(lawyerId, proposedEvent, [event])) {
+      console.warn(`Slot rejected due to virtual conflict:`, proposedSlot, event);
+      return false;
+    }
+    if (hasBreakConflict(lawyerId, proposedSlot, [event])) {
+      console.warn(`Slot rejected due to break conflict:`, proposedSlot, event);
+      return false;
     }
   }
 
   // Check daily limit conflicts separately
   if (hasDailyLimitConflict(lawyerId, allEvents)) {
+    console.warn(`Slot rejected due to daily limit conflict:`, proposedSlot);
     return false;
   }
 
+  console.log(`Slot is valid:`, proposedSlot);
   return true; // Slot is valid if no conflicts are found
 }
 
@@ -170,23 +173,20 @@ function hasOfficeConflict(proposedEvent, allEvents) {
   try {
     const proposedLocation = proposedEvent.location.displayName?.toLowerCase();
 
-    // If the proposed event is not in the office, return false
-    if (!proposedLocation === "office") {
+    if (proposedLocation !== "office") {
       return false;
     }
 
-    // Check if any existing event is scheduled in the office at the same time
     for (const existingEvent of allEvents) {
       const existingLocation = existingEvent.location?.displayName?.toLowerCase();
       if (existingLocation === "office" && isOverlapping(proposedEvent, existingEvent)) {
-        console.warn(`Office location conflict: ${proposedEvent.start.dateTime} with ${existingEvent.subject}`);
+        console.warn(`Office conflict detected:`, proposedEvent, existingEvent);
         return true;
       }
     }
     return false;
   } catch (error) {
     console.error("Error checking for office location conflict:", error);
-    // on fail, don't block scheduling. You'll have to check manually
     return false;
   }
 }
@@ -240,6 +240,50 @@ function hasVirtualConflict(lawyerId, proposedEvent, allEvents) {
 }
 
 /**
+ * Checks if a proposed appointment slot conflicts with the required break time
+ * for the given lawyer. A break conflict occurs when there is not enough time
+ * between the proposed appointment and either the previous or next appointment
+ * with the same lawyer.
+ *
+ * @param {string} lawyerId - The ID of the lawyer.
+ * @param {{ start: Date, end: Date }} proposedSlot - The proposed appointment slot.
+ * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check against.
+ * @returns {boolean} - true if there is a break conflict, false otherwise.
+ */
+function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
+  const lawyer = getLawyer(lawyerId);
+  const requiredBreak = lawyer.breakMinutes * (60 * 1000);
+
+  const previousEvents = allEvents
+    .filter(event => event.categories?.includes(lawyerId))
+    .sort((a, b) => new Date(b.end.dateTime) - new Date(a.end.dateTime));
+
+  if (previousEvents.length > 0) {
+    const lastEventEnd = new Date(previousEvents[0].end.dateTime);
+    const breakTime = proposedSlot.start.getTime() - lastEventEnd.getTime();
+    if (breakTime < requiredBreak) {
+      console.warn(`Break conflict detected with previous event:`, proposedSlot, previousEvents[0]);
+      return true;
+    }
+  }
+
+  const nextEvent = allEvents.find(event =>
+    event.categories?.includes(lawyerId) &&
+    new Date(event.start.dateTime) > proposedSlot.start
+  );
+
+  if (nextEvent) {
+    const breakTime = new Date(nextEvent.start.dateTime) - proposedSlot.end.getTime();
+    if (breakTime < requiredBreak) {
+      console.warn(`Break conflict detected with next event:`, proposedSlot, nextEvent);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Checks if the daily appointment limit for the given lawyer has been reached for any day in the range of existing events.
  *
  * @param {string} lawyerId - The ID of the lawyer.
@@ -267,53 +311,6 @@ function hasDailyLimitConflict(lawyerId, allEvents) {
   }
 
   return false; // Daily limit not reached for any day
-}
-
-/**
- * Checks if a proposed appointment slot conflicts with the required break time
- * for the given lawyer. A break conflict occurs when there is not enough time
- * between the proposed appointment and either the previous or next appointment
- * with the same lawyer.
- *
- * @param {string} lawyerId - The ID of the lawyer.
- * @param {{ start: Date, end: Date }} proposedSlot - The proposed appointment slot.
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check against.
- * @returns {boolean} - true if there is a break conflict, false otherwise.
- */
-function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
-  const lawyer = getLawyer(lawyerId);
-  const requiredBreak = lawyer.breakMinutes * (60 * 1000);
-
-  // Check previous event
-  const previousEvents = allEvents
-      .filter(event => event.categories?.includes(lawyerId))
-      .sort((a, b) => new Date(b.end.dateTime) - new Date(a.end.dateTime));
-
-  if (previousEvents.length > 0) {
-      const lastEventEnd = new Date(previousEvents[0].end.dateTime);
-      const breakTime = proposedSlot.start.getTime() - lastEventEnd.getTime();
-      if (breakTime < requiredBreak) {
-        // log the conflict
-        console.warn(`Break conflict: ${proposedSlot.start} with ${previousEvents[0].subject}`);
-        return true;
-      }
-  }
-
-  // Check next event
-  const nextEvent = allEvents.find(event => 
-      event.categories?.includes(lawyerId) &&
-      new Date(event.start.dateTime) > proposedSlot.start
-  );
-
-  if (nextEvent) {
-      const breakTime = new Date(nextEvent.start.dateTime) - proposedSlot.end.getTime();
-      if (breakTime < requiredBreak) {
-        // log the conflict
-        console.warn(`Break conflict: ${proposedSlot.end} with ${nextEvent.subject}`);
-        return true;
-      }
-  }
-  return false;
 }
 
 /**
