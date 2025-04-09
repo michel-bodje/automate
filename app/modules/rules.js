@@ -79,8 +79,8 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
     // Filter and sort events for the current day
     const dayEvents = allEvents
       .filter(event => 
-      event.attendees?.some(attendee => attendee.emailAddress?.name === lawyer.name) &&
-      isSameDay(new Date(event.start.dateTime), currentDay)
+        event.attendees?.some(attendee => attendee.emailAddress?.name === lawyer.name) &&
+        isSameDay(new Date(event.start.dateTime), currentDay)
       )
       .sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
 
@@ -95,7 +95,13 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
         let potentialSlotStart = new Date(lastEventEnd);
         while (potentialSlotStart.getTime() + slotDuration <= eventStart.getTime()) {
           const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
-          slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
+
+          // Adjust for lunch
+          const adjustedSlot = adjustForLunch(potentialSlotStart, potentialSlotEnd, slotDuration);
+          if (!overlapsLunch(adjustedSlot.start, adjustedSlot.end)) {
+            slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
+          }
+
           potentialSlotStart = new Date(potentialSlotEnd);
         }
       }
@@ -107,7 +113,13 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
     let potentialSlotStart = new Date(lastEventEnd);
     while (potentialSlotStart.getTime() + slotDuration <= workEnd.getTime()) {
       const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
-      slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
+
+      // Adjust for lunch
+      const adjustedSlot = adjustForLunch(potentialSlotStart, potentialSlotEnd, slotDuration);
+      if (!overlapsLunch(adjustedSlot.start, adjustedSlot.end)) {
+        slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
+      }
+
       potentialSlotStart = new Date(potentialSlotEnd);
     }
   }
@@ -180,6 +192,18 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
 
   console.log(`Slot is valid:`, proposedSlot);
   return true; // Slot is valid if no conflicts are found
+}
+
+/**
+ * Checks if two dates are the same day (ignoring time of day).
+ * @param {Date} dateA - The first date.
+ * @param {Date} dateB - The second date.
+ * @returns {boolean} - True if the dates are the same day, false otherwise.
+ */
+export function isSameDay(dateA, dateB) {
+  return dateA.getFullYear() === dateB.getFullYear() &&
+         dateA.getMonth() === dateB.getMonth() &&
+         dateA.getDate() === dateB.getDate();
 }
 
 /**
@@ -372,18 +396,6 @@ function isVirtualMeeting(event) {
   
   console.log(`Event location: ${location}, is virtual: ${isVirtual}`);
   return isVirtual;
-}
-
-/**
- * Checks if two dates are the same day (ignoring time of day).
- * @param {Date} dateA - The first date.
- * @param {Date} dateB - The second date.
- * @returns {boolean} - True if the dates are the same day, false otherwise.
- */
-export function isSameDay(dateA, dateB) {
-  return dateA.getFullYear() === dateB.getFullYear() &&
-         dateA.getMonth() === dateB.getMonth() &&
-         dateA.getDate() === dateB.getDate();
 }
 
 /**
