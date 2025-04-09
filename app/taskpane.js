@@ -329,7 +329,7 @@ async function findAutoScheduleSlots() {
     // Return the first valid slot
     // TODO: add a more sophisticated slot selection algorithm
     // e.g., based on client preferences, lawyer availability, etc.
-    const validSlots = filter(slots, (slot) =>
+    const validSlots = slots.filter((slot) =>
       isValidSlot(
         lawyer.id, { start: slot.start, end: slot.end, location: location }, events
       )
