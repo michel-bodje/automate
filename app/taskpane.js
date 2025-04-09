@@ -307,12 +307,12 @@ async function sendConfirmation() {
 }
 
 /**
- * Finds an available time slot for the lawyer's calendar
+ * Finds all available time slots for the lawyer's calendar
  * within the next 14 days.
  * @async
  * @returns {Promise<{start: Date, end: Date}>} - The available time slot.
  */
-async function findAutoScheduleSlot() {
+async function findAutoScheduleSlots() {
   try {
     const lawyer = getLawyer(formState.lawyerId);
     const location = formState.location;
@@ -329,17 +329,17 @@ async function findAutoScheduleSlot() {
     // Return the first valid slot
     // TODO: add a more sophisticated slot selection algorithm
     // e.g., based on client preferences, lawyer availability, etc.
-    const validSlot = find(slots, (slot) =>
+    const validSlots = filter(slots, (slot) =>
       isValidSlot(
         lawyer.id, { start: slot.start, end: slot.end, location: location }, events
       )
     );
   
-    if (!validSlot) {
+    if (validSlots.length === 0) {
       throw new Error("No available slots found in the next 2 weeks.");
     }
-    console.log("Valid slot selected:", validSlot);
-    return validSlot;
+    console.log("Valid slots:", validSlots);
+    return validSlots;
 } catch (error) {
     console.error("Error finding auto-schedule slot:", error);
     throw error;
@@ -380,13 +380,20 @@ async function scheduleAppointment() {
       console.log("Scheduled appointment at:", selectedSlot.start);
     } else {
       // Auto-scheduling mode
-      selectedSlot = await findAutoScheduleSlot();
+      const validSlots = await findAutoScheduleSlots();
+      
+      // Use the first valid slot
+      selectedSlot = validSlots[0]; 
+
+      // TODO: Show the valid slots to the user for selection here
+      // (e.g., in a dropdown or modal)
+      
       console.log("Auto-scheduled appointment at:", selectedSlot.start);
     }
 
-    // Draft the calendar event
+    // Create the appointment in the lawyer's calendar
     await createMeeting(selectedSlot.start, selectedSlot.end);
-
+    console.log("Scheduled appointment successfully.");
   } catch(error) {
     console.error("Scheduling Error:", error.message);
     showErrorModal(error.message);

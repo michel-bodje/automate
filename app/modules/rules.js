@@ -137,14 +137,24 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
     location: { displayName: proposedSlot.location },
     categories: [lawyerId],
   };
-  
-  // If any of the conflicts is true, the proposed slot is invalid
-  return [
-    hasOfficeConflict(proposedEvent, allEvents),
-    hasVirtualConflict(lawyerId, proposedEvent, allEvents),
-    hasDailyLimitConflict(lawyerId, allEvents),
-    hasBreakConflict(lawyerId, proposedEvent, allEvents),
-  ].every((conflict) => !conflict);
+
+  // Check the proposed slot against each event individually
+  for (const event of allEvents) {
+    if (
+      hasOfficeConflict(proposedEvent, [event]) ||
+      hasVirtualConflict(lawyerId, proposedEvent, [event]) ||
+      hasBreakConflict(lawyerId, proposedEvent, [event])
+    ) {
+      return false; // If any conflict exists with the current event, the slot is invalid
+    }
+  }
+
+  // Check daily limit conflicts separately
+  if (hasDailyLimitConflict(lawyerId, allEvents)) {
+    return false;
+  }
+
+  return true; // Slot is valid if no conflicts are found
 }
 
 /**
