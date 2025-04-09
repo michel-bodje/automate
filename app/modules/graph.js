@@ -77,7 +77,14 @@ export async function fetchCalendarEvents(lawyerId, start, end) {
             })
             .get();
         
-        console.log("Fetched events:", events);
+        console.log("Fetched events:", events.map(event => ({
+            subject: event.subject,
+            start: event.start.dateTime,
+            end: event.end.dateTime,
+            location: event.location.displayName,
+            attendees: event.attendees,
+            categories: event.categories,
+        })));
         return events.value;
     } catch (error) {
         console.error('Graph API Error:', {
