@@ -336,6 +336,7 @@ async function findAutoScheduleSlot() {
 
   if (!validSlot) {
     console.error("No available slots found in next 2 weeks.");
+    throw new Error("No available slots found in the next 2 weeks.");
   }
   console.log("Valid slot selected:", validSlot);
   return validSlot;

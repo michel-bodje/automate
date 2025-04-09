@@ -87,7 +87,7 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://michel-bodje.github.io/automate/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GroupLabel" DefaultValue="Contract Creator"/>
+        <bt:String id="GroupLabel" DefaultValue="Allen Madelin"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Automate"/>
       </bt:ShortStrings>
       <bt:LongStrings>
