@@ -66,7 +66,7 @@ export async function fetchCalendarEvents(lawyerId, start, end) {
     try {
         const events = await client
             .api('/me/calendarView')
-            //.header('Prefer', `outlook.timezone="${FIRM_TIMEZONE}"`)
+            .header('Prefer', `outlook.timezone="${FIRM_TIMEZONE}"`)
             .query({
                 startDateTime: start.toISOString(),
                 endDateTime: end.toISOString(),
@@ -82,7 +82,9 @@ export async function fetchCalendarEvents(lawyerId, start, end) {
             start: event.start.dateTime,
             end: event.end.dateTime,
             location: event.location.displayName,
-            attendees: event.attendees,
+            attendees: event.attendees.map(attendee => ({
+                name: attendee.emailAddress.name,
+            })),
             categories: event.categories,
         })));
         return events.value;
