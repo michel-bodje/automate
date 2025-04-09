@@ -54,66 +54,61 @@ export function getAvailableLocations(lawyerId) {
  */
 export function generateSlots(allEvents, lawyer, location, startDateTime, endDateTime) {
   const slots = [];
-  const slotDuration = 60 * 60 * 1000; // 60 minutes
+  const slotDuration = 60 * 60 * 1000; // 1 hour in milliseconds
+  const requiredBreak = lawyer.breakMinutes * 60 * 1000; // Break time in milliseconds
 
   const daysToCheck = Math.ceil((endDateTime - startDateTime) / (1000 * 60 * 60 * 24));
 
-  const requiredBreak = lawyer.breakMinutes * 60 * 1000;
-
-  const today = startDateTime;
-
   for (let day = 0; day < daysToCheck; day++) {
-    const dayStart = new Date(today);
-    dayStart.setDate(today.getDate() + day);
+    const currentDay = new Date(startDateTime);
+    currentDay.setDate(startDateTime.getDate() + day);
 
     // Skip weekends
-    if (dayStart.getDay() === 0 || dayStart.getDay() === 6) continue;
+    if (currentDay.getDay() === 0 || currentDay.getDay() === 6) continue;
 
-    // Parse working hours
+    // Define working hours for the day
     const [startHour, startMin] = lawyer.workingHours.start.split(":").map(Number);
     const [endHour, endMin] = lawyer.workingHours.end.split(":").map(Number);
-    
-    const workStart = new Date(dayStart);
+
+    const workStart = new Date(currentDay);
     workStart.setHours(startHour, startMin, 0, 0);
-    
-    const workEnd = new Date(dayStart);
+
+    const workEnd = new Date(currentDay);
     workEnd.setHours(endHour, endMin, 0, 0);
 
-    // Get lawyer's events for this day
-    const lawyerEvents = allEvents
+    // Filter and sort events for the current day
+    const dayEvents = allEvents
       .filter(event => 
         event.categories?.includes(lawyer.name) &&
-        isSameDay(new Date(event.start.dateTime), dayStart)
+        isSameDay(new Date(event.start.dateTime), currentDay)
       )
       .sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
-    
+
     let lastEventEnd = workStart;
 
-    // Generate slots between existing events
-    for (const event of lawyerEvents) {
+    // Generate slots between events
+    for (const event of dayEvents) {
       const eventStart = new Date(event.start.dateTime);
       const eventEnd = new Date(event.end.dateTime);
-      
+
       if (lastEventEnd < eventStart) {
-        const potentialSlotEnd = new Date(lastEventEnd.getTime() + slotDuration);
-        const adjustedSlot = adjustForLunch(lastEventEnd, potentialSlotEnd, slotDuration);
-        
-        if (adjustedSlot && adjustedSlot.end <= eventStart) {
-          slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
+        let potentialSlotStart = new Date(lastEventEnd);
+        while (potentialSlotStart.getTime() + slotDuration <= eventStart.getTime()) {
+          const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
+          slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
+          potentialSlotStart = new Date(potentialSlotEnd);
         }
       }
 
       lastEventEnd = new Date(eventEnd.getTime() + requiredBreak);
     }
 
-    // Final slot of the day
-    if (lastEventEnd < workEnd) {
-      const potentialSlotEnd = new Date(lastEventEnd.getTime() + slotDuration);
-      const adjustedSlot = adjustForLunch(lastEventEnd, potentialSlotEnd, slotDuration);
-      
-      if (adjustedSlot && adjustedSlot.end <= workEnd) {
-        slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
-      }
+    // Generate slots after the last event of the day
+    let potentialSlotStart = new Date(lastEventEnd);
+    while (potentialSlotStart.getTime() + slotDuration <= workEnd.getTime()) {
+      const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
+      slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
+      potentialSlotStart = new Date(potentialSlotEnd);
     }
   }
 

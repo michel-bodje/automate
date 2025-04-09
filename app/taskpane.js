@@ -388,9 +388,8 @@ async function scheduleAppointment() {
     await createMeeting(selectedSlot.start, selectedSlot.end);
 
   } catch(error) {
-    console.error("Scheduling Error:", error);
+    console.error("Scheduling Error:", error.message);
     showErrorModal(error.message);
-    throw error;
   } finally {
     // Hide loading spinner
     showLoading(false);
