@@ -104,8 +104,8 @@ export const ELEMENT_IDS = {
  * It includes the client ID, tenant ID, and URL for the application.
  */
 export const MS = {
-    clientId: "",
-    tenantId: "",
+    clientId: "768ccbfe-c251-4fe4-bfeb-eff27fdd356e",
+    tenantId: "5ef3243e-fce7-454b-8508-f38fa4259f55",
     urlDev: "https://localhost:3000/taskpane.html",
     urlProd: "https://michel-bodje.github.io/automate/taskpane.html",
 };
