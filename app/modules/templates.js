@@ -14,7 +14,6 @@ import suiviTemplateEn from "../../assets/templates/en/Suivi.html";
 import suiviTemplateFr from "../../assets/templates/fr/Suivi.html";
 import Docxtemplater from "docxtemplater";
 import PizZip from "pizzip";
-import path from "path";
 
 /**
  * A dictionary of templates, indexed by language and type.
@@ -42,8 +41,8 @@ export const templates = {
 
 // The path to the DOCX contract templates
 const docxContractPath = {
-  en: path.resolve("assets/templates/en/Contract.docx"),
-  fr: path.resolve("assets/templates/fr/Contract.docx"),
+  en: "assets/templates/en/Contract.docx",
+  fr: "assets/templates/fr/Contract.docx",
 };
 
 /**
@@ -53,7 +52,13 @@ const docxContractPath = {
 export async function loadTemplate(language) {
   const templatePath = docxContractPath[language];
 
-  const content = await fetch(templatePath).then(res => res.arrayBuffer());
+  const content = await fetch(`${process.env.PUBLIC_PATH || ""}${templatePath}`)
+    .then(res => {
+      if (!res.ok) {
+      throw new Error(`Failed to fetch template at ${templatePath}: ${res.status}`);
+  }
+  return res.arrayBuffer();
+});
 
   // Load the DOCX file into PizZip
   const zip = new PizZip(content)
