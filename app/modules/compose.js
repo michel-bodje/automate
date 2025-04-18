@@ -135,17 +135,22 @@ function getSubject(language, type) {
 /**
  * Adds taxes to the given amount.
  * @param {number} amount - The amount to which taxes will be added.
+ * @param {Boolean} addFOF - Whether or not to add the file opening fee.
  * @returns {number} The total amount with taxes.
  * @throws {Error} If the amount is not a number.
  */
-function addTaxes(amount) {
+function addTaxes(amount, addFOF = false) {
   if (isNaN(amount)) {
     console.error("Amount is not a number:", amount);
     throw new Error("Amount is not a valid number.");
   }
+
   // GST + QST + 100$ file opening fee
   // GST: 5% + QST: 9.975% 
-  let total = (amount * (1 + 0.05 + 0.09975) + 100);
+  const fof = 100;
+  let total = (amount * (1 + 0.05 + 0.09975));
+  if (addFOF) total += fof;
+
   return total;
 }
 
@@ -204,16 +209,28 @@ export async function createEmail(type) {
   
     }
 
+    // Deposit for contract email
     let depositAmount = formState.depositAmount;
-    let totalAmount = addTaxes(formState.depositAmount);
+    let totalAmount = addTaxes(formState.depositAmount, true);
 
-    depositAmount = Number(depositAmount).toFixed(2);
+    depositAmount = Number(depositAmount).toFixed();
     totalAmount = Number(totalAmount).toFixed(2);
+
+    // Adjusted rates for appointment confirmations
+    const isFirstConsultation = formState.isFirstConsultation;
+
+    let rates = isFirstConsultation ? 125 : 350;
+    let totalRates = addTaxes(rates)
+
+    rates = Number(rates).toFixed();
+    totalRates = Number(totalRates).toFixed(2);
 
     body = body
       .replace("{{lawyerName}}", lawyer.name)
       .replace("{{depositAmount}}", depositAmount)
       .replace("{{totalAmount}}", totalAmount)
+      .replace("{{rates}}", rates)
+      .replace("{{totalRates}}", totalRates)
     ;
 
     const subject = getSubject(language, type);
@@ -292,7 +309,7 @@ export async function createContract() {
   const clientEmail = formState.clientEmail;
   const contractTitle = formState.contractTitle;
   let depositAmount = formState.depositAmount;
-  let totalAmount = addTaxes(formState.depositAmount);
+  let totalAmount = addTaxes(formState.depositAmount, true);
 
   depositAmount = Number(depositAmount).toFixed(2);
   totalAmount = Number(totalAmount).toFixed(2);

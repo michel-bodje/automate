@@ -12,6 +12,7 @@ import {
   populateLocationDropdown,
   populateCaseTypeDropdown,
   populateContractTitles,
+  hideExtraFields,
   handleCaseDetails,
   handlePaymentOptions,
   isValidInputs,
@@ -34,15 +35,13 @@ Office.onReady(async (info) => {
     // Setup UI components for Outlook
     setupOutlookMenu();
     populateLawyerDropdown();
-    populateLanguageDropdown();
-    attachEventListeners();
   } else if (info.host === Office.HostType.Word) {
     // Setup UI components for Word
     setupWordMenu();
-    populateLanguageDropdown();
     populateContractTitles();
-    attachEventListeners();
   }
+  populateLanguageDropdown();
+  attachEventListeners();
 });
 
 /** Attaches all event listeners for the application. */
@@ -67,6 +66,7 @@ function attachEventListeners() {
           formState.update("lawyerId", value);
           populateLocationDropdown();
           populateCaseTypeDropdown();
+          hideExtraFields();
           break;
         case ELEMENT_IDS.scheduleLocation:
         case ELEMENT_IDS.confLocation:
@@ -140,7 +140,8 @@ function attachEventListeners() {
           console.log("Time changed:", value);
           formState.update("appointmentTime", value); 
           break;
-        case ELEMENT_IDS.firstConsultation:
+        case ELEMENT_IDS.scheduleFirstConsultation:
+        case ELEMENT_IDS.confFirstConsultation:
           // first consultation checkbox change
           formState.update("isFirstConsultation", event.target.checked);
           break;
@@ -298,51 +299,61 @@ async function sendContract() {
   await createEmail("contract");
 }
 
-  /**
-   * Prepares a confirmation email.
-   * @async
-   */
+/**
+ * Prepares a confirmation email.
+ * @async
+ */
 async function sendConfirmation() {
   const type = formState.location.toLowerCase();
   await createEmail(type);
 }
 
 /**
- * Finds all available time slots for the lawyer's calendar
- * within the next 14 days.
+ * Returns valid time slots for the appointment within the next 14 days.
  * @async
  * @returns {Promise<Array<{start: Date, end: Date}>>} - An array of valid time slots.
  */
-async function findAutoScheduleSlots() {
+async function findSlots(scheduleMode, selectedSlot = null) {
   try {
     const lawyer = getLawyer(formState.lawyerId);
     const location = formState.location;
+    
+    // Events for next two weeks, whether real or mock
     const startDateTime = new Date();
     const endDateTime = new Date(startDateTime.getTime() + (14 * 24 * 60 * 60 * 1000));
-    // Two weeks from now
-    
-    // Fetch calendar events for the lawyer
+
     const events = await fetchCalendarEvents(lawyer.id, startDateTime, endDateTime);
-    
-    // Generate available slots based on the fetched events
-    const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
-    
-    // Return the first valid slot
-    // TODO: add a more sophisticated slot selection algorithm
-    // e.g., based on client preferences, lawyer availability, etc.
-    const validSlots = slots.filter((slot) =>
-      isValidSlot(
-        lawyer.id, { start: slot.start, end: slot.end, location: location }, events
-      )
-    );
-  
-    if (validSlots.length === 0) {
-      throw new Error("No available slots found in the next 2 weeks.");
+
+    if (scheduleMode === "manual") {
+      // Validate the manually selected slot
+      if (!isValidSlot(
+        lawyer.id,
+        { start: selectedSlot.start, end: selectedSlot.end, location: location },
+        events
+      )) {
+        throw new Error("The selected time slot is not valid.");
+      }
+      return [selectedSlot]; // Return the valid manual slot as an array
+    } else {
+      // Generate available slots based on the fetched events
+      const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
+
+      const validSlots = slots.filter((slot) =>
+        isValidSlot(
+          lawyer.id,
+          { start: slot.start, end: slot.end, location: location },
+          events
+        )
+      );
+
+      if (validSlots.length === 0) {
+        throw new Error("No available slots found in the next 2 weeks.");
+      }
+      console.log("Valid slots:", validSlots);
+      return validSlots;
     }
-    console.log("Valid slots:", validSlots);
-    return validSlots;
-} catch (error) {
-    console.error("Error finding auto-schedule slot:", error);
+  } catch (error) {
+    console.error("Error finding schedule slot:", error);
     throw error;
   }
 }
@@ -371,17 +382,21 @@ async function scheduleAppointment() {
         `${formState.appointmentDate}T${formState.appointmentTime}`
       );
       if (!appointmentDateTime) {
-      throw new Error("Please provide both date and time for manual scheduling.");
+        throw new Error("Please provide both date and time for manual scheduling.");
       }
       selectedSlot = {
         start: new Date(appointmentDateTime),
         end: new Date(appointmentDateTime.getTime() + (60 * 60 * 1000)),
         // Default to 1 hour duration
       };
+
+      const validSlots = await findSlots(scheduleMode, selectedSlot);
+      selectedSlot = validSlots[0];
+
       console.log("Scheduled appointment at:", selectedSlot.start);
     } else {
       // Auto-scheduling mode
-      const validSlots = await findAutoScheduleSlots();
+      const validSlots = await findSlots(scheduleMode);
       
       // Use the first valid slot that's after the current time if on the same day
       const now = new Date();
@@ -389,20 +404,32 @@ async function scheduleAppointment() {
         return !isSameDay(slot.start, now) || slot.start > now;
       }) || validSlots[0]; // Fallback to the first valid slot if no such slot is found
 
-      // TODO: Show the valid slots to the user for selection here
-      // (e.g., in a dropdown or modal)
-
       // Display the slots in a popup
       const popupWindow = window.open("", "Available Slots", "width=400,height=300");
       popupWindow.document.write("<html><head><title>Available Slots</title></head><body>");
       popupWindow.document.write("<h3>Available Slots</h3>");
       popupWindow.document.write("<ul>");
-      validSlots.forEach(slot => {
+
+      // Ensure the selected slot is displayed first
+      const selectedSlotIndex = validSlots.indexOf(selectedSlot);
+      if (selectedSlotIndex !== -1) {
+        const slot = validSlots[selectedSlotIndex];
         const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        popupWindow.document.write(`<li>${startDate} - Time: ${startTime} to ${endTime}</li>`);
+        popupWindow.document.write(`<li><strong>Selected Slot:</strong> ${startDate} - Time: ${startTime} to ${endTime}</li>`);
+      }
+
+      // Display only future slots after the selected slot
+      validSlots.forEach((slot, index) => {
+        if (index > selectedSlotIndex) {
+          const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+          const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          popupWindow.document.write(`<li>${startDate} - Time: ${startTime} to ${endTime}</li>`);
+        }
       });
+
       popupWindow.document.write("</ul>");
       popupWindow.document.write("<button onclick='window.close()'>Close</button>");
       popupWindow.document.write("</body></html>");

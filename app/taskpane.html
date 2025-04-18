@@ -36,47 +36,6 @@
           </div>
         </div>
         
-        <style>
-          .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-          }
-        
-          .modal.hidden {
-            display: none;
-          }
-        
-          .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          }
-        
-          #error-ok-button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #0078d4;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-          }
-        
-          #error-ok-button:hover {
-            background-color: #005a9e;
-          }
-        </style>
-
         <!-- Main menu page -->
         <div id="menu-page" class="page active">
             <h1 style="text-align: center;">Make it easy!</h1>
@@ -187,7 +146,7 @@
                 <label for="schedule-mode">Scheduling Mode:</label>
                 <select id="schedule-mode" required>
                     <option value="manual" selected>Manual</option>
-                    <option value="auto">Auto (Experimental)</option>
+                    <option value="auto">Auto</option>
                 </select>
                 
                 <label for="manual-date">Appointment Date:</label>
@@ -203,8 +162,8 @@
                 </div>
 
                 <div class="checkbox-container">
-                    <label for="first-consultation">First Consultation?</label>
-                    <input type="checkbox" id="first-consultation" title="Is this the first consultation?">
+                    <label for="schedule-first-consultation">First Consultation?</label>
+                    <input type="checkbox" id="schedule-first-consultation" title="Is this their first consultation?">
                 </div>
 
                 <div class="checkbox-container">
@@ -263,6 +222,11 @@
 
                 <label for="conf-time">Appointment Time:</label>
                 <input type="time" id="conf-time" required>
+
+                <div class="checkbox-container">
+                    <label for="conf-first-consultation">First Consultation?</label>
+                    <input type="checkbox" id="conf-first-consultation" title="Is this their first consultation?">
+                </div>
 
                 <!-- End of page 2 -->
                 <button type="submit" id="send-confirmation-btn" class="submit-btn">Create</button>

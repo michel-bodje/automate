@@ -67,7 +67,8 @@ export const ELEMENT_IDS = {
     wordContractTitle: "word-contract-title",
     customContractTitle: "custom-contract-title",
 
-    firstConsultation: "first-consultation",
+    scheduleFirstConsultation: "schedule-first-consultation",
+    confFirstConsultation: "conf-first-consultation",
     refBarreau: "ref-barreau",
 
     paymentMade: "payment-made",

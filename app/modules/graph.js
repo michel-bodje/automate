@@ -49,8 +49,10 @@ const authProvider = {
 const client = Client.initWithMiddleware({ authProvider });
 
 /**
- * Fetches a list of upcoming events from the given lawyer's calendar, within
+ * Using MS Graph, fetches a list of upcoming events from the given lawyer's calendar, within
  * the given start and end date range. The events are ordered by start time.
+ * 
+ * Generates mock events if used in development mode.
  *
  * @param {string} lawyerId - The lawyer to fetch events for.
  * @param {Date} start - The start date of the time range.

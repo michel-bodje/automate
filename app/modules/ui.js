@@ -61,7 +61,12 @@ export function resetPage() {
 }
 
 /**
- * Sets up the Outlook menu by hiding the "Create Contract" button.
+ * Sets up the Outlook taskpane UI by only displaying relevant menu options
+ * and user manual.
+ * 
+ * In message compose: only the send email options;
+ * In appointment organizer: only the schedule appointment option;
+ * 
  * This function is called when the application initializes.
  */
 export function setupOutlookMenu() {
@@ -70,10 +75,38 @@ export function setupOutlookMenu() {
   if (createContractBtn) {
     createContractBtn.classList.add("hidden");
   }
+
+  // Check if the add-in is running in a draft message or draft meeting/appointment
+  const extensionPoint = Office.context.mailbox.item ? Office.context.mailbox.item.itemType : null;
+
+  if (extensionPoint === Office.MailboxEnums.ItemType.Message) {
+    // Handle message compose scenario
+    const scheduleAppointmentBtn = document.getElementById(ELEMENT_IDS.scheduleMenuBtn);
+    if (scheduleAppointmentBtn) {
+      scheduleAppointmentBtn.classList.add("hidden");
+    }
+  } else if (extensionPoint === Office.MailboxEnums.ItemType.Appointment) {
+    // Handle appointment organizer scenario
+    const emailButtons = [
+      ELEMENT_IDS.confirmMenuBtn,
+      ELEMENT_IDS.contractMenuBtn,
+      ELEMENT_IDS.replyMenuBtn,
+    ];
+    emailButtons.forEach((btnId) => {
+      const button = document.getElementById(btnId);
+      if (button) {
+        button.classList.add("hidden");
+      }
+    });
+  } else {
+    console.error("Unable to determine the extension point.");
+  }
 }
 
 /**
- * Sets up the Word menu by hiding all buttons except for the Word contract and user manual buttons.
+ * Sets up the Word taskpane UI by hiding all menu options
+ * except for the contract-builder and user manual.
+ * 
  * This function is called when the application initializes.
  */
 export function setupWordMenu() {
@@ -126,7 +159,7 @@ export function showErrorModal(errorMessage) {
 }
 
 /** Utility function to hide all extra form fields and reset their values. */
-function hideExtraFields() {
+export function hideExtraFields() {
   // Select all extra fields
   const caseDetailsFields = document.querySelectorAll("div[id$='-details']");
 

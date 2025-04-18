@@ -122,7 +122,7 @@ export const caseTypeHandlers = {
         throw new Error("Missing common field details");
       }
       return `
-        <p><strong>Case Type:</strong> ${commonField}</p>
+        ${commonField}
       `;
     },
   },
