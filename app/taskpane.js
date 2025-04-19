@@ -453,7 +453,6 @@ async function scheduleAppointment() {
     console.log("Scheduled appointment successfully.");
   } catch (error) {
     console.error("Scheduling Error:", error);
-    showErrorModal(error.message);
   } finally {
     // Hide loading spinner
     showLoading(false);

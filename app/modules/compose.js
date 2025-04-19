@@ -251,8 +251,10 @@ export async function createEmail(type) {
  */
 export async function createMeeting(selectedSlot) {
   try {
-    // Fetch the lawyer's details from lawyers.json
     const lawyer = getLawyer(formState.lawyerId);
+    
+    // Capitalize location string
+    const location = selectedSlot.location.charAt(0).toUpperCase() + selectedSlot.location.slice(1);
 
     // Construct the case details
     const caseDetails = getCaseDetails();
@@ -288,7 +290,7 @@ export async function createMeeting(selectedSlot) {
     setSubject(subject);
     setMeetingTimes(selectedSlot.start, selectedSlot.end);
     setAttendees([{ displayName: lawyer.name, emailAddress: lawyer.email }]);
-    setLocation(selectedSlot.location.charAt(0).toUpperCase() + location.slice(1));
+    setLocation(location);
     setBody(body);
 
   } catch (error) {
