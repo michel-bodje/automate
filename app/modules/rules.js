@@ -20,11 +20,307 @@ export const locationRules = {
 };
 
 /**
+ * Creates a time slot given start and end times.
+ * @param {Date} start - The start time of the event.
+ * @param {Date} end - The end time of the event.
+ * @param {string} location - The location of the event.
+ * @returns {{ start: Date, end: Date, location: string }} - A time slot object: with start, end, and location properties.
+ */
+function createSlot(start, end, location) {
+  return {
+    start: start,
+    end: end,
+    location: location
+  };
+}
+
+/**
+ * Maps a Microsoft Graph event to a slot object.
+ * @param {microsoftgraph.Event} event - The event to map.
+ * @returns {{ start: Date, end: Date, location: string }} A slot object with start, end, and location properties.
+ */
+function mapEventToSlot(event) {
+  return {
+    start: new Date(event.start.dateTime),
+    end: new Date(event.end.dateTime),
+    location: event.location?.displayName || "",
+  };
+}
+
+/**
+ * Checks if a proposed slot conflicts with the lawyer's unavailability.
+ * @param {string} lawyerId - The ID of the lawyer.
+ * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
+ * @returns {boolean} True if there is a conflict, false otherwise.
+ */
+function hasAvailabilityConflict(lawyerId, proposedSlot) {
+  const proposedDay = proposedSlot.start.toLocaleString("en-US", { weekday: "long" });
+  const proposedLocation = proposedSlot.location;
+
+  const unavailability = locationRules.lawyerUnavailability?.[lawyerId] || {};
+
+  return Object.entries(unavailability).some(([location, days]) =>
+    location === proposedLocation && days.includes(proposedDay)
+  );
+}
+
+/**
+ * Checks if a proposed slot has a location conflict with existing events.
+ * A location conflict occurs when two events are scheduled in the office
+ * at the same time.
+ *
+ * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check for conflicts.
+ * @returns {boolean} True if there is a location conflict, false otherwise.
+ */
+function hasOfficeConflict(proposedSlot, allEvents) {
+  try {
+    const proposedLocation = proposedSlot.location;
+
+    if (proposedLocation !== "office") {
+      return false;
+    }
+
+    for (const event of allEvents) {
+      const scheduledLocation = event.location?.displayName?.toLowerCase();
+      const eventSlot = mapEventToSlot(event);
+      if (scheduledLocation === "office" && isOverlapping(proposedSlot, eventSlot)) {
+        // log the conflict
+        console.warn(`Office conflict detected:`, proposedSlot, event);
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error("Error checking for office location conflict:", error);
+    return false;
+  }
+}
+
+/**
+ * Checks if a proposed slot has a virtual conflict with existing events.
+ * A virtual conflict occurs when two virtual meetings are scheduled with
+ * Dorin Holban or Tim Gagin at the same time.
+ *
+ * @param {string} lawyerId - The ID of the lawyer.
+ * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check for conflicts.
+ * @returns {boolean} True if there is a virtual conflict, false otherwise.
+ */
+function hasVirtualConflict(lawyerId, proposedSlot, allEvents) {
+  try {
+    // If the lawyer is not DH or TG, return false
+    if (!["DH", "TG"].includes(lawyerId)) {
+      return false;
+    }
+
+    const otherLawyerId = lawyerId === "DH" ? "TG" : "DH"; 
+    const otherLawyer = getLawyer(otherLawyerId);
+
+    const proposedIsVirtual = isVirtualMeeting(proposedSlot);
+
+    // Check if any existing event is scheduled in a virtual meeting 
+    // with the other lawyer at the same time
+    for (const event of allEvents) {
+      const eventSlot = mapEventToSlot(event);
+      if (
+        event.categories?.includes(otherLawyer) &&
+        isVirtualMeeting(eventSlot) &&
+        isOverlapping(proposedSlot, eventSlot) &&
+        proposedIsVirtual
+      ) {
+        // log the conflict
+        console.warn(`Virtual conflict detected for ${proposedSlot} with ${event.subject}`);
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error("Error checking for DH_TG conflict:", error);
+    // on fail, don't block scheduling. You'll have to check manually
+    return false;
+  }
+}
+
+/**
+ * Checks if a proposed slot conflicts with the required break time
+ * for the given lawyer. A break conflict occurs when there is not enough time
+ * between the proposed appointment and either the previous or next appointment
+ * with the same lawyer.
+ *
+ * @param {string} lawyerId - The ID of the lawyer.
+ * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check against.
+ * @returns {boolean} True if there is a break conflict, false otherwise.
+ */
+function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
+  const lawyer = getLawyer(lawyerId);
+  const requiredBreak = lawyer.breakMinutes * (60 * 1000);
+
+  // Filter events for the specific lawyer and sort by start time (ascending)
+  const lawyerEvents = allEvents
+    .filter(event => event.categories?.includes(lawyerId))
+    .sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
+
+  let previousEvent = null;
+  let nextEvent = null;
+
+  // Find the immediate previous and next events
+  for (const event of lawyerEvents) {
+    const eventSlot = mapEventToSlot(event);
+
+    if (eventSlot.end <= proposedSlot.start) {
+      previousEvent = eventSlot; // Update previous event
+    } else if (eventSlot.start >= proposedSlot.end) {
+      nextEvent = eventSlot; // Update next event
+      break; // Stop searching once the next event is found
+    }
+  }
+
+  // Check for conflict with the previous event
+  if (previousEvent) {
+    const breakTime = proposedSlot.start.getTime() - previousEvent.end.getTime();
+    if (breakTime < requiredBreak) {
+      console.warn(`Break conflict detected with previous event:`, proposedSlot, previousEvent);
+      return true;
+    }
+  }
+
+  // Check for conflict with the next event
+  if (nextEvent) {
+    const breakTime = nextEvent.start.getTime() - proposedSlot.end.getTime();
+    if (breakTime < requiredBreak) {
+      console.warn(`Break conflict detected with next event:`, proposedSlot, nextEvent);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Checks if the daily appointment limit for the given lawyer has been reached.
+ *
+ * @param {string} lawyerId - The ID of the lawyer.
+ * @param {Date} day - The date to check.
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check against.
+ * @returns {boolean} True if the daily limit has been reached for any day, false otherwise.
+ */
+function hasDailyLimitConflict(lawyerId, day, allEvents) {
+  const lawyer = getLawyer(lawyerId);
+  const maxDailyAppointments = lawyer.maxDailyAppointments;
+
+  // Filter events for the specific day
+  const eventsForDay = allEvents.filter(event => isSameDay(new Date(event.start.dateTime), day));
+
+  // Filter events for the specific lawyer
+  const lawyerEventsForDay = eventsForDay.filter(event => event.categories.includes(lawyerId));
+
+  // Check if the daily limit is reached
+  if (lawyerEventsForDay.length >= maxDailyAppointments) {
+    // log the conflict
+    console.warn(`Daily limit reached for lawyer ${lawyerId} on`, day);
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Determines if a slot is a virtual meeting.
+ * 
+ * This function checks the location property of the slot to determine if it includes
+ * 'phone' or 'teams', indicating that the meeting is virtual.
+ * 
+ * @param {{ start: Date, end: Date, location: string }} slot - The slot containing location details.
+ * @returns {boolean} True if the slot is virtual, false otherwise.
+ */
+function isVirtualMeeting(slot) {
+  const location = slot.location ?? "";
+  const isVirtual = [
+    'phone',
+    'tel',
+    'telephone',
+    'téléphone',
+    'teams',
+    'ms teams',
+    'microsoft teams',
+    'microsoft teams meeting',
+  ].some(keyword => location.includes(keyword));
+  
+  console.log(`Slot location: ${location}, is virtual: ${isVirtual}`);
+  return isVirtual;
+}
+
+/**
+ * Checks if two slots overlap based on their start and end times.
+ * @param {{ start: Date, end: Date, location: string }} slotA
+ * @param {{ start: Date, end: Date, location: string }} slotB 
+ * @returns {boolean} True if they do, false otherwise. 
+ */
+function isOverlapping(slotA, slotB) {
+  const startA = slotA.start;
+  const endA = slotA.end;
+  const startB = slotB.start;
+  const endB = slotB.end;
+
+  return startA <= endB && startB <= endA;
+}
+
+/**
+ * Checks if two dates are the same day (ignoring time of day).
+ * @param {Date} dateA - The first date.
+ * @param {Date} dateB - The second date.
+ * @returns {boolean} - True if the dates are the same day, false otherwise.
+ */
+export function isSameDay(dateA, dateB) {
+  return dateA.getFullYear() === dateB.getFullYear() &&
+         dateA.getMonth() === dateB.getMonth() &&
+         dateA.getDate() === dateB.getDate();
+}
+
+/**
+ * Checks if a proposed time slot for a lawyer is valid (i.e., has no conflicts)
+ * by checking for conflicts with existing events.
+ *
+ * @param {string} lawyerId - The ID of the lawyer
+ * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check for conflicts
+ * @returns {boolean} True if the proposed time slot is valid, false otherwise
+ */
+export function isValidSlot(lawyerId, proposedSlot, allEvents) {
+  // Check the proposed slot against each rule
+  if (hasAvailabilityConflict(lawyerId, proposedSlot)) {
+    console.warn(`Slot rejected due to availability conflict:`, proposedSlot);
+    return false;
+  }
+  if (hasDailyLimitConflict(lawyerId, proposedSlot.start, allEvents)) {
+    console.warn(`Slot rejected due to daily limit conflict:`, proposedSlot);
+    return false;
+  }
+  if (hasOfficeConflict(proposedSlot, allEvents)) {
+    console.warn(`Slot rejected due to office conflict:`, proposedSlot);
+    return false;
+  }
+  if (hasVirtualConflict(lawyerId, proposedSlot, allEvents)) {
+    console.warn(`Slot rejected due to virtual conflict:`, proposedSlot);
+    return false;
+  }
+  if (hasBreakConflict(lawyerId, proposedSlot, allEvents)) {
+    console.warn(`Slot rejected due to break conflict:`, proposedSlot);
+    return false;
+  }
+
+  console.log(`Slot is valid:`, proposedSlot);
+  return true; // Slot is valid if no conflicts are found
+}
+
+/**
  * Generates available appointment slots for a lawyer over a specified number of days,
  * avoiding weekends and considering existing events and lunch breaks. Slots are generated
  * based on the lawyer's working hours and required break times between appointments.
  *
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts when generating slots.
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check for conflicts when generating slots.
  * @param {Lawyer} lawyer - The lawyer object containing working hours and break details.
  * @param {string} location - The location for the appointment slots.
  * @param {Date} startDateTime - The start date and time for generating slots.
@@ -44,6 +340,12 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
 
     // Skip weekends
     if (currentDay.getDay() === 0 || currentDay.getDay() === 6) continue;
+
+    // Skip the day if the daily limit is reached
+    if (hasDailyLimitConflict(lawyer.id, currentDay, allEvents)) {
+      console.warn(`Skipping day ${currentDay.toDateString()} due to daily limit conflict.`);
+      continue;
+    }
 
     // Define working hours for the day
     const [startHour, startMin] = lawyer.workingHours.start.split(":").map(Number);
@@ -101,320 +403,6 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
       potentialSlotStart = new Date(potentialSlotEnd);
     }
   }
-
   console.log("Generated slots:", slots);
-
   return slots;
-}
-
-/**
- * Checks if a proposed time slot for a lawyer is valid (i.e., has no conflicts)
- * by checking for conflicts with existing events.
- *
- * @param {string} lawyerId - The ID of the lawyer
- * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts
- * @returns {boolean} - true if the proposed time slot is valid, false otherwise
- */
-export function isValidSlot(lawyerId, proposedSlot, allEvents) {
-  const proposedEvent = {
-    start: { dateTime: proposedSlot.start.toString() },
-    end: { dateTime: proposedSlot.end.toString() },
-    location: { displayName: proposedSlot.location },
-    categories: [lawyerId],
-  };
-
-  // Helper function to map an event to the slot format
-  const mapEventToSlotFormat = (event) => ({
-    start: new Date(event.start.dateTime),
-    end: new Date(event.end.dateTime),
-    location: event.location?.displayName || "Unknown",
-  });
-
-  // Check the proposed slot against each event individually
-  for (const event of allEvents) {
-    if (hasLocationConflict(lawyerId, proposedEvent, [event])) {
-      console.warn(
-        `Slot rejected due to location conflict:`,
-        proposedSlot,
-        `Conflicting event:`,
-        mapEventToSlotFormat(event)
-      );
-      return false;
-    }
-    if (hasOfficeConflict(proposedEvent, [event])) {
-      console.warn(
-        `Slot rejected due to office conflict:`,
-        proposedSlot,
-        `Conflicting event:`,
-        mapEventToSlotFormat(event)
-      );
-      return false;
-    }
-    if (hasVirtualConflict(lawyerId, proposedEvent, [event])) {
-      console.warn(
-        `Slot rejected due to virtual conflict:`,
-        proposedSlot,
-        `Conflicting event:`,
-        mapEventToSlotFormat(event)
-      );
-      return false;
-    }
-    if (hasBreakConflict(lawyerId, proposedSlot, [event])) {
-      console.warn(
-        `Slot rejected due to break conflict:`,
-        proposedSlot,
-        `Conflicting event:`,
-        mapEventToSlotFormat(event)
-      );
-      return false;
-    }
-  }
-
-  // Check daily limit conflicts separately
-  if (hasDailyLimitConflict(lawyerId, allEvents)) {
-    console.warn(`Slot rejected due to daily limit conflict:`, proposedSlot);
-    return false;
-  }
-
-  console.log(`Slot is valid:`, proposedSlot);
-  return true; // Slot is valid if no conflicts are found
-}
-
-/**
- * Checks if two dates are the same day (ignoring time of day).
- * @param {Date} dateA - The first date.
- * @param {Date} dateB - The second date.
- * @returns {boolean} - True if the dates are the same day, false otherwise.
- */
-export function isSameDay(dateA, dateB) {
-  return dateA.getFullYear() === dateB.getFullYear() &&
-         dateA.getMonth() === dateB.getMonth() &&
-         dateA.getDate() === dateB.getDate();
-}
-
-/**
- * Checks if a proposed event has a location conflict with existing events.
- * A location conflict occurs when two events are scheduled in the office
- * at the same time.
- *
- * @param {Object} proposedEvent - The event to check, with location and start/end times.
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts.
- * @returns {boolean} - true if there is a location conflict, false otherwise.
- */
-function hasOfficeConflict(proposedEvent, allEvents) {
-  try {
-    const proposedLocation = proposedEvent.location;
-
-    if (proposedLocation !== "office") {
-      return false;
-    }
-
-    for (const existingEvent of allEvents) {
-      const existingLocation = existingEvent.location?.displayName?.toLowerCase();
-      if (existingLocation === "office" && isOverlapping(proposedEvent, existingEvent)) {
-        console.warn(`Office conflict detected:`, proposedEvent, existingEvent);
-        return true;
-      }
-    }
-    return false;
-  } catch (error) {
-    console.error("Error checking for office location conflict:", error);
-    return false;
-  }
-}
-
-/**
- * Checks if a proposed event has a virtual conflict with existing events.
- * A virtual conflict occurs when two virtual meetings are scheduled with
- * either Dorin Holban or Tim Gagin at the same time.
- *
- * @param {Object} proposedEvent - The event to check, with location and start/end times.
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check for conflicts.
- * @param {string} lawyerId - The ID of the lawyer.
- * @returns {boolean} - true if there is a virtual conflict, false otherwise.
- */
-function hasVirtualConflict(lawyerId, proposedEvent, allEvents) {
-  try {
-    // If the lawyer is not DH or TG, return false
-    if (!["DH", "TG"].includes(lawyerId)) {
-      // log no conflict
-      console.warn(`No virtual conflict for lawyer ${lawyerId} on ${proposedEvent.start.dateTime}`);
-      return false;
-    }
-
-    const otherLawyerId = lawyerId === "DH" ? "TG" : "DH"; 
-    const otherLawyer = getLawyer(otherLawyerId);
-
-    const proposedIsVirtual = isVirtualMeeting(proposedEvent);
-
-    // Check if any existing event is scheduled in a virtual meeting 
-    // with the other lawyer at the same time
-    let conflict = false;
-    for (const existing of allEvents) {
-      if (
-        existing.categories?.includes(otherLawyer) &&
-        isVirtualMeeting(existing) &&
-        isOverlapping(proposedEvent, existing) &&
-        proposedIsVirtual
-      ) {
-        console.warn(`Virtual conflict: ${proposedEvent.start.dateTime} with ${existing.subject}`);
-        conflict = true;
-        break;
-      }
-    }
-    return conflict;
-  } catch (error) {
-    console.error("Error checking for DH_TG conflict:", error);
-    // on fail, don't block scheduling. You'll have to check manually
-    return false;
-  }
-}
-
-/**
- * Checks if a proposed appointment slot conflicts with the required break time
- * for the given lawyer. A break conflict occurs when there is not enough time
- * between the proposed appointment and either the previous or next appointment
- * with the same lawyer.
- *
- * @param {string} lawyerId - The ID of the lawyer.
- * @param {{ start: Date, end: Date }} proposedSlot - The proposed appointment slot.
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check against.
- * @returns {boolean} - true if there is a break conflict, false otherwise.
- */
-function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
-  const lawyer = getLawyer(lawyerId);
-  const requiredBreak = lawyer.breakMinutes * (60 * 1000);
-
-  const previousEvents = allEvents
-    .filter(event => event.categories?.includes(lawyerId))
-    .sort((a, b) => new Date(b.end.dateTime) - new Date(a.end.dateTime));
-
-  if (previousEvents.length > 0) {
-    const lastEventEnd = new Date(previousEvents[0].end.dateTime);
-    const breakTime = proposedSlot.start.getTime() - lastEventEnd.getTime();
-    if (breakTime < requiredBreak) {
-      console.warn(`Break conflict detected with previous event:`, proposedSlot, previousEvents[0]);
-      return true;
-    }
-  }
-
-  const nextEvent = allEvents.find(event =>
-    event.categories?.includes(lawyerId) &&
-    new Date(event.start.dateTime) > proposedSlot.start
-  );
-
-  if (nextEvent) {
-    const breakTime = new Date(nextEvent.start.dateTime) - proposedSlot.end.getTime();
-    if (breakTime < requiredBreak) {
-      console.warn(`Break conflict detected with next event:`, proposedSlot, nextEvent);
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Checks if a proposed slot conflicts with the lawyer's unavailability.
- * @param {string} lawyerId - The ID of the lawyer.
- * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed appointment slot.
- * @returns {boolean} - True if there is a conflict, false otherwise.
- */
-function hasLocationConflict(lawyerId, proposedSlot) {
-  const proposedDay = proposedSlot.start.toLocaleString("en-US", { weekday: "long" });
-  const proposedLocation = proposedSlot.location;
-
-  const unavailability = locationRules.lawyerUnavailability?.[lawyerId] || {};
-
-  return Object.entries(unavailability).some(([location, days]) =>
-    location === proposedLocation && days.includes(proposedDay)
-  );
-}
-/**
- * Checks if the daily appointment limit for the given lawyer has been reached for any day in the range of existing events.
- *
- * @param {string} lawyerId - The ID of the lawyer.
- * @param {{ start: Date, end: Date }} proposedSlot - The proposed appointment slot.
- * @param {Array<MicrosoftGraph.Event>} allEvents - Array of existing events to check against.
- * @returns {boolean} - true if the daily limit has been reached for any day, false otherwise.
- */
-function hasDailyLimitConflict(lawyerId, allEvents) {
-  const lawyer = getLawyer(lawyerId);
-  const maxDailyAppointments = lawyer.maxDailyAppointments;
-
-  const startDate = new Date(allEvents[0].start.dateTime);
-  const endDate = new Date(allEvents[allEvents.length - 1].start.dateTime);
-
-  for (let day = startDate; day <= endDate; day.setDate(day.getDate() + 1)) {
-    const eventsForDay = allEvents.filter((event) => isSameDay(new Date(event.start.dateTime), day));
-
-    const lawyerEventsForDay = eventsForDay.filter((event) => event.categories.includes(lawyerId));
-
-    if (lawyerEventsForDay.length >= maxDailyAppointments) {
-      // log the conflict
-      console.warn(`Daily limit reached for lawyer ${lawyerId} on`, day);
-      return true; // Daily limit reached for this day
-    }
-  }
-
-  return false; // Daily limit not reached for any day
-}
-
-/**
- * Creates a time slot given start and end times.
- * @param {Date} start - The start time of the event.
- * @param {Date} end - The end time of the event.
- * @param {string} location - The location of the event.
- * @returns {{start: Date, end: Date, location: string}} slot - A time slot object with start, end, and location properties.
- */
-function createSlot(start, end, location) {
-  const slot = {
-    start: start,
-    end: end,
-    location: location
-  };
-  return slot;
-}
-
-/**
- * Determines if an event is a virtual meeting.
- * 
- * This function checks the location of the event to determine if it includes
- * 'phone' or 'teams', indicating that the meeting is virtual.
- * 
- * @param {Object} event - The event object containing location details.
- * @returns {boolean} - True if the event is virtual, false otherwise.
- */
-function isVirtualMeeting(event) {
-  const location = event.location?.displayName?.toLowerCase() ?? "";
-  const isVirtual = [
-    'phone',
-    'tel',
-    'telephone',
-    'téléphone',
-    'teams',
-    'ms teams',
-    'microsoft teams',
-    'microsoft teams meeting',
-  ].some(keyword => location.includes(keyword));
-  
-  console.log(`Event location: ${location}, is virtual: ${isVirtual}`);
-  return isVirtual;
-}
-
-/**
- * Checks if two events overlap based on their start and end times.
- * 
- * @param {Object} eventA - The first event object containing start and end properties.
- * @param {Object} eventB - The second event object containing start and end properties.
- * @returns {boolean} - True if the events overlap, false otherwise.
- */
-function isOverlapping(eventA, eventB) {
-  const startA = new Date(eventA.start.dateTime);
-  const endA = new Date(eventA.end.dateTime);
-  const startB = new Date(eventB.start.dateTime);
-  const endB = new Date(eventB.end.dateTime);
-
-  return startA <= endB && startB <= endA;
 }

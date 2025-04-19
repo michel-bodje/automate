@@ -278,6 +278,63 @@ function attachEventListeners() {
 }
 
 /**
+ * Displays a popup with available calendar slots for the next 2 weeks,
+ * with the selected slot at the top. The popup is only displayed when
+ * auto-scheduling is enabled.
+ * @param {Array<{start: Date, end: Date}>} validSlots - The array of valid slot objects with start and end times.
+ * @param {{start: Date, end: Date}} selectedSlot - The selected slot object with start and end times.
+ */
+function popupAvailableSlots(validSlots, selectedSlot) {
+  let popupContent = "<h3>Available calendar slots for the next 2 weeks</h3><ul>";
+
+  // Ensure the selected slot is displayed first
+  const selectedSlotIndex = validSlots.indexOf(selectedSlot);
+
+  if (selectedSlotIndex !== -1) {
+    const slot = validSlots[selectedSlotIndex];
+    popupContent += formatSlot(slot, true);
+  }
+
+  // Display all future slots after the selected slot
+  let previousDate = selectedSlot.start.toLocaleDateString();
+  for (let i = selectedSlotIndex + 1; i < validSlots.length; i++) {
+    const slot = validSlots[i];
+
+    // Insert a line break if the day changes
+    if (slot.start.toLocaleDateString() !== previousDate) {
+      popupContent += "<br>";
+      previousDate = slot.start.toLocaleDateString();
+    }
+
+    popupContent += formatSlot(slot);
+  }
+
+  popupContent += "</ul>";
+
+  openPopup({
+    title: "Available Slots",
+    contentOrFile: popupContent,
+    width: 480,
+    height: 300,
+    position: "bottom-right",
+  });
+
+  /**
+   * Formats a slot into an HTML list item.
+   * @param {Object} slot - The slot object with start and end times.
+   * @param {boolean} [isSelected=false] - Whether the slot is the selected one.
+   * @returns {string} - The formatted HTML string for the slot.
+  */
+  function formatSlot(slot, isSelected = false) {
+    const startDate = slot.start.toLocaleString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+    const startTime = slot.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const endTime = slot.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    return `<li>${isSelected ? "<strong>Selected Slot:</strong><br>" : ""}${startDate} - ${startTime} to ${endTime}</li>${isSelected ? "<br>" : ""}`;
+  }
+}
+
+/**
  * Prepares a reply email.
  * @async
  */
@@ -304,59 +361,66 @@ async function sendConfirmation() {
 
 /**
  * Returns valid time slots for the appointment within the next 14 days.
+ * @param {string} scheduleMode - The schedule mode ("auto" or "manual").
  * @async
- * @returns {Promise<Array<{start: Date, end: Date}>>} - An array of valid time slots.
+ * @returns {Promise<Array<{ start: Date, end: Date, location:string }>>} An array of valid time slots.
  */
-async function findSlots(scheduleMode, selectedSlot = null) {
+async function findSlots(scheduleMode) {
   try {
     const lawyer = getLawyer(formState.lawyerId);
     const location = formState.location;
-    
-    // Events for next two weeks, whether real or mock
-    const startDateTime = new Date();
-    const endDateTime = new Date(startDateTime.getTime() + (14 * 24 * 60 * 60 * 1000));
 
+    // Define the time range for the next two weeks
+    const startDateTime = new Date();
+    const endDateTime = new Date(startDateTime.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    // Fetch calendar events for the lawyer
     const events = await fetchCalendarEvents(lawyer.id, startDateTime, endDateTime);
 
     if (scheduleMode === "manual") {
+      // Retrieve manually selected date and time
+      const manualDate = document.getElementById(ELEMENT_IDS.manualDate)?.value;
+      const manualTime = document.getElementById(ELEMENT_IDS.manualTime)?.value;
+
+      if (!manualDate || !manualTime) {
+        throw new Error("Please select a valid date and time for manual scheduling.");
+      }
+
+      const start = new Date(`${manualDate}T${manualTime}`);
+      const end = new Date(start.getTime() + 60 * 60 * 1000); // Assume 1-hour duration
+
+      const selectedSlot = { start, end, location };
+
       // Validate the manually selected slot
-      if (!isValidSlot(
-        lawyer.id,
-        { start: selectedSlot.start, end: selectedSlot.end, location: location },
-        events
-      )) {
+      if (!isValidSlot(lawyer.id, selectedSlot, events)) {
         throw new Error("The selected time slot is not valid.");
       }
+
       return [selectedSlot]; // Return the valid manual slot as an array
-    } else {
-      // Generate available slots based on the fetched events
-      const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
-
-      const validSlots = slots.filter((slot) =>
-        isValidSlot(
-          lawyer.id,
-          { start: slot.start, end: slot.end, location: location },
-          events
-        )
-      );
-
-      if (validSlots.length === 0) {
-        throw new Error("No available slots found in the next 2 weeks.");
-      }
-      console.log("Valid slots:", validSlots);
-      return validSlots;
     }
+
+    // Auto-scheduling: Generate and validate slots
+    const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
+    const validSlots = slots.filter(slot =>
+      isValidSlot(lawyer.id, slot, events)
+    );
+
+    if (validSlots.length === 0) {
+      throw new Error("No available slots found in the next 2 weeks.");
+    }
+
+    console.log("Valid slots:", validSlots);
+    return validSlots;
   } catch (error) {
     console.error("Error finding schedule slot:", error);
-    throw error;
+    showErrorModal(error.message);
   }
 }
 
 /**
- * Schedules an appointment with a lawyer
- * and sends a confirmation email to the client.
- * (TODO: link to confirmation email)
+ * Schedules an appointment based on the selected inputs.
  * @async
+ * @throws {Error} if the inputs are invalid or if no available slots are found.
  */
 async function scheduleAppointment() {
   try {
@@ -365,93 +429,36 @@ async function scheduleAppointment() {
 
     if (!isValidInputs()) {
       throw new Error("Invalid inputs.");
-    };
+    }
 
     const scheduleMode = document.getElementById(ELEMENT_IDS.scheduleMode)?.value;
 
-    let selectedSlot;
+    // Fetch valid slots based on the schedule mode
+    const validSlots = await findSlots(scheduleMode);
 
-    if (scheduleMode === 'manual') {
-      const appointmentDateTime = new Date(
-        `${formState.appointmentDate}T${formState.appointmentTime}`
-      );
-      if (!appointmentDateTime) {
-        throw new Error("Please provide both date and time for manual scheduling.");
-      }
-      selectedSlot = {
-        start: new Date(appointmentDateTime),
-        end: new Date(appointmentDateTime.getTime() + (60 * 60 * 1000)),
-        // Default to 1 hour duration
-      };
+    if (!validSlots || validSlots.length === 0) {
+      throw new Error("No available slots found.");
+    }
 
-      const validSlots = await findSlots(scheduleMode, selectedSlot);
-      selectedSlot = validSlots[0];
+    // Select the appropriate slot
+    const now = new Date();
+    const selectedSlot =
+      scheduleMode === "manual"
+        ? validSlots[0] // Manual mode returns a single valid slot
+        : validSlots.find(slot => !isSameDay(slot.start, now) || slot.start > now) || validSlots[0]; // Auto mode logic
 
-      console.log("Scheduled appointment at:", selectedSlot.start);
-    } else {
-      // Auto-scheduling mode
-      const validSlots = await findSlots(scheduleMode);
-      
-      // Use the first valid slot that's after the current time if on the same day
-      const now = new Date();
-      selectedSlot = validSlots.find(slot => {
-        return !isSameDay(slot.start, now) || slot.start > now;
-      }) || validSlots[0]; // Fallback to the first valid slot if no such slot is found
+    console.log("Selected appointment slot:", selectedSlot.start);
 
-      // Display the slots in a popup
-      let popupContent = "<h3>Available calendar slots for the next 2 weeks</h3><ul>";
-
-      // Ensure the selected slot is displayed first
-      const selectedSlotIndex = validSlots.indexOf(selectedSlot);
-
-      if (selectedSlotIndex !== -1) {
-        const slot = validSlots[selectedSlotIndex];
-
-        const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-        const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        popupContent += `<li><strong>Selected Slot:</strong><br>
-          ${startDate} - ${startTime} to ${endTime}</li><br>`;
-      }
-
-      // Display all future slots after the selected slot
-      let previousDate = selectedSlot.start.toLocaleDateString();
-      for (let i = selectedSlotIndex + 1; i < validSlots.length; i++) {
-        const slot = validSlots[i];
-        const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        // Insert a line break if the day changes
-        if (slot.start.toLocaleDateString() !== previousDate) {
-          popupContent += `<br>`;
-          previousDate = slot.start.toLocaleDateString();
-        }
-
-        popupContent += `<li>${startDate} - ${startTime} to ${endTime}</li>`;
-      }
-
-      popupContent += "</ul>";
-
-      openPopup({
-        title: "Available Slots",
-        contentOrFile: popupContent,
-        width: 480,
-        height: 300,
-        position: "bottom-right"
-      });
-      
-      console.log("Auto-scheduled appointment at:", selectedSlot.start);
+    // Display available slots in a popup for auto-scheduling
+    if (scheduleMode === "auto") {
+      popupAvailableSlots(validSlots, selectedSlot);
     }
 
     // Create the appointment in the lawyer's calendar
     await createMeeting(selectedSlot.start, selectedSlot.end);
     console.log("Scheduled appointment successfully.");
-  } catch(error) {
-    console.error("Scheduling Error:", error.message);
+  } catch (error) {
+    console.error("Scheduling Error:", error);
     showErrorModal(error.message);
   } finally {
     // Hide loading spinner

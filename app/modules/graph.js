@@ -57,7 +57,7 @@ const client = Client.initWithMiddleware({ authProvider });
  * @param {string} lawyerId - The lawyer to fetch events for.
  * @param {Date} start - The start date of the time range.
  * @param {Date} end - The end date of the time range.
- * @returns {Promise<Array<MicrosoftGraph.Event>>} - A promise resolving to an array of events.
+ * @returns {Promise<Array<microsoftgraph.Event>>} - A promise resolving to an array of events.
  */
 export async function fetchCalendarEvents(lawyerId, start, end) {
     if (process.env.NODE_ENV === "development") {
