@@ -110,3 +110,23 @@ export const MS = {
     urlDev: "https://localhost:3000/taskpane.html",
     urlProd: "https://michel-bodje.github.io/automate/taskpane.html",
 };
+
+/**
+ * Time-related constants
+ */
+
+export const FIRM_TIMEZONE = "America/Toronto";
+export const LUNCH_START_HOUR = 13; // 1pm
+export const LUNCH_END_HOUR = 14;   // 2pm
+export const RANGE_IN_DAYS = 14     // Centralized time range: 2 weeks
+
+/**
+ * Generates the lunch slot for a given day.
+ * @param {Date} day - The date for which to generate the lunch slot.
+ * @returns {{ start: Date, end: Date }} - The lunch slot with start and end times.
+ */
+export function LUNCH_SLOT(day) {
+const lunchStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), LUNCH_START_HOUR, 0, 0, 0);
+const lunchEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), LUNCH_END_HOUR, 0, 0, 0);
+return { start: lunchStart, end: lunchEnd };
+}

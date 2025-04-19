@@ -1,13 +1,17 @@
-import { getLawyer, overlapsLunch } from "../index.js";
+import {
+    getLawyer,
+    isOverlapping,
+    LUNCH_SLOT,
+    RANGE_IN_DAYS,
+ } from "../index.js";
 
 /**
  * Generates an array of mock events for testing and development purposes.
  * The events include controlled test scenarios and realistic random events.
  *
- * @param {number} [daysToGenerate=14] - The number of days to generate events for.
- * @returns {Array} - An array of mock events in Microsoft Graph format.
+ * @returns {Array<microsoftgraph.Event>} - An array of events in the Microsoft Graph format.
  */
-export function generateMockEvents(daysToGenerate = 14) {
+export function generateMockEvents() {
     const events = [];
     const now = new Date();
     now.setHours(0, 0, 0, 0); // Start of today
@@ -99,12 +103,12 @@ export function generateMockEvents(daysToGenerate = 14) {
     // ======================
     // Realistic Random Events
     // ======================
-    for (let day = 6; day < daysToGenerate; day++) {
-        const date = new Date(now);
-        date.setDate(now.getDate() + day);
+    for (let day = 6; day < RANGE_IN_DAYS; day++) {
+        const currentDay = new Date(now);
+        currentDay.setDate(now.getDate() + day);
 
         // Skip weekends
-        if (date.getDay() === 0 || date.getDay() === 6) continue;
+        if (currentDay.getDay() === 0 || currentDay.getDay() === 6) continue;
 
         const eventCount = Math.floor(Math.random() * 3); // 0-2 events per day
         for (let i = 0; i < eventCount; i++) {
@@ -113,12 +117,12 @@ export function generateMockEvents(daysToGenerate = 14) {
             const duration = Math.random() > 0.5 ? 60 : 30;
             const location = ["Office", "Teams", "Phone"][Math.floor(Math.random() * 3)];
 
-            const start = new Date(date);
+            const start = new Date(currentDay);
             start.setHours(startHour, 0, 0, 0);
             const end = new Date(start.getTime() + duration * 60000);
 
-            // Skip events that overlap lunch (12:00 - 13:00)
-            if (overlapsLunch(start, end)) continue;
+            // Skip events that overlap lunch
+            if (isOverlapping({ start, end }, LUNCH_SLOT(currentDay))) continue;
 
             events.push({
                 subject: `Random Event Day${day}-${i}`,

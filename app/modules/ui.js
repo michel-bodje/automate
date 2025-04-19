@@ -60,15 +60,15 @@ export function resetPage() {
 }
 
 /**
- * Sets up the Outlook taskpane UI by only displaying relevant menu options
- * and user manual.
+ * Initializes the Outlook taskpane UI with relevant menu options,
+ * user manual and populated dropdowns.
  * 
  * In message compose: only the send email options;
  * In appointment organizer: only the schedule appointment option;
  * 
  * This function is called when the application initializes.
  */
-export function setupOutlookMenu() {
+export function initTaskpaneOutlook() {
   // Hide the "Create Contract" button in Outlook
   const createContractBtn = document.getElementById(ELEMENT_IDS.wordContractMenuBtn);
   if (createContractBtn) {
@@ -106,12 +106,12 @@ export function setupOutlookMenu() {
 }
 
 /**
- * Sets up the Word taskpane UI by hiding all menu options
- * except for the contract-builder and user manual.
+ * Initializes the Word taskpane UI with relevant menu options,
+ * user manual, and populated dropdowns.
  * 
  * This function is called when the application initializes.
  */
-export function setupWordMenu() {
+export function initTaskpaneWord() {
   // Hide all buttons except for the Word contract and user manual buttons
   const menuButtons = document.querySelectorAll('.menu-btn');
   menuButtons.forEach((button) => {

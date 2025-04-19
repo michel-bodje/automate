@@ -1,7 +1,8 @@
 import { 
   Lawyer,
   getLawyer,
-  overlapsLunch,
+  LUNCH_SLOT,
+  RANGE_IN_DAYS,
 } from "../index.js";
 
 export const locationRules = {
@@ -236,7 +237,12 @@ function hasDailyLimitConflict(lawyerId, day, allEvents) {
  * @returns {boolean} True if the slot is virtual, false otherwise.
  */
 function isVirtualMeeting(slot) {
-  const location = slot.location ?? "";
+  const location = slot.location || "";
+  if (!location) {
+    console.error("Slot location is missing or invalid for virtual meeting check.");
+    return false;
+  }
+
   const isVirtual = [
     'phone',
     'tel',
@@ -254,17 +260,12 @@ function isVirtualMeeting(slot) {
 
 /**
  * Checks if two slots overlap based on their start and end times.
- * @param {{ start: Date, end: Date, location: string }} slotA
- * @param {{ start: Date, end: Date, location: string }} slotB 
+ * @param {{ start: Date, end: Date }} slotA
+ * @param {{ start: Date, end: Date }} slotB 
  * @returns {boolean} True if they do, false otherwise. 
  */
-function isOverlapping(slotA, slotB) {
-  const startA = slotA.start;
-  const endA = slotA.end;
-  const startB = slotB.start;
-  const endB = slotB.end;
-
-  return startA <= endB && startB <= endA;
+export function isOverlapping(slotA, slotB) {
+  return slotA.start <= slotB.end && slotB.start <= slotA.end;
 }
 
 /**
@@ -320,23 +321,20 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
  * avoiding weekends and considering existing events and lunch breaks. Slots are generated
  * based on the lawyer's working hours and required break times between appointments.
  *
- * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check for conflicts when generating slots.
  * @param {Lawyer} lawyer - The lawyer object containing working hours and break details.
  * @param {string} location - The location for the appointment slots.
- * @param {Date} startDateTime - The start date and time for generating slots.
- * @param {Date} endDateTime - The end date and time for generating slots.
+ * @param {Array<microsoftgraph.Event>} allEvents - Array of existing events to check for conflicts when generating slots.
  * @returns {Array<{ start: Date, end: Date, location: string}>} - An array of available time slots with start and end times.
  */
-export function generateSlots(allEvents, lawyer, location, startDateTime, endDateTime) {
+export function generateSlots(lawyer, location, allEvents) {
+  const now = new Date();
   const slots = [];
   const slotDuration = 60 * 60 * 1000; // 1 hour in milliseconds
   const requiredBreak = lawyer.breakMinutes * 60 * 1000; // Break time in milliseconds
 
-  const daysToCheck = Math.ceil((endDateTime - startDateTime) / (1000 * 60 * 60 * 24));
-
-  for (let day = 0; day < daysToCheck; day++) {
-    const currentDay = new Date(startDateTime);
-    currentDay.setDate(startDateTime.getDate() + day);
+  for (let day = 0; day < RANGE_IN_DAYS; day++) {
+    const currentDay = now;
+    currentDay.setDate(now.getDate() + day);
 
     // Skip weekends
     if (currentDay.getDay() === 0 || currentDay.getDay() === 6) continue;
@@ -379,7 +377,7 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
           const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
 
           // Skip slot if it overlaps lunch
-          if (!overlapsLunch(potentialSlotStart, potentialSlotEnd)) {
+          if (!isOverlapping({ start: potentialSlotStart, end: potentialSlotEnd }, LUNCH_SLOT(currentDay))) {
           slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
           }
 
@@ -396,7 +394,7 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
       const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
 
       // Skip slot if it overlaps lunch
-      if (!overlapsLunch(potentialSlotStart, potentialSlotEnd)) {
+      if (!isOverlapping({ start: potentialSlotStart, end: potentialSlotEnd }, LUNCH_SLOT(currentDay))) {
         slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
       }
 

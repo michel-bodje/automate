@@ -5,8 +5,8 @@ import {
   getLawyer,
   showPage,
   resetPage,
-  setupWordMenu,
-  setupOutlookMenu,
+  initTaskpaneWord,
+  initTaskpaneOutlook,
   populateLawyerDropdown,
   populateContractTitles,
   handleCaseDetails,
@@ -29,11 +29,11 @@ Office.onReady(async (info) => {
   if (info.host === Office.HostType.Outlook) {
     // Initialize MSAL for authentication
     await msalInstance.initialize();
-    // Setup UI components for Outlook
-    setupOutlookMenu();
+    // Setup taskpane UI for Outlook
+    initTaskpaneOutlook();
   } else if (info.host === Office.HostType.Word) {
-    // Setup UI components for Word
-    setupWordMenu();
+    // Setup taskpane UI for Word
+    initTaskpaneWord();
   }
   attachEventListeners();
 });
@@ -355,12 +355,12 @@ async function sendContract() {
  * @async
  */
 async function sendConfirmation() {
-  const type = formState.location.toLowerCase();
+  const type = formState.location;
   await createEmail(type);
 }
 
 /**
- * Returns valid time slots for the appointment within the next 14 days.
+ * Returns valid time slots for the appointment within the accepted range.
  * @param {string} scheduleMode - The schedule mode ("auto" or "manual").
  * @async
  * @returns {Promise<Array<{ start: Date, end: Date, location:string }>>} An array of valid time slots.
@@ -369,13 +369,7 @@ async function findSlots(scheduleMode) {
   try {
     const lawyer = getLawyer(formState.lawyerId);
     const location = formState.location;
-
-    // Define the time range for the next two weeks
-    const startDateTime = new Date();
-    const endDateTime = new Date(startDateTime.getTime() + 14 * 24 * 60 * 60 * 1000);
-
-    // Fetch calendar events for the lawyer
-    const events = await fetchCalendarEvents(lawyer.id, startDateTime, endDateTime);
+    const events = await fetchCalendarEvents();
 
     if (scheduleMode === "manual") {
       // Retrieve manually selected date and time
@@ -400,7 +394,7 @@ async function findSlots(scheduleMode) {
     }
 
     // Auto-scheduling: Generate and validate slots
-    const slots = generateSlots(events, lawyer, location, startDateTime, endDateTime);
+    const slots = generateSlots(lawyer, location, events);
     const validSlots = slots.filter(slot =>
       isValidSlot(lawyer.id, slot, events)
     );
@@ -455,7 +449,7 @@ async function scheduleAppointment() {
     }
 
     // Create the appointment in the lawyer's calendar
-    await createMeeting(selectedSlot.start, selectedSlot.end);
+    await createMeeting(selectedSlot);
     console.log("Scheduled appointment successfully.");
   } catch (error) {
     console.error("Scheduling Error:", error);

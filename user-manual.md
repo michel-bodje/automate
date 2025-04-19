@@ -1,4 +1,4 @@
-# User Manual for Allen Madelin Outlook Add-In
+# User Manual for Allen Madelin Office Add-In
 
 <div style="text-align: center;">
   <img src="assets/images/AM-INC.jpg" alt="Corporate Logo">
@@ -6,7 +6,7 @@
 
 ## Overview
 
-The Allen Madelin Outlook Add-In (Automate) is designed to streamline appointment scheduling and email drafting for the law firm. It integrates directly into Outlook, allowing users to perform these tasks efficiently without leaving their email client.
+The Allen Madelin Office Add-In (Automate) is designed to streamline common tasks for the law firm. It integrates directly into Office (Outlook and Word), allowing users to perform these tasks efficiently without leaving their email client.
 
 This manual is divided into two sections:
 1. **User Workflow**: Instructions for using the add-in to schedule appointments and draft emails.

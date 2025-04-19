@@ -247,14 +247,12 @@ export async function createEmail(type) {
 
 /**
  * Creates a meeting draft with the specified details.
- * @param {Date} startTime - The start time of the appointment.
- * @param {Date} endTime - The end time of the appointment.
+ * @param {{ start: Date, end: Date, location: string }} selectedSlot - The proposed time slot.
  */
-export async function createMeeting(startTime, endTime) {
+export async function createMeeting(selectedSlot) {
   try {
     // Fetch the lawyer's details from lawyers.json
     const lawyer = getLawyer(formState.lawyerId);
-    const location = formState.location;
 
     // Construct the case details
     const caseDetails = getCaseDetails();
@@ -288,9 +286,9 @@ export async function createMeeting(startTime, endTime) {
     // Set details for the draft meeting
     setCategory([lawyer.name]);
     setSubject(subject);
-    setMeetingTimes(startTime, endTime);
+    setMeetingTimes(selectedSlot.start, selectedSlot.end);
     setAttendees([{ displayName: lawyer.name, emailAddress: lawyer.email }]);
-    setLocation(location.charAt(0).toUpperCase() + location.slice(1),);
+    setLocation(selectedSlot.location.charAt(0).toUpperCase() + location.slice(1));
     setBody(body);
 
   } catch (error) {

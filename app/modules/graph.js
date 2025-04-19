@@ -2,7 +2,8 @@ import { Client } from '@microsoft/microsoft-graph-client';
 import { 
     msalInstance,
     FIRM_TIMEZONE,
-    generateMockEvents
+    RANGE_IN_DAYS,
+    generateMockEvents,
 } from '../index.js';
 
 // Create authentication provider
@@ -49,29 +50,31 @@ const authProvider = {
 const client = Client.initWithMiddleware({ authProvider });
 
 /**
- * Using MS Graph, fetches a list of upcoming events from the given lawyer's calendar, within
- * the given start and end date range. The events are ordered by start time.
+ * Using MS Graph, fetches a list of upcoming events from the account calendar,
+ * for the standard time range.
+ * The events are ordered by start time.
  * 
  * Generates mock events if used in development mode.
- *
- * @param {string} lawyerId - The lawyer to fetch events for.
- * @param {Date} start - The start date of the time range.
- * @param {Date} end - The end date of the time range.
  * @returns {Promise<Array<microsoftgraph.Event>>} - A promise resolving to an array of events.
  */
-export async function fetchCalendarEvents(lawyerId, start, end) {
+export async function fetchCalendarEvents() {
     if (process.env.NODE_ENV === "development") {
         console.warn("Using mock calendar data for testing");
         return generateMockEvents();
     }
 
     try {
+        const now = new Date();
+        const range = {
+            start: now,
+            end: new Date(now.setDate(now.getDate() + RANGE_IN_DAYS))
+        };
         const events = await client
             .api('/me/calendarView')
             .header('Prefer', `outlook.timezone="${FIRM_TIMEZONE}"`)
             .query({
-                startDateTime: start.toISOString(),
-                endDateTime: end.toISOString(),
+                startDateTime: range.start.toISOString(),
+                endDateTime: range.end.toISOString(),
                 $select: 'subject,start,end,location,attendees,categories',
                 $expand: 'instances',
                 $orderby: 'start/dateTime',
@@ -93,9 +96,7 @@ export async function fetchCalendarEvents(lawyerId, start, end) {
     } catch (error) {
         console.error('Graph API Error:', {
             error,
-            lawyerId,
-            start,
-            end,
+            range,
         });
         throw error;
     }
