@@ -27,22 +27,3 @@ export function overlapsLunch(slotStart, slotEnd) {
     (slotEnd.getHours() === LUNCH_END_HOUR && slotEnd.getMinutes() > 0)
   );
 }
-
-/**
- * Adjusts a time slot to avoid lunch break if needed
- * @param {Date} slotStart - Original start time
- * @param {Date} slotEnd - Original end time
- * @returns {{start: Date, end: Date}|null} - Adjusted slot or null if not possible
- */
-export function adjustForLunch(slotStart, slotEnd, slotDuration) {
-  if (!overlapsLunch(slotStart, slotEnd)) {
-    return { start: slotStart, end: slotEnd };
-  }
-  
-  // Try moving to after lunch (2pm)
-  const afterLunchStart = new Date(slotStart);
-  afterLunchStart.setHours(LUNCH_END_HOUR, 0, 0, 0);
-  const afterLunchEnd = new Date(afterLunchStart.getTime() + slotDuration);
-  
-  return { start: afterLunchStart, end: afterLunchEnd };
-}

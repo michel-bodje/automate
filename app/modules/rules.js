@@ -2,43 +2,22 @@ import {
   Lawyer,
   getLawyer,
   overlapsLunch,
-  adjustForLunch
 } from "../index.js";
 
 export const locationRules = {
   // Centralized list of locations
-  locations: ["Office", "Phone", "Teams"],
+  locations: ["office", "phone", "teams"],
   
   // List of unavailability for each lawyer
   lawyerUnavailability: {
-    // TODO: Implement location restrictions
+    DH: {
+      office: ["Monday"],
+    },
+    TG: {
+      office: ["Friday"],
+    }
   },
 };
-
-/**
- * Get available locations for a lawyer based on the current day.
- * @param {string} lawyerId - The ID of the lawyer.
- * @returns {Array} - List of available locations for the lawyer.
- */
-export function getAvailableLocations(lawyerId) {
-  // Get current day
-  const today = new Date().toLocaleString("en-US", { weekday: "long" });
-
-  const unavailability = locationRules.lawyerUnavailability?.lawyerId || null;
-
-  // If the lawyer is not predefined, assume full availability
-  if (lawyerId in locationRules.lawyerUnavailability === false) {
-    return locationRules.locations;
-  }
-
-  // Filter locations that are not in the unavailability list for today
-  return locationRules.locations.filter((location) => {
-    if (!unavailability) {
-      return true; // If unavailability is null or undefined, all locations are available
-    }
-    return !unavailability[location.toLowerCase()]?.includes(today);
-  });
-}
 
 /**
  * Generates available appointment slots for a lawyer over a specified number of days,
@@ -97,10 +76,9 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
         while (potentialSlotStart.getTime() + slotDuration <= eventStart.getTime()) {
           const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
 
-          // Adjust for lunch
-          const adjustedSlot = adjustForLunch(potentialSlotStart, potentialSlotEnd, slotDuration);
-          if (!overlapsLunch(adjustedSlot.start, adjustedSlot.end)) {
-            slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
+          // Skip slot if it overlaps lunch
+          if (!overlapsLunch(potentialSlotStart, potentialSlotEnd)) {
+          slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
           }
 
           potentialSlotStart = new Date(potentialSlotEnd);
@@ -115,10 +93,9 @@ export function generateSlots(allEvents, lawyer, location, startDateTime, endDat
     while (potentialSlotStart.getTime() + slotDuration <= workEnd.getTime()) {
       const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
 
-      // Adjust for lunch
-      const adjustedSlot = adjustForLunch(potentialSlotStart, potentialSlotEnd, slotDuration);
-      if (!overlapsLunch(adjustedSlot.start, adjustedSlot.end)) {
-        slots.push(createSlot(adjustedSlot.start, adjustedSlot.end, location));
+      // Skip slot if it overlaps lunch
+      if (!overlapsLunch(potentialSlotStart, potentialSlotEnd)) {
+        slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
       }
 
       potentialSlotStart = new Date(potentialSlotEnd);
@@ -156,6 +133,15 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
 
   // Check the proposed slot against each event individually
   for (const event of allEvents) {
+    if (hasLocationConflict(lawyerId, proposedEvent, [event])) {
+      console.warn(
+        `Slot rejected due to location conflict:`,
+        proposedSlot,
+        `Conflicting event:`,
+        mapEventToSlotFormat(event)
+      );
+      return false;
+    }
     if (hasOfficeConflict(proposedEvent, [event])) {
       console.warn(
         `Slot rejected due to office conflict:`,
@@ -218,7 +204,7 @@ export function isSameDay(dateA, dateB) {
  */
 function hasOfficeConflict(proposedEvent, allEvents) {
   try {
-    const proposedLocation = proposedEvent.location.displayName?.toLowerCase();
+    const proposedLocation = proposedEvent.location;
 
     if (proposedLocation !== "office") {
       return false;
@@ -330,6 +316,22 @@ function hasBreakConflict(lawyerId, proposedSlot, allEvents) {
 }
 
 /**
+ * Checks if a proposed slot conflicts with the lawyer's unavailability.
+ * @param {string} lawyerId - The ID of the lawyer.
+ * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed appointment slot.
+ * @returns {boolean} - True if there is a conflict, false otherwise.
+ */
+function hasLocationConflict(lawyerId, proposedSlot) {
+  const proposedDay = proposedSlot.start.toLocaleString("en-US", { weekday: "long" });
+  const proposedLocation = proposedSlot.location;
+
+  const unavailability = locationRules.lawyerUnavailability?.[lawyerId] || {};
+
+  return Object.entries(unavailability).some(([location, days]) =>
+    location === proposedLocation && days.includes(proposedDay)
+  );
+}
+/**
  * Checks if the daily appointment limit for the given lawyer has been reached for any day in the range of existing events.
  *
  * @param {string} lawyerId - The ID of the lawyer.
@@ -393,6 +395,7 @@ function isVirtualMeeting(event) {
     'téléphone',
     'teams',
     'ms teams',
+    'microsoft teams',
     'microsoft teams meeting',
   ].some(keyword => location.includes(keyword));
   

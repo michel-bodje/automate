@@ -1,4 +1,4 @@
-import { getLawyer, adjustForLunch } from "../index.js";
+import { getLawyer, overlapsLunch } from "../index.js";
 
 /**
  * Generates an array of mock events for testing and development purposes.
@@ -117,13 +117,13 @@ export function generateMockEvents(daysToGenerate = 14) {
             start.setHours(startHour, 0, 0, 0);
             const end = new Date(start.getTime() + duration * 60000);
 
-            const adjusted = adjustForLunch(start, end, duration * 60000);
-            if (!adjusted) continue;
+            // Skip events that overlap lunch (12:00 - 13:00)
+            if (overlapsLunch(start, end)) continue;
 
             events.push({
                 subject: `Random Event Day${day}-${i}`,
-                start: { dateTime: adjusted.start },
-                end: { dateTime: adjusted.end },
+                start: { dateTime: start },
+                end: { dateTime: end },
                 categories: [lawyer.name],
                 location: { displayName: location }
             });

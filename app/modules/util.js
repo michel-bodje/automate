@@ -69,7 +69,7 @@ export const caseTypeHandlers = {
     },
   },
   name_change: {
-    label: "Changement de Nom",
+    label: "Name Change",
     handler: function () {
       return `
         ${this.label}

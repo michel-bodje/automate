@@ -1,10 +1,9 @@
 import {
   ELEMENT_IDS,
   formState,
-  getLawyer,
   getAllLawyers,
-  getAvailableLocations,
   caseTypeHandlers,
+  locationRules,
 } from "../index.js";
 
 /**
@@ -75,7 +74,6 @@ export function setupOutlookMenu() {
   if (createContractBtn) {
     createContractBtn.classList.add("hidden");
   }
-
   // Check if the add-in is running in a draft message or draft meeting/appointment
   const extensionPoint = Office.context.mailbox.item ? Office.context.mailbox.item.itemType : null;
 
@@ -101,6 +99,10 @@ export function setupOutlookMenu() {
   } else {
     console.error("Unable to determine the extension point.");
   }
+  populateCaseTypeDropdown();
+  populateLawyerDropdown();
+  populateLocationDropdown();
+  populateLanguageDropdown();
 }
 
 /**
@@ -119,6 +121,8 @@ export function setupWordMenu() {
     ) {
       button.classList.add("hidden");
     }
+    populateContractTitles();
+    populateLanguageDropdown();
   });
 }
 
@@ -156,6 +160,125 @@ export function showErrorModal(errorMessage) {
   okButton.onclick = () => {
     modal.classList.add("hidden");
   };
+}
+
+/**
+ * Opens a popup window with the specified content or loads an external HTML file.
+ * @param {Object} options - The options for the popup.
+ * @param {string} options.title - The title of the popup window.
+ * @param {string} options.contentOrFile - The HTML content to display or the path to an external HTML file.
+ * @param {boolean} [options.isFile=false] - Whether the second parameter is a file path.
+ * @param {string} [options.styles=""] - Additional CSS styles to apply to the popup.
+ * @param {number} [options.width=684] - The width of the popup window.
+ * @param {number} [options.height=600] - The height of the popup window.
+ * @param {string} [options.position="center"] - The position of the popup ("center" or "bottom-right").
+ */
+export function openPopup({
+  title,
+  contentOrFile,
+  isFile = false,
+  styles = "",
+  width = 684,
+  height = 600,
+  position = "center",
+}) {
+  // Calculate position
+  let left = 0;
+  let top = 0;
+
+  if (position === "center") {
+    left = (window.screen.width - width) / 2;
+    top = (window.screen.height - height) / 2;
+  } else if (position === "bottom-right") {
+    left = window.screen.width - width;
+    top = window.screen.height - height;
+  }
+
+  const popupWindow = window.open("", title, `width=${width},height=${height},left=${left},top=${top}`);
+
+  const applyStyles = () => {
+    const styleElement = popupWindow.document.createElement("style");
+    styleElement.textContent = `
+      body {
+        background-color: #1e1e1e;
+        color: #f4f4f4;
+        font-family: 'Trebuchet MS', 'Tahoma', 'Arial', sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 1rem;
+      }
+      a {
+        color: #0078d4;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      h3 {
+        color: #0078d4;
+      }
+            button {
+        background-color: #0078d4;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      button:hover {
+        background-color: #005a9e;
+      }
+      ${styles}
+    `;
+    popupWindow.document.head.appendChild(styleElement);
+  };
+
+  if (isFile) {
+    // Load the external HTML file
+    fetch(contentOrFile)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load file: ${contentOrFile}`);
+        }
+        return response.text();
+      })
+      .then((html) => {
+        popupWindow.document.write(html);
+        popupWindow.document.close();
+        applyStyles(); // Apply styles after the content is loaded
+      })
+      .catch((error) => {
+        console.error("Error loading file:", error);
+        popupWindow.document.write(`
+          <html>
+            <head><title>Error</title></head>
+            <body>
+              <h3>Failed to load the requested file.</h3>
+              <p>${error.message}</p>
+              <button onclick="window.close()">Close</button>
+            </body>
+          </html>
+        `);
+        popupWindow.document.close();
+        applyStyles(); // Apply styles to the error page
+      });
+  } else {
+    // Use the provided HTML content
+    popupWindow.document.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+        </head>
+        <body>
+          ${contentOrFile}
+          <button onclick="window.close()">Close</button>
+        </body>
+      </html>
+    `);
+    popupWindow.document.close();
+    applyStyles(); // Apply styles immediately
+  }
 }
 
 /** Utility function to hide all extra form fields and reset their values. */
@@ -243,8 +366,42 @@ export function populateLanguageDropdown() {
   });
 }
 
-/** Dynamically loads the known lawyers. */
+/** Dynamically loads the case type options. */
+export function populateCaseTypeDropdown() {
+  /** To add new case types,
+   * update the `caseTypeHandlers` object in `modules/util.js`,
+   * and add the new specialty to the `specialties` array in `lawyerData.json`
+   * for the corresponding lawyers.
+  */
+
+  // Get all lawyers
+  const lawyers = getAllLawyers();
+
+  // Collect all unique case types from all lawyers
+  let caseTypes = [...new Set(
+    lawyers.flatMap(lawyer => lawyer.specialties)
+  )].map(caseType => {
+    const handlerExists = caseTypeHandlers[caseType];
+    const label = handlerExists ? caseTypeHandlers[caseType].label : caseType;
+    return { value: caseType, label };
+  });
+
+  // Sort case types alphabetically, except for "Other (Specify)" which should be last
+  caseTypes = caseTypes.sort((a, b) => {
+    if (a.label === "Other (Specify)") return 1;
+    if (b.label === "Other (Specify)") return -1;
+    return a.label.localeCompare(b.label);
+  });
+
+  // Populate the case type dropdown
+  populateDropdown(ELEMENT_IDS.caseType, caseTypes, "Select Case Type");
+}
+
+/** Dynamically loads the lawyer options based on the selected case type. */
 export function populateLawyerDropdown() {
+  // Get the selected case type (if any)
+  const selectedCaseType = formState.caseType;
+
   // Lawyer dropdown elements
   const elements = [
     ELEMENT_IDS.scheduleLawyerId,
@@ -253,25 +410,25 @@ export function populateLawyerDropdown() {
     ELEMENT_IDS.replyLawyerId,
   ];
 
-  // Get available lawyers
+  // Get all lawyers
   const lawyers = getAllLawyers();
 
-  // No lawyers found, clear the dropdown
-  if (!lawyers || lawyers.length === 0) {
-    elements.forEach(element => {
-      populateDropdown(element, [], "Select Lawyer");
-    });
-    return;
-  }
+  // Filter lawyers based on the selected case type (if applicable)
+  const filteredLawyers = selectedCaseType
+    ? lawyers.filter(lawyer => lawyer.specialties.includes(selectedCaseType))
+    : lawyers; // If no case type, include all lawyers
 
   // Populate the dropdowns
-  elements.forEach(element =>
+  elements.forEach(element => {
     populateDropdown(
       element,
-      lawyers.map((lawyer) => ({ value: lawyer.id, label: `${lawyer.name} (${lawyer.id})` })),
+      filteredLawyers.map(lawyer => ({
+        value: lawyer.id,
+        label: `${lawyer.name} (${lawyer.id})`
+      })),
       "Select Lawyer"
-    )
-  );
+    );
+  });
 }
 
 /** Dynamically loads the location options based on the selected lawyer. */
@@ -281,63 +438,19 @@ export function populateLocationDropdown() {
     ELEMENT_IDS.scheduleLocation,
     ELEMENT_IDS.confLocation,
   ];
-  
-  // Get selected lawyer
-  const lawyer = getLawyer(formState.lawyerId);
-  
-  // No lawyer selected, clear the dropdown
-  if (!lawyer) {
-    elements.forEach(element => {
-      populateDropdown(element, [], "Select Location");
-    });
-    return;
-  }
 
-  // Get available locations for the selected lawyer
-  const locations = getAvailableLocations(lawyer.id);
+  const locations = locationRules.locations;
 
-  // Populate the dropdowns with the same string for value and label
   elements.forEach(element => {
     populateDropdown(
       element,
-      locations.map((location) => ({ value: location, label: location })),
+      locations.map((location) => ({
+        value: location,
+        label: location.charAt(0).toUpperCase() + location.slice(1),
+      })),
       "Select Location"
     );
   });
-}
-
-/** Dynamically loads the case type options based on the selected lawyer. */
-export function populateCaseTypeDropdown() {
-  // Get selected lawyer
-  const lawyer = getLawyer(formState.lawyerId);
-
-  // No lawyer selected, clear the dropdown
-  if (!lawyer) {
-    populateDropdown(ELEMENT_IDS.caseType, [], "Select Case Type");
-    return;
-  }
-
-  /**
-   * Get available case types for the selected lawyer.
-   * If a handler exists for the case type, use its label.
-   * Otherwise, use the case type string as the label.
-   */
-  const caseTypes = lawyer.specialties
-    .map(caseType => {
-      const handlerExists = caseTypeHandlers[caseType];
-      const label = handlerExists
-        ? caseTypeHandlers[caseType].label
-        : caseType;
-      return { value: caseType, label };
-    })
-  ;
-
-  // Populate the dropdown with the case types
-  populateDropdown(
-    ELEMENT_IDS.caseType,
-    caseTypes,
-    "Select Case Type"
-  );
 }
 
 /**

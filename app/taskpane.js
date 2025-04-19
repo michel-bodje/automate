@@ -8,11 +8,7 @@ import {
   setupWordMenu,
   setupOutlookMenu,
   populateLawyerDropdown,
-  populateLanguageDropdown,
-  populateLocationDropdown,
-  populateCaseTypeDropdown,
   populateContractTitles,
-  hideExtraFields,
   handleCaseDetails,
   handlePaymentOptions,
   isValidInputs,
@@ -26,6 +22,7 @@ import {
   createContract,
   showLoading,
   showErrorModal,
+  openPopup,
 } from "./index.js";
 
 Office.onReady(async (info) => {
@@ -34,13 +31,10 @@ Office.onReady(async (info) => {
     await msalInstance.initialize();
     // Setup UI components for Outlook
     setupOutlookMenu();
-    populateLawyerDropdown();
   } else if (info.host === Office.HostType.Word) {
     // Setup UI components for Word
     setupWordMenu();
-    populateContractTitles();
   }
-  populateLanguageDropdown();
   attachEventListeners();
 });
 
@@ -64,29 +58,32 @@ function attachEventListeners() {
         case ELEMENT_IDS.replyLawyerId:
           // lawyer dropdown change
           formState.update("lawyerId", value);
-          populateLocationDropdown();
-          populateCaseTypeDropdown();
-          hideExtraFields();
           break;
+
         case ELEMENT_IDS.scheduleLocation:
         case ELEMENT_IDS.confLocation:
           // location dropdown change
           formState.update("location", value);
           break;
+
         case ELEMENT_IDS.caseType:
           // case type dropdown change
           formState.update("caseType", value);
+          populateLawyerDropdown();
           handleCaseDetails();
           break;
+
         case ELEMENT_IDS.scheduleClientName:
         case ELEMENT_IDS.wordClientName:
           // client name input change
           formState.update("clientName", value);
           break;
+
         case ELEMENT_IDS.scheduleClientPhone:
           // client phone input change
           formState.update("clientPhone", value);
           break;
+
         case ELEMENT_IDS.scheduleClientEmail:
         case ELEMENT_IDS.confClientEmail:
         case ELEMENT_IDS.contractClientEmail:
@@ -95,6 +92,7 @@ function attachEventListeners() {
           // client email input change
           formState.update("clientEmail", value);
           break;
+
         case ELEMENT_IDS.scheduleClientLanguage:
         case ELEMENT_IDS.confClientLanguage:
         case ELEMENT_IDS.contractClientLanguage:
@@ -106,6 +104,7 @@ function attachEventListeners() {
             populateContractTitles();
           }
           break;
+
         case ELEMENT_IDS.scheduleMode:
           // appointment mode dropdown change
           const manualDate = document.getElementById(ELEMENT_IDS.manualDate);
@@ -130,43 +129,52 @@ function attachEventListeners() {
             manualTime.required = true;
           }
           break;
+
         case ELEMENT_IDS.confDate:
         case ELEMENT_IDS.manualDate:
           console.log("Date changed:", value);
           formState.update("appointmentDate", value);
           break;
+
         case ELEMENT_IDS.confTime:
         case ELEMENT_IDS.manualTime:
           console.log("Time changed:", value);
           formState.update("appointmentTime", value); 
           break;
+
         case ELEMENT_IDS.scheduleFirstConsultation:
         case ELEMENT_IDS.confFirstConsultation:
           // first consultation checkbox change
           formState.update("isFirstConsultation", event.target.checked);
           break;
+
         case ELEMENT_IDS.refBarreau:
           // ref barreau checkbox change
           formState.update("isRefBarreau", event.target.checked);
           break;
+
         case ELEMENT_IDS.paymentMade:
           // payment checkbox change
           formState.update("isPaymentMade", event.target.checked);
           handlePaymentOptions();
           break;
+
         case ELEMENT_IDS.paymentMethod:
           // payment method dropdown change
           formState.update("paymentMethod", value);
           break;
+
         case ELEMENT_IDS.notes:
           // schedule notes textarea change
           formState.update("notes", value);
           break;
+
         case ELEMENT_IDS.emailContractDeposit:
         case ELEMENT_IDS.wordContractDeposit:
           // contract deposit input change
           formState.update("depositAmount", value);
           break;
+
         case ELEMENT_IDS.wordContractTitle:
           // Show/hide custom contract title input based on selection
           const customTitleInput = document.getElementById(ELEMENT_IDS.customContractTitle);
@@ -179,10 +187,12 @@ function attachEventListeners() {
             formState.update("contractTitle", value);
           }
           break;
+
         case ELEMENT_IDS.customContractTitle:
           // Update form state with custom contract title
           formState.update("contractTitle", value);
           break;
+
         default:
           // no change
           break;
@@ -210,29 +220,13 @@ function attachEventListeners() {
           showPage(ELEMENT_IDS.replyPage);
           break;
         case ELEMENT_IDS.userManualMenuBtn:
-          const manualWindow = window.open('./user-manual.html', '_blank', 'width=684,height=800', false);
-          manualWindow.document.title = "User Manual";
-          manualWindow.onload = () => {
-            const style = manualWindow.document.createElement('style');
-            style.textContent = `
-              body {
-                background-color: #1e1e1e;
-                color: #f4f4f4;
-                font-family: 'Trebuchet MS', 'Tahoma', 'Arial', sans-serif;
-                line-height: 1.6;
-                margin: 0;
-                padding: 1rem;
-              }
-              a {
-                color: #0078d4;
-                text-decoration: none;
-              }
-              a:hover {
-                text-decoration: underline;
-              }
-            `;
-            manualWindow.document.head.appendChild(style);
-          };
+          // Open user manual in new tab
+          openPopup({
+            title: "User Manual",
+            contentOrFile: "./user-manual.html",
+            isFile: true,
+            position: "bottom-right",
+          });
           break;
         case ELEMENT_IDS.wordContractMenuBtn:
           showPage(ELEMENT_IDS.wordContractPage);
@@ -405,71 +399,50 @@ async function scheduleAppointment() {
       }) || validSlots[0]; // Fallback to the first valid slot if no such slot is found
 
       // Display the slots in a popup
-      const popupWindow = window.open("", "Available Slots", "width=400,height=300");
-      popupWindow.document.write("<html><head><title>Available Slots</title></head><body>");
-      popupWindow.document.write("<h3>Available Slots</h3>");
-      popupWindow.document.write("<ul>");
+      let popupContent = "<h3>Available calendar slots for the next 2 weeks</h3><ul>";
 
       // Ensure the selected slot is displayed first
       const selectedSlotIndex = validSlots.indexOf(selectedSlot);
+
       if (selectedSlotIndex !== -1) {
         const slot = validSlots[selectedSlotIndex];
+
+        const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        popupContent += `<li><strong>Selected Slot:</strong><br>
+          ${startDate} - ${startTime} to ${endTime}</li><br>`;
+      }
+
+      // Display all future slots after the selected slot
+      let previousDate = selectedSlot.start.toLocaleDateString();
+      for (let i = selectedSlotIndex + 1; i < validSlots.length; i++) {
+        const slot = validSlots[i];
         const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        popupWindow.document.write(`<li><strong>Selected Slot:</strong> ${startDate} - Time: ${startTime} to ${endTime}</li>`);
+
+        // Insert a line break if the day changes
+        if (slot.start.toLocaleDateString() !== previousDate) {
+          popupContent += `<br>`;
+          previousDate = slot.start.toLocaleDateString();
+        }
+
+        popupContent += `<li>${startDate} - ${startTime} to ${endTime}</li>`;
       }
 
-      // Display only future slots after the selected slot
-      validSlots.forEach((slot, index) => {
-        if (index > selectedSlotIndex) {
-          const startDate = slot.start.toLocaleString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-          const startTime = slot.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          const endTime = slot.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          popupWindow.document.write(`<li>${startDate} - Time: ${startTime} to ${endTime}</li>`);
-        }
+      popupContent += "</ul>";
+
+      openPopup({
+        title: "Available Slots",
+        contentOrFile: popupContent,
+        width: 480,
+        height: 300,
+        position: "bottom-right"
       });
-
-      popupWindow.document.write("</ul>");
-      popupWindow.document.write("<button onclick='window.close()'>Close</button>");
-      popupWindow.document.write("</body></html>");
-      popupWindow.document.close();
-
-      // Apply the same style as in the user manual
-      const style = popupWindow.document.createElement('style');
-      style.textContent = `
-        body {
-          background-color: #1e1e1e;
-          color: #f4f4f4;
-          font-family: 'Trebuchet MS', 'Tahoma', 'Arial', sans-serif;
-          line-height: 1.6;
-          margin: 0;
-          padding: 1rem;
-        }
-        h3 {
-          color: #0078d4;
-        }
-        ul {
-          list-style-type: none;
-          padding: 0;
-        }
-        li {
-          margin: 0.5rem 0;
-        }
-        button {
-          background-color: #0078d4;
-          color: #fff;
-          border: none;
-          padding: 0.5rem 1rem;
-          font-size: 1rem;
-          cursor: pointer;
-          border-radius: 4px;
-        }
-        button:hover {
-          background-color: #005a9e;
-        }
-      `;
-      popupWindow.document.head.appendChild(style);
       
       console.log("Auto-scheduled appointment at:", selectedSlot.start);
     }

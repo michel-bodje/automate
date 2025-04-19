@@ -127,7 +127,7 @@ function getSubject(language, type) {
     } else if (type === "reply") {
       return "Reply - Allen Madelin";
     } else {
-      return "Appointment Confirmation - Allen Madelin";
+      return "Confirmation of appointment - Allen Madelin";
     }
   }
 }
@@ -290,7 +290,7 @@ export async function createMeeting(startTime, endTime) {
     setSubject(subject);
     setMeetingTimes(startTime, endTime);
     setAttendees([{ displayName: lawyer.name, emailAddress: lawyer.email }]);
-    setLocation(location);
+    setLocation(location.charAt(0).toUpperCase() + location.slice(1),);
     setBody(body);
 
   } catch (error) {
@@ -311,7 +311,7 @@ export async function createContract() {
   let depositAmount = formState.depositAmount;
   let totalAmount = addTaxes(formState.depositAmount, true);
 
-  depositAmount = Number(depositAmount).toFixed(2);
+  depositAmount = Number(depositAmount).toFixed();
   totalAmount = Number(totalAmount).toFixed(2);
 
   // Basic input validation
