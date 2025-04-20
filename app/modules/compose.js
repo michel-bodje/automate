@@ -6,6 +6,8 @@ import {
   loadTemplate,
   isValidEmail,
 } from "../index.js";
+import Docxtemplater from "docxtemplater";
+import PizZip from "pizzip";
 
 /**
  * Sets the subject in the draft email.
@@ -304,89 +306,61 @@ export async function createMeeting(selectedSlot) {
  * @returns {Promise<void>}
  */
 export async function createContract() {
-  // Retrieve user inputs from your taskpane UI
-  const clientName = formState.clientName;
-  const clientEmail = formState.clientEmail;
-  const contractTitle = formState.contractTitle;
-  let depositAmount = formState.depositAmount;
-  let totalAmount = addTaxes(formState.depositAmount, true);
-
-  depositAmount = Number(depositAmount).toFixed();
-  totalAmount = Number(totalAmount).toFixed(2);
+  const { clientName, clientEmail, contractTitle, depositAmount, clientLanguage } = formState;
 
   // Basic input validation
   if (!clientName || !clientEmail || !contractTitle || !depositAmount) {
-    console.log("One or more inputs are missing.");
+    console.error("One or more inputs are missing.");
     return;
   }
 
   if (!isValidEmail(clientEmail)) {
-    console.log("Invalid email format.");
+    console.error("Invalid email format.");
     return;
   }
 
-  const language = formState.clientLanguage === "Français" ? "fr" : "en";
+  const language = clientLanguage === "Français" ? "fr" : "en";
 
   try {
-    // Load the DOCX template
-    const doc = await loadTemplate(language);
+    // Load the DOCX template as a binary string
+    const templateBinary = await loadTemplate(language);
 
-    // Define a mapping between the placeholders and the input values
+    // Initialize PizZip with the template binary
+    const zip = new PizZip(templateBinary);
+
+    // Initialize Docxtemplater
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+    });
+
+    // Define placeholders
     const placeholders = {
       clientName,
       clientEmail,
       contractTitle,
-      depositAmount,
-      totalAmount,
+      depositAmount: Number(depositAmount).toFixed(),
+      totalAmount: Number(addTaxes(depositAmount, true)).toFixed(2),
       date: new Date().toLocaleDateString(),
     };
 
-    // Render the document with the placeholders replaced
-    // Generate the final document as a base64 string
+    // Render the document
     doc.render(placeholders);
+
+    // Generate the final document as a base64 string
     const base64Template = doc.getZip().generate({ type: "base64" });
 
     // Insert the generated document into Word
     await Word.run(async (context) => {
-      // Create new document from the base64 string
       const newDoc = context.application.createDocument(base64Template);
       await context.sync();
-      
-      // Open in new window
+
+      // Open the new document
       newDoc.open();
       await context.sync();
-      
-      // Find all instances of the email
-      const searchResults = context.document.body.search(clientEmail, {
-        matchCase: false,
-        matchWholeWord: true
-      });
-      searchResults.load("items");
-      await context.sync();
-
-      // It's replacing in the first document, not the new one...
-      // Replace the email text with a mailto link
-      if (searchResults.items.length > 0) {
-        const promises = searchResults.items.map(async (range) => {
-          range.load("text");
-          return context.sync()
-            .then(() => {
-              // Only replace if it's the exact email match
-              if (range.text === clientEmail) {
-                range.insertHtml(
-                  `<a href="mailto:${clientEmail}">${clientEmail}</a>`,
-                  Word.InsertLocation.replace
-                );
-              }
-            });
-          }
-        );
-        await Promise.all(promises);
-        await context.sync();
-      }
-   });
+    });
   } catch (error) {
-    console.error("Error generating contract:", error);
+    console.error("Error generating contract:", error.message, error.stack);
     throw error;
   }
 }

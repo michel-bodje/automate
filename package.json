@@ -37,6 +37,7 @@
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "core-js": "^3.36.0",
     "docxtemplater": "^3.61.0",
+    "docxtemplater-link-module-free": "^0.0.1",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "pizzip": "^3.1.8",
