@@ -265,7 +265,7 @@ function isVirtualMeeting(slot) {
  * @returns {boolean} True if they do, false otherwise. 
  */
 export function isOverlapping(slotA, slotB) {
-  return slotA.start <= slotB.end && slotB.start <= slotA.end;
+  return slotA.start < slotB.end && slotB.start < slotA.end;
 }
 
 /**
@@ -290,30 +290,37 @@ export function isSameDay(dateA, dateB) {
  * @returns {boolean} True if the proposed time slot is valid, false otherwise
  */
 export function isValidSlot(lawyerId, proposedSlot, allEvents) {
-  // Check the proposed slot against each rule
+  console.log(`Slot received for validation:`, proposedSlot);
+  // === Static Rules (slot-inherent checks) ===
+
+  // Availability rule: lawyer not working this location on this day
   if (hasAvailabilityConflict(lawyerId, proposedSlot)) {
-    console.warn(`Slot rejected due to availability conflict:`, proposedSlot);
+    console.warn("Slot rejected by availability rule", proposedSlot);
     return false;
   }
+  // Daily appointment limit reached
   if (hasDailyLimitConflict(lawyerId, proposedSlot.start, allEvents)) {
-    console.warn(`Slot rejected due to daily limit conflict:`, proposedSlot);
-    return false;
-  }
-  if (hasOfficeConflict(proposedSlot, allEvents)) {
-    console.warn(`Slot rejected due to office conflict:`, proposedSlot);
-    return false;
-  }
-  if (hasVirtualConflict(lawyerId, proposedSlot, allEvents)) {
-    console.warn(`Slot rejected due to virtual conflict:`, proposedSlot);
-    return false;
-  }
-  if (hasBreakConflict(lawyerId, proposedSlot, allEvents)) {
-    console.warn(`Slot rejected due to break conflict:`, proposedSlot);
+    console.warn("Slot rejected by daily limit", proposedSlot);
     return false;
   }
 
-  console.log(`Slot is valid:`, proposedSlot);
-  return true; // Slot is valid if no conflicts are found
+  // === Dynamic Rules (require checking against other events) ===
+
+  if (hasOfficeConflict(proposedSlot, allEvents)) {
+    console.warn("Slot rejected by office conflict", proposedSlot);
+    return false;
+  }
+  if (hasVirtualConflict(lawyerId, proposedSlot, allEvents)) {
+    console.warn("Slot rejected by virtual conflict", proposedSlot);
+    return false;
+  }
+  if (hasBreakConflict(lawyerId, proposedSlot, allEvents)) {
+    console.warn("Slot rejected by break conflict", proposedSlot);
+    return false;
+  }
+
+  // Passed all rules
+  return true;
 }
 
 /**
@@ -327,80 +334,84 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
  * @returns {Array<{ start: Date, end: Date, location: string}>} - An array of available time slots with start and end times.
  */
 export function generateSlots(lawyer, location, allEvents) {
-  const now = new Date();
+  // 0. We assume allEvents already comes in sorted
+  // 1. Filter events for the specific lawyer
+  const lawyerEvents = allEvents.filter(event =>
+    // either by category tag…
+    event.categories?.includes(lawyer.id)
+    // …or by them showing up in attendees
+    || event.attendees?.some(a => a.emailAddress.address === lawyer.email)
+  );
+
+  // 2. Map to simple time blocks + keep them sorted
+  const events = lawyerEvents
+    .map(ev => ({
+      start: new Date(ev.start.dateTime),
+      end:   new Date(ev.end.dateTime),
+      raw:   ev
+    }))
+    .sort((a, b) => a.start - b.start);
+
   const slots = [];
-  const slotDuration = 60 * 60 * 1000; // 1 hour in milliseconds
-  const requiredBreak = lawyer.breakMinutes * 60 * 1000; // Break time in milliseconds
+  const now = new Date();
+  const slotDuration   = 60 * 60 * 1000;            // 1 hr
+  const requiredBreak  = lawyer.breakMinutes * 60e3; // break in ms
 
   for (let day = 0; day < RANGE_IN_DAYS; day++) {
-    const currentDay = now;
+    const currentDay = new Date(now);
     currentDay.setDate(now.getDate() + day);
 
     // Skip weekends
-    if (currentDay.getDay() === 0 || currentDay.getDay() === 6) continue;
+    const weekday = currentDay.getDay();
+    if (weekday === 0 || weekday === 6) continue;
 
-    // Skip the day if the daily limit is reached
-    if (hasDailyLimitConflict(lawyer.id, currentDay, allEvents)) {
-      console.warn(`Skipping day ${currentDay.toDateString()} due to daily limit conflict.`);
-      continue;
-    }
-
-    // Define working hours for the day
-    const [startHour, startMin] = lawyer.workingHours.start.split(":").map(Number);
-    const [endHour, endMin] = lawyer.workingHours.end.split(":").map(Number);
-
+    // Build work window
+    const [h1, m1] = lawyer.workingHours.start.split(':').map(Number);
+    const [h2, m2] = lawyer.workingHours.end.split(':').map(Number);
     const workStart = new Date(currentDay);
-    workStart.setHours(startHour, startMin, 0, 0);
+    const workEnd   = new Date(currentDay);
+    workStart.setHours(h1, m1, 0, 0);
+    workEnd.setHours(h2, m2, 0, 0);
 
-    const workEnd = new Date(currentDay);
-    workEnd.setHours(endHour, endMin, 0, 0);
+    // 3. Grab only today’s blocks for this lawyer
+    const dayBlocks = events
+      .filter(b => isSameDay(b.start, currentDay) && b.end > workStart && b.start < workEnd);
 
-    // Filter and sort events for the current day
-    const dayEvents = allEvents
-      .filter(event => 
-      (event.categories?.includes(lawyer.name) || 
-       event.attendees?.some(attendee => attendee.emailAddress?.name?.toLowerCase().includes(lawyer.name.toLowerCase()))) &&
-      isSameDay(new Date(event.start.dateTime), currentDay)
-      )
-      .sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
+    // 4. Sweep for gaps between each block
+    let cursor = workStart;
+    for (const block of dayBlocks) {
+      // any gap before this block?
+      if (cursor.getTime() + slotDuration <= block.start.getTime()) {
+        let startCursor = new Date(cursor);
+        while (startCursor.getTime() + slotDuration <= block.start.getTime()) {
+          const endCursor = new Date(startCursor.getTime() + slotDuration);
 
-    let lastEventEnd = workStart;
-
-    // Generate slots between events
-    for (const event of dayEvents) {
-      const eventStart = new Date(event.start.dateTime);
-      const eventEnd = new Date(event.end.dateTime);
-
-      if (lastEventEnd < eventStart) {
-        let potentialSlotStart = new Date(lastEventEnd);
-        while (potentialSlotStart.getTime() + slotDuration <= eventStart.getTime()) {
-          const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
-
-          // Skip slot if it overlaps lunch
-          if (!isOverlapping({ start: potentialSlotStart, end: potentialSlotEnd }, LUNCH_SLOT(currentDay))) {
-          slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
+          // skip lunch
+          if (!isOverlapping({ start: startCursor, end: endCursor }, LUNCH_SLOT(currentDay))) {
+            slots.push(createSlot(startCursor, endCursor, location));
           }
 
-          potentialSlotStart = new Date(potentialSlotEnd);
+          startCursor = new Date(endCursor);
         }
       }
-
-      lastEventEnd = new Date(eventEnd.getTime() + requiredBreak);
+      // move cursor past this appointment + break
+      cursor = new Date(block.end.getTime() + requiredBreak);
     }
 
-    // Generate slots after the last event of the day
-    let potentialSlotStart = new Date(lastEventEnd);
-    while (potentialSlotStart.getTime() + slotDuration <= workEnd.getTime()) {
-      const potentialSlotEnd = new Date(potentialSlotStart.getTime() + slotDuration);
+    // 5. Final tail gap after last event
+    while (cursor.getTime() + slotDuration <= workEnd.getTime()) {
+      const endCursor = new Date(cursor.getTime() + slotDuration);
 
-      // Skip slot if it overlaps lunch
-      if (!isOverlapping({ start: potentialSlotStart, end: potentialSlotEnd }, LUNCH_SLOT(currentDay))) {
-        slots.push(createSlot(potentialSlotStart, potentialSlotEnd, location));
+      if (!isOverlapping({ start: cursor, end: endCursor }, LUNCH_SLOT(currentDay))) {
+        slots.push(createSlot(cursor, endCursor, location));
       }
 
-      potentialSlotStart = new Date(potentialSlotEnd);
+      cursor = new Date(endCursor);
     }
   }
+
+  // Log slots
   console.log("Generated slots:", slots);
+
   return slots;
 }
