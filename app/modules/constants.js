@@ -118,7 +118,7 @@ export const MS = {
 export const FIRM_TIMEZONE = "America/Toronto";
 export const LUNCH_START_HOUR = 13; // 1pm
 export const LUNCH_END_HOUR = 14;   // 2pm
-export const RANGE_IN_DAYS = 14     // Centralized time range: 2 weeks
+export const RANGE_IN_DAYS = 14;    // Centralized time range: 2 weeks
 
 /**
  * Generates the lunch slot for a given day.
