@@ -366,12 +366,18 @@ code {
           : 'default'
     });
   </script>
-<h1 id="user-manual-for-allen-madelin-outlook-add-in">User Manual for Allen Madelin Outlook Add-In</h1>
+<h1 id="updated-user-manual-for-allen-madelin-office-add-in">Updated User Manual for Allen Madelin Office Add-In</h1>
 <div style="text-align: center;">
   <img src="assets/images/AM-INC.jpg" alt="Corporate Logo">
 </div>
 <h2 id="overview">Overview</h2>
-<p>The Allen Madelin Outlook Add-In (Automate) is designed to streamline appointment scheduling and email drafting for the law firm. It integrates directly into Outlook, allowing users to perform these tasks efficiently without leaving their email client.</p>
+<p>The Allen Madelin Office Add-In (Automate) is designed to streamline common tasks for the law firm. It integrates directly into Office (Outlook and Word), allowing users to perform these tasks efficiently without leaving their email client. The add-in dynamically adapts its menu options based on the context:</p>
+<ul>
+<li><strong>Draft Email Message</strong>: Displays only email-related options.</li>
+<li><strong>Draft Appointment</strong>: Displays only the scheduling option.</li>
+<li><strong>Word Document</strong>: Displays only the contract-making option.</li>
+</ul>
+<p>Additionally, the add-in now supports two scheduling modes: <strong>Auto</strong> (default) and <strong>Manual</strong>.</p>
 <p>This manual is divided into two sections:</p>
 <ol>
 <li><strong>User Workflow</strong>: Instructions for using the add-in to schedule appointments and draft emails.</li>
@@ -381,8 +387,8 @@ code {
 <h2 id="user-workflow">User Workflow</h2>
 <h3 id="accessing-the-add-in">Accessing the Add-In</h3>
 <ol>
-<li>Open Outlook.</li>
-<li>Open a new <strong>email</strong> or <strong>meeting</strong> draft.</li>
+<li>Open Outlook or Word.</li>
+<li>Depending on the context, open a new <strong>email</strong>, <strong>meeting</strong>, or <strong>Word document</strong>.</li>
 <li>Select <strong>Automate</strong> from the ribbon options.</li>
 </ol>
 <br>
@@ -390,17 +396,40 @@ code {
   <img src="assets/images/ribbon_location_message_AM.png" alt="Ribbon location" width="800">
 </div>
 <br>
+<h3 id="context-specific-menus">Context-Specific Menus</h3>
+<ul>
+<li><strong>Email Draft</strong>: Options include:
+<ul>
+<li><strong>Send Confirmation</strong></li>
+<li><strong>Send Contract</strong></li>
+<li><strong>Send Reply</strong></li>
+</ul>
+</li>
+<li><strong>Appointment Draft</strong>: Option includes:
+<ul>
+<li><strong>Schedule Appointment</strong></li>
+</ul>
+</li>
+<li><strong>Word Document</strong>: Option includes:
+<ul>
+<li><strong>Create Contract</strong></li>
+</ul>
+</li>
+</ul>
 <h3 id="scheduling-appointments">Scheduling Appointments</h3>
 <ol>
-<li>From the main menu, click <strong>Schedule Appointment</strong>.</li>
-</ol>
-<br>
-<div style="text-align: center;">
-  <img src="assets/images/mainmenu_AM.png" alt="Main menu" width="200">
-</div>
-<br>
-<ol start="2">
-<li>Fill out the required fields in the form:
+<li>
+<p>From the main menu, click <strong>Schedule Appointment</strong>.</p>
+</li>
+<li>
+<p>Choose between <strong>Auto</strong> (default) or <strong>Manual</strong> scheduling modes:</p>
+<ul>
+<li><strong>Auto</strong>: Automatically finds the next available slot based on the lawyer's calendar.</li>
+<li><strong>Manual</strong>: Allows you to select a specific date and time.</li>
+</ul>
+</li>
+<li>
+<p>Fill out the required fields in the form:</p>
 <ul>
 <li><strong>Client Name</strong>: Enter the client's full name.</li>
 <li><strong>Client Phone</strong>: Provide the client's phone number.</li>
@@ -412,25 +441,20 @@ code {
 <li>Additional details may be required based on the case type (e.g., spouse name for divorce cases).</li>
 </ul>
 </li>
-</ol>
-<br>
-<div style="text-align: center;">
-  <img src="assets/images/appt-scheduler1.png" alt="Page 1 form (1)" width="300">
-</div>
-<div style="text-align: center;">
-  <img src="assets/images/appt-scheduler2.png" alt="Page 1 form (2)" width="300">
-</div>
-<br>
-<ol start="3">
-<li>Check any applicable boxes:
+<li>
+<p>Check any applicable boxes:</p>
 <ul>
 <li><strong>Réf. Barreau</strong>: If the client is a referral from the Barreau.</li>
 <li><strong>First Consultation</strong>: If this is the client's first consultation.</li>
 <li><strong>Payment Made</strong>: If the payment has already been made.</li>
 </ul>
 </li>
-<li>Add any <strong>Notes</strong> if necessary.</li>
-<li>Click <strong>Schedule</strong> to finalize the appointment.</li>
+<li>
+<p>Add any <strong>Notes</strong> if necessary.</p>
+</li>
+<li>
+<p>Click <strong>Schedule</strong> to finalize the appointment.</p>
+</li>
 </ol>
 <br>
 <p><em>Example appointment automation. By default, (ma) is appended to subject and payment method 😉</em>
@@ -470,7 +494,7 @@ code {
 </ol>
 <p>The add-in will populate the email body using predefined templates and insert the necessary details.</p>
 <br>
-<p><em>Example confirmation email</em>
+<p><em>Example confirmation email. You now also have a first consultation checkbox, which sets the appropriate rate.</em>
 <br></p>
 <div style="text-align: center;">
   <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="800">
@@ -480,6 +504,19 @@ code {
 <br></p>
 <div style="text-align: center;">
   <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="800">
+</div>
+<br>
+<h3 id="creating-contracts-in-word">Creating Contracts in Word</h3>
+<ol>
+<li>Open a Word document and select <strong>Automate</strong> from the ribbon.</li>
+<li>Click <strong>Create Contract</strong>.</li>
+<li>Fill out the required fields, such as client details and contract specifics.</li>
+<li>Click <strong>Generate</strong> to create the contract.</li>
+</ol>
+<p><em>Word interface with add-in location</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/word_ribbon.png" alt="Example email contract" width="800">
 </div>
 <br>
 <hr>
@@ -584,15 +621,39 @@ code {
 <li>The <code>rules.js</code> module enforces rules for scheduling, such as avoiding lunch breaks and respecting daily appointment limits.</li>
 </ul>
 </li>
+<li>
+<p><strong>Dynamic Menus</strong>:</p>
+<ul>
+<li>Implemented in <code>taskpane.js</code> to adapt options based on context.</li>
+</ul>
+</li>
+<li>
+<p><strong>Scheduling Modes</strong>:</p>
+<ul>
+<li>Added in <code>taskpane.js</code> and <code>ui.js</code> to support Auto and Manual modes.</li>
+</ul>
+</li>
 </ol>
 <h4 id="extending-functionality">Extending Functionality</h4>
 <ul>
 <li>
 <p><strong>Adding a New Email Template</strong>:</p>
 <ol>
-<li>Create a new HTML file in the <code>templates/</code> directory.</li>
+<li>Create a new HTML file in the <code>assets/templates/</code> directory.</li>
+<li>Use placeholders in the same format as existing templates (e.g., <code>${clientName}</code>, <code>${date}</code>) to ensure dynamic data can be inserted.</li>
 <li>Add the template to <code>templates.js</code> under the appropriate language.</li>
 <li>Update <code>compose.js</code> to handle the new template type.</li>
+<li>Test the new template by selecting the corresponding email type in the add-in and verifying the generated draft email.</li>
+</ol>
+</li>
+<li>
+<p><strong>Adding a New Word Template</strong>:</p>
+<ol>
+<li>Create a new <code>.docx</code> template file and save it in the <code>assets/templates/</code> directory.</li>
+<li>Use placeholders in the same format as existing templates (e.g., <code>{{clientName}}</code>, <code>{{clientEmail}}</code>) to ensure dynamic data can be inserted.</li>
+<li>Update <code>templates.js</code> to include the new template under the appropriate language and category.</li>
+<li>Modify <code>compose.js</code> to handle the new template type when generating Word documents.</li>
+<li>Test the new template by selecting <strong>Create Contract</strong> in Word and verifying the output.</li>
 </ol>
 </li>
 <li>
@@ -626,20 +687,15 @@ code {
 <h4 id="debugging-and-testing">Debugging and Testing</h4>
 <ul>
 <li>
-<p>To run the add-in locally, use the following npm scripts:</p>
-<ol>
-<li>Start the development server: <code>npm start</code></li>
-<li>Stop the development server: <code>npm stop</code>.</li>
-</ol>
-</li>
-<li>
 <p>Ensure that all dependencies are installed by running <code>npm install</code> before starting the server.</p>
 </li>
 <li>
-<p>Use <code>npm run lint</code> to check for code quality issues.</p>
-</li>
-<li>
-<p>Test the add-in in both development and production environments to ensure compatibility.</p>
+<p>To run the add-in locally, use the following npm scripts:</p>
+<ol>
+<li>Start the development server: <code>npm start</code>.
+This will launch both Outlook and Word for concurrent debugging.</li>
+<li>Stop the development server: Press <code>Ctrl+C</code> in the terminal where the server is running, or use <code>npm stop</code>.</li>
+</ol>
 </li>
 <li>
 <p>The <code>webpack.config.js</code> file is already configured to handle differences between development and production environments. To test the production build:</p>
@@ -647,6 +703,9 @@ code {
 <li>Run <code>npm run build</code> to generate the production files.</li>
 <li>Access the production version of the add-in via Outlook logged to <a href="mailto:admin@amlex.ca">admin@amlex.ca</a>.</li>
 </ol>
+</li>
+<li>
+<p>Test the add-in in both development and production environments to ensure compatibility.</p>
 </li>
 </ul>
 <br>
@@ -656,7 +715,7 @@ code {
 <br>
 <hr>
 <h2 id="conclusion">Conclusion</h2>
-<p>This add-in simplifies appointment scheduling, email drafting, and contract making for Allen Madelin. The modular codebase ensures maintainability and extensibility, allowing future developers to adapt the add-in to evolving business needs.</p>
+<p>This add-in simplifies appointment scheduling, email drafting, and contract creation for Allen Madelin. The dynamic menus and scheduling modes enhance usability and efficiency.</p>
 
 </body>
 </html>

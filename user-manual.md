@@ -1,4 +1,4 @@
-# User Manual for Allen Madelin Office Add-In
+# Updated User Manual for Allen Madelin Office Add-In
 
 <div style="text-align: center;">
   <img src="assets/images/AM-INC.jpg" alt="Corporate Logo">
@@ -6,7 +6,13 @@
 
 ## Overview
 
-The Allen Madelin Office Add-In (Automate) is designed to streamline common tasks for the law firm. It integrates directly into Office (Outlook and Word), allowing users to perform these tasks efficiently without leaving their email client.
+The Allen Madelin Office Add-In (Automate) is designed to streamline common tasks for the law firm. It integrates directly into Office (Outlook and Word), allowing users to perform these tasks efficiently without leaving their email client. The add-in dynamically adapts its menu options based on the context:
+
+- **Draft Email Message**: Displays only email-related options.
+- **Draft Appointment**: Displays only the scheduling option.
+- **Word Document**: Displays only the contract-making option.
+
+Additionally, the add-in now supports two scheduling modes: **Auto** (default) and **Manual**.
 
 This manual is divided into two sections:
 1. **User Workflow**: Instructions for using the add-in to schedule appointments and draft emails.
@@ -17,8 +23,8 @@ This manual is divided into two sections:
 ## User Workflow
 
 ### Accessing the Add-In
-1. Open Outlook.
-2. Open a new **email** or **meeting** draft.
+1. Open Outlook or Word.
+2. Depending on the context, open a new **email**, **meeting**, or **Word document**.
 3. Select **Automate** from the ribbon options.
 
 <br>
@@ -27,16 +33,24 @@ This manual is divided into two sections:
 </div>
 <br>
 
+### Context-Specific Menus
+
+- **Email Draft**: Options include:
+  - **Send Confirmation**
+  - **Send Contract**
+  - **Send Reply**
+- **Appointment Draft**: Option includes:
+  - **Schedule Appointment**
+- **Word Document**: Option includes:
+  - **Create Contract**
+
 ### Scheduling Appointments
 1. From the main menu, click **Schedule Appointment**.
 
-<br>
-<div style="text-align: center;">
-  <img src="assets/images/mainmenu_AM.png" alt="Main menu" width="200">
-</div>
-<br>
-
-2. Fill out the required fields in the form:
+2. Choose between **Auto** (default) or **Manual** scheduling modes:
+   - **Auto**: Automatically finds the next available slot based on the lawyer's calendar.
+   - **Manual**: Allows you to select a specific date and time.
+3. Fill out the required fields in the form:
    - **Client Name**: Enter the client's full name.
    - **Client Phone**: Provide the client's phone number.
    - **Client Email**: Enter the client's email address.
@@ -46,21 +60,12 @@ This manual is divided into two sections:
    - **Type of Case**: Choose the type of case (e.g., Divorce, Estate, Employment).
    - Additional details may be required based on the case type (e.g., spouse name for divorce cases).
 
-<br>
-<div style="text-align: center;">
-  <img src="assets/images/appt-scheduler1.png" alt="Page 1 form (1)" width="300">
-</div>
-<div style="text-align: center;">
-  <img src="assets/images/appt-scheduler2.png" alt="Page 1 form (2)" width="300">
-</div>
-<br>
-
-3. Check any applicable boxes:
+4. Check any applicable boxes:
    - **Réf. Barreau**: If the client is a referral from the Barreau.
    - **First Consultation**: If this is the client's first consultation.
    - **Payment Made**: If the payment has already been made.
-4. Add any **Notes** if necessary.
-5. Click **Schedule** to finalize the appointment.
+5. Add any **Notes** if necessary.
+6. Click **Schedule** to finalize the appointment.
 
 <br>
 
@@ -95,7 +100,7 @@ The add-in will populate the email body using predefined templates and insert th
 
 <br>
 
-*Example confirmation email*
+*Example confirmation email. You now also have a first consultation checkbox, which sets the appropriate rate.*
 <br>
 <div style="text-align: center;">
   <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="800">
@@ -108,6 +113,22 @@ The add-in will populate the email body using predefined templates and insert th
   <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="800">
 </div>
 <br>
+
+### Creating Contracts in Word
+
+1. Open a Word document and select **Automate** from the ribbon.
+2. Click **Create Contract**.
+3. Fill out the required fields, such as client details and contract specifics.
+4. Click **Generate** to create the contract.
+
+
+*Word interface with add-in location*
+<br>
+<div style="text-align: center;">
+  <img src="assets/images/word_ribbon.png" alt="Example email contract" width="800">
+</div>
+<br>
+
 
 ---
 
@@ -186,11 +207,26 @@ The add-in manifest files point to the Github Pages URL at [https://michel-bodje
 6. **Business Rules**:
    - The `rules.js` module enforces rules for scheduling, such as avoiding lunch breaks and respecting daily appointment limits.
 
+7. **Dynamic Menus**:
+   - Implemented in `taskpane.js` to adapt options based on context.
+
+8. **Scheduling Modes**:
+   - Added in `taskpane.js` and `ui.js` to support Auto and Manual modes. 
+
 #### Extending Functionality
 - **Adding a New Email Template**:
-  1. Create a new HTML file in the `templates/` directory.
-  2. Add the template to `templates.js` under the appropriate language.
-  3. Update `compose.js` to handle the new template type.
+  1. Create a new HTML file in the `assets/templates/` directory.
+  2. Use placeholders in the same format as existing templates (e.g., `${clientName}`, `${date}`) to ensure dynamic data can be inserted.
+  3. Add the template to `templates.js` under the appropriate language.
+  4. Update `compose.js` to handle the new template type.
+  5. Test the new template by selecting the corresponding email type in the add-in and verifying the generated draft email.
+
+- **Adding a New Word Template**:
+  1. Create a new `.docx` template file and save it in the `assets/templates/` directory.
+  2. Use placeholders in the same format as existing templates (e.g., `{{clientName}}`, `{{clientEmail}}`) to ensure dynamic data can be inserted.
+  3. Update `templates.js` to include the new template under the appropriate language and category.
+  4. Modify `compose.js` to handle the new template type when generating Word documents.
+  5. Test the new template by selecting **Create Contract** in Word and verifying the output.
 
 - **Adding a New Case Type**:
   1. Update `lawyerData.json` to include the new case type for relevant lawyers.
@@ -217,17 +253,18 @@ The add-in manifest files point to the Github Pages URL at [https://michel-bodje
 <br>
 
 #### Debugging and Testing
-- To run the add-in locally, use the following npm scripts:
-    1. Start the development server: `npm start`
-    2. Stop the development server: `npm stop`.
-    
 - Ensure that all dependencies are installed by running `npm install` before starting the server.
-- Use `npm run lint` to check for code quality issues.
-- Test the add-in in both development and production environments to ensure compatibility.
+
+- To run the add-in locally, use the following npm scripts:
+    1. Start the development server: `npm start`.
+    This will launch both Outlook and Word for concurrent debugging.  
+    2. Stop the development server: Press `Ctrl+C` in the terminal where the server is running, or use `npm stop`.
 
 - The `webpack.config.js` file is already configured to handle differences between development and production environments. To test the production build:
     1. Run `npm run build` to generate the production files.
     2. Access the production version of the add-in via Outlook logged to [admin@amlex.ca](mailto:admin@amlex.ca).
+
+- Test the add-in in both development and production environments to ensure compatibility.
 
 <br>
 <div style="text-align: center;">
@@ -239,4 +276,4 @@ The add-in manifest files point to the Github Pages URL at [https://michel-bodje
 
 ## Conclusion
 
-This add-in simplifies appointment scheduling, email drafting, and contract making for Allen Madelin. The modular codebase ensures maintainability and extensibility, allowing future developers to adapt the add-in to evolving business needs.
+This add-in simplifies appointment scheduling, email drafting, and contract creation for Allen Madelin. The dynamic menus and scheduling modes enhance usability and efficiency.
