@@ -90,9 +90,8 @@ function setCategory(category) {
         callback();
         return;
       }
-
       const categoriesToRemove = categories.map((category) => category.displayName);
-
+      
       Office.context.mailbox.item.categories.removeAsync(categoriesToRemove, (removeResult) => {
         if (removeResult.status === Office.AsyncResultStatus.Failed) {
           console.error("Failed to remove categories. Error:", removeResult.error.message);
@@ -373,7 +372,7 @@ export async function createContract() {
     // Define placeholders
     const placeholders = {
       clientName,
-      clientEmail,
+      clientEmail: "{{clientEmail}}", // Placeholder for email link
       contractTitle,
       depositAmount: Number(depositAmount).toFixed(),
       totalAmount: Number(addTaxes(depositAmount, true)).toFixed(2),
@@ -383,20 +382,36 @@ export async function createContract() {
     // Render the document
     doc.render(placeholders);
 
-    // Generate the final document as a base64 string
+    // Generate the processed document as a base64 string
     const base64Template = doc.getZip().generate({ type: "base64" });
 
-    // Insert the generated document into Word
     await Word.run(async (context) => {
+      // Create the new document
       const newDoc = context.application.createDocument(base64Template);
+      context.trackedObjects.add(newDoc);
       await context.sync();
+    
+      // Search for the placeholder in the new document
+      const searchResults = newDoc.body.search("{{clientEmail}}");
+      context.load(searchResults, "items");
+      await context.sync();
+    
+      if (searchResults.items.length === 0) {
+        console.error("Placeholder {{clientEmail}} not found in the document.");
+        return;
+      }
+    
+      // Replace the placeholder with a mailto hyperlink using HTML
+      const mailtoHtml = `<a href="mailto:${clientEmail}">${clientEmail}</a>`;
+      searchResults.items[0].insertHtml(mailtoHtml, Word.InsertLocation.replace);
+      await context.sync();
+    
+      console.log("Replaced {{clientEmail}} with a mailto hyperlink using HTML.");
 
-      // Open the new document
       newDoc.open();
-      await context.sync();
+      context.trackedObjects.remove(newDoc);
     });
   } catch (error) {
-    console.error("Error generating contract:", error.message, error.stack);
-    throw error;
+    console.error("Error creating contract:", error);
   }
 }
