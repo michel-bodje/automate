@@ -6,6 +6,8 @@ import {
   resetPage,
   initTaskpaneWord,
   initTaskpaneOutlook,
+  openPopup,
+  popupAvailableSlots,
   populateLawyerDropdown,
   populateContractTitles,
   handleCaseDetails,
@@ -21,7 +23,6 @@ import {
   createContract,
   showLoading,
   showErrorModal,
-  openPopup,
 } from "./index.js";
 import "./styles/main.css";
 
@@ -275,63 +276,6 @@ function attachEventListeners() {
       }
     });
   });
-}
-
-/**
- * Displays a popup with available calendar slots for the next 2 weeks,
- * with the selected slot at the top. The popup is only displayed when
- * auto-scheduling is enabled.
- * @param {Array<{start: Date, end: Date}>} validSlots - The array of valid slot objects with start and end times.
- * @param {{start: Date, end: Date}} selectedSlot - The selected slot object with start and end times.
- */
-function popupAvailableSlots(validSlots, selectedSlot) {
-  let popupContent = "<h3>Next 5 available calendar slots</h3><ul>";
-
-  // Ensure the selected slot is displayed first
-  const selectedSlotIndex = validSlots.indexOf(selectedSlot);
-
-  if (selectedSlotIndex !== -1) {
-    const slot = validSlots[selectedSlotIndex];
-    popupContent += formatSlot(slot, true);
-  }
-
-  // Display the next 4 future slots after the selected slot
-  let previousDate = selectedSlot.start.toLocaleDateString();
-  for (let i = selectedSlotIndex + 1; i < validSlots.length && i <= selectedSlotIndex + 4; i++) {
-    const slot = validSlots[i];
-
-    // Insert a line break if the day changes
-    if (slot.start.toLocaleDateString() !== previousDate) {
-      popupContent += "<br>";
-      previousDate = slot.start.toLocaleDateString();
-    }
-
-    popupContent += formatSlot(slot);
-  }
-
-  popupContent += "</ul>";
-
-  openPopup({
-    title: "Available Slots",
-    contentOrFile: popupContent,
-    width: 480,
-    height: 300,
-    position: "bottom-right",
-  });
-
-  /**
-   * Formats a slot into an HTML list item.
-   * @param {Object} slot - The slot object with start and end times.
-   * @param {boolean} [isSelected=false] - Whether the slot is the selected one.
-   * @returns {string} - The formatted HTML string for the slot.
-  */
-  function formatSlot(slot, isSelected = false) {
-    const startDate = slot.start.toLocaleString([], { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-    const startTime = slot.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const endTime = slot.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    return `<li>${isSelected ? "<strong>Selected Slot:</strong><br>" : ""}${startDate} - ${startTime} to ${endTime}</li>`;
-  }
 }
 
 /**

@@ -66,13 +66,49 @@ function setAttendees(attendees) {
  * @param {Array<string>} category - The category string array.
  */
 function setCategory(category) {
-  Office.context.mailbox.item.categories.addAsync(category, (addResult) => {
-    if (addResult.status === Office.AsyncResultStatus.Failed) {
-      console.error("Failed to set category:", addResult.error.message);
-    } else {
-      console.log(`Category "${category}" set successfully.`);
-    }
-  });
+  // Check if categories API is available
+  if (Office.context.mailbox.item.categories) {
+    removeAllCategories(() => addCategory(category));
+  } else {
+    console.error("Categories API is not available.");
+  }
+
+  function getCategories(callback) {
+    Office.context.mailbox.item.categories.getAsync((result) => {
+      if (result.status === Office.AsyncResultStatus.Failed) {
+        console.error("Failed to get categories. Error:", result.error.message);
+        callback([]);
+      } else {
+        callback(result.value || []);
+      }
+    });
+  }
+
+  function removeAllCategories(callback) {
+    getCategories((categories) => {
+      if (categories.length === 0) {
+        callback();
+        return;
+      }
+
+      const categoriesToRemove = categories.map((category) => category.displayName);
+
+      Office.context.mailbox.item.categories.removeAsync(categoriesToRemove, (removeResult) => {
+        if (removeResult.status === Office.AsyncResultStatus.Failed) {
+          console.error("Failed to remove categories. Error:", removeResult.error.message);
+        }
+        callback();
+      });
+    });
+  }
+
+  function addCategory(category) {
+    Office.context.mailbox.item.categories.addAsync(category, (addResult) => {
+      if (addResult.status === Office.AsyncResultStatus.Failed) {
+        console.error("Failed to set category:", addResult.error.message);
+      }
+    });
+  }
 }
 
 /**

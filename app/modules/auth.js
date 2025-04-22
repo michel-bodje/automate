@@ -1,5 +1,5 @@
-import { PublicClientApplication } from "@azure/msal-browser";
 import { MS } from "./constants.js";
+import { PublicClientApplication } from "@azure/msal-browser";
 
 const msalConfig = {
     auth: {

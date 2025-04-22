@@ -1,10 +1,10 @@
-import { Client } from '@microsoft/microsoft-graph-client';
 import { 
     msalInstance,
     FIRM_TIMEZONE,
     RANGE_IN_DAYS,
     generateMockEvents,
 } from '../index.js';
+import { Client } from '@microsoft/microsoft-graph-client';
 
 // Create authentication provider
 const authProvider = {

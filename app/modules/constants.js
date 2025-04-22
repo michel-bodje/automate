@@ -84,7 +84,7 @@ export const ELEMENT_IDS = {
     executorName: "executor-name",
     employerName: "employer-name",
     businessName: "business-name",
-    mandateDetails: "mandatate-details",
+    mandateDetails: "mandate-details",
     otherPartyName: "other-party-name",
     commonField: "common-field",
 
