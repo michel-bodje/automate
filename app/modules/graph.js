@@ -66,7 +66,7 @@ export async function fetchCalendarEvents() {
     try {
         const now = new Date();
         const range = {
-            start: now,
+            start: new Date(now),
             end: new Date(now.setDate(now.getDate() + RANGE_IN_DAYS))
         };
         const events = await client
