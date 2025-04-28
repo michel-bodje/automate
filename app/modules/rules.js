@@ -49,6 +49,24 @@ function mapEventToSlot(event) {
 }
 
 /**
+ * Aligns a given date to the nearest half hour by rounding up or down the minutes.
+ * If the minutes are in the range [0, 15), the minutes are rounded down to 0.
+ * If the minutes are in the range [15, 45), the minutes are rounded up to 30.
+ * If the minutes are in the range [45, 60), the minutes are rounded up to 0 and the hour is incremented.
+ * @param {Date} date - The date to align to the nearest half hour.
+ * @returns {Date} The aligned date.
+ */
+function alignToNearestHalfHour(date) {
+  const minutes = date.getMinutes();
+  const alignedMinutes = minutes < 15 ? 0 : minutes < 45 ? 30 : 0;
+  if (alignedMinutes === 0 && minutes >= 45) {
+    date.setHours(date.getHours() + 1); // Increment the hour if rounding up
+  }
+  date.setMinutes(alignedMinutes, 0, 0);
+  return date;
+}
+
+/**
  * Checks if a proposed slot conflicts with the lawyer's unavailability.
  * @param {string} lawyerId - The ID of the lawyer.
  * @param {{ start: Date, end: Date, location: string }} proposedSlot - The proposed time slot
@@ -324,6 +342,46 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
 }
 
 /**
+ * Checks if an event is an all-day event.
+ * @param {microsoftgraph.Event} event - The event to check.
+ * @returns {boolean} True if the event is all-day, false otherwise.
+ */
+function isAllDayEvent(event) {
+  return event.isAllDay || (event.start.dateTime === event.start.date && event.end.dateTime === event.end.date);
+}
+
+/**
+ * Expands recurring events into individual instances within the specified range.
+ * @param {Array<microsoftgraph.Event>} events - The array of events to process.
+ * @param {Date} rangeStart - The start of the range.
+ * @param {Date} rangeEnd - The end of the range.
+ * @returns {Array<microsoftgraph.Event>} An array of expanded events.
+ */
+function expandRecurringEvents(events, rangeStart, rangeEnd) {
+  const expandedEvents = [];
+  for (const event of events) {
+    if (event.recurrence) {
+      // Expand recurring events into individual instances
+      const recurrenceStart = new Date(event.start.dateTime);
+      while (recurrenceStart < rangeEnd) {
+        if (recurrenceStart >= rangeStart) {
+          expandedEvents.push({
+            ...event,
+            start: { dateTime: recurrenceStart.toISOString() },
+            end: { dateTime: new Date(recurrenceStart.getTime() + (new Date(event.end.dateTime) - new Date(event.start.dateTime))).toISOString() },
+          });
+        }
+        // Move to the next recurrence (e.g., daily, weekly)
+        recurrenceStart.setDate(recurrenceStart.getDate() + 7); // Example: weekly recurrence
+      }
+    } else {
+      expandedEvents.push(event);
+    }
+  }
+  return expandedEvents;
+}
+
+/**
  * Generates available appointment slots for a lawyer over a specified number of days,
  * avoiding weekends and considering existing events and lunch breaks. Slots are generated
  * based on the lawyer's working hours and required break times between appointments.
@@ -335,8 +393,15 @@ export function isValidSlot(lawyerId, proposedSlot, allEvents) {
  */
 export function generateSlots(lawyer, location, allEvents) {
   // 0. We assume allEvents already comes in sorted
+  
+  // Expand recurring events
+  const expandedEvents = expandRecurringEvents(allEvents, new Date(), new Date(Date.now() + RANGE_IN_DAYS * 24 * 60 * 60 * 1000));
+
+  // Filter out all-day events
+  const filteredEvents = expandedEvents.filter(event => !isAllDayEvent(event));
+
   // 1. Filter events for the specific lawyer
-  const lawyerEvents = allEvents.filter(event =>
+  const lawyerEvents = filteredEvents.filter(event =>
     // either by category tag…
     event.categories?.includes(lawyer.id)
     // …or by them showing up in attendees
@@ -378,7 +443,7 @@ export function generateSlots(lawyer, location, allEvents) {
       .filter(b => isSameDay(b.start, currentDay) && b.end > workStart && b.start < workEnd);
 
     // 4. Sweep for gaps between each block
-    let cursor = workStart;
+    let cursor = alignToNearestHalfHour(new Date(workStart)); // Align cursor to nearest 0 or 30 minutes
     for (const block of dayBlocks) {
       // any gap before this block?
       if (cursor.getTime() + slotDuration <= block.start.getTime()) {
@@ -386,27 +451,36 @@ export function generateSlots(lawyer, location, allEvents) {
         while (startCursor.getTime() + slotDuration <= block.start.getTime()) {
           const endCursor = new Date(startCursor.getTime() + slotDuration);
 
-          // skip lunch
-          if (!isOverlapping({ start: startCursor, end: endCursor }, LUNCH_SLOT(currentDay))) {
+          // skip lunch and validate against existing events
+          if (
+            !isOverlapping({ start: startCursor, end: endCursor }, LUNCH_SLOT(currentDay)) &&
+            !dayBlocks.some(event => isOverlapping({ start: startCursor, end: endCursor }, event))
+          ) {
             slots.push(createSlot(startCursor, endCursor, location));
           }
 
           startCursor = new Date(endCursor);
+          startCursor = alignToNearestHalfHour(startCursor); // Re-align startCursor after each slot
         }
       }
       // move cursor past this appointment + break
       cursor = new Date(block.end.getTime() + requiredBreak);
+      cursor = alignToNearestHalfHour(cursor); // Re-align cursor after each block
     }
 
     // 5. Final tail gap after last event
     while (cursor.getTime() + slotDuration <= workEnd.getTime()) {
       const endCursor = new Date(cursor.getTime() + slotDuration);
 
-      if (!isOverlapping({ start: cursor, end: endCursor }, LUNCH_SLOT(currentDay))) {
+      if (
+        !isOverlapping({ start: cursor, end: endCursor }, LUNCH_SLOT(currentDay)) &&
+        !dayBlocks.some(event => isOverlapping({ start: cursor, end: endCursor }, event))
+      ) {
         slots.push(createSlot(cursor, endCursor, location));
       }
 
       cursor = new Date(endCursor);
+      cursor = alignToNearestHalfHour(cursor); // Re-align cursor after each slot
     }
   }
 
