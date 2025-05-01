@@ -272,8 +272,6 @@ export async function createEmail(type) {
       .concat(signature)
     ;
 
-    console.log("Email body:", body);
-    
     const subject = getSubject(language, type);
     
     setSubject(subject);

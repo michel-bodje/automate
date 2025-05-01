@@ -82,6 +82,14 @@ module.exports = async (env, options) => {
           {
             from: "assets/templates/en/*",
             to: "assets/templates/en/[name][ext][query]",
+            transform(content) {
+              if (dev) {
+                return content;
+              } else {
+                return content.toString()
+                  .replace(new RegExp("https://localhost:3000/", "g"), urlProd)
+              }
+            },
           },
           {
             from: "assets/templates/fr/*",
