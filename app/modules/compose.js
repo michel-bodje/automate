@@ -208,6 +208,7 @@ export async function createEmail(type) {
     // multilingual support
     const language = formState.clientLanguage === "Français" ? "fr" : "en";
     const template = htmlTemplates[language][type];
+    const signature = htmlTemplates["en"]["signature"];
 
     if (!template) {
       throw new Error(`No template found for type "${type}" in language "${language}".`);
@@ -242,6 +243,7 @@ export async function createEmail(type) {
       body = body
         .replace("{{date}}", date)
         .replace("{{time}}", time)
+        .concat(signature)
       ;
   
     }
