@@ -269,7 +269,7 @@ export async function createEmail(type) {
       .replace("{{totalAmount}}", totalAmount)
       .replace("{{rates}}", rates)
       .replace("{{totalRates}}", totalRates)
-      .concat(signature)
+      //.concat(signature)
     ;
 
     const subject = getSubject(language, type);

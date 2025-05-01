@@ -87,6 +87,12 @@ module.exports = async (env, options) => {
             from: "assets/templates/fr/*",
             to: "assets/templates/fr/[name][ext][query]",
           },
+          /*
+          {
+          from: "assets/templates/en/Equipe\ Allen\ Madelin\ (admin@amlex.ca)_files/*",
+          to: 'assets/templates/en/Equipe\ Allen\ Madelin\ (admin@amlex.ca)_files/[name][ext][query]',
+          },
+          */
           {
             from: "./user-manual.html",
             to: "[name][ext]",
