@@ -5,7 +5,7 @@
             "name": "Marie Madelin",
             "email": "marie.madelin@amlex.ca",
             "workingHours": {"start": "9:00", "end": "17:00"},
-            "breakMinutes": 30,
+            "breakMinutes": 0,
             "maxDailyAppointments": 5,
             "specialties": ["estate", "mandates", "common"]
         },

@@ -14,9 +14,9 @@ import suiviTemplateEn from "../../assets/templates/en/Suivi.html";
 import suiviTemplateFr from "../../assets/templates/fr/Suivi.html";
 
 /**
- * A dictionary of templates, indexed by language and type.
+ * A dictionary of html email templates, indexed by language code (e.g., 'en' or 'fr').
  */
-export const templates = {
+export const htmlTemplates = {
   en: {
     teams: teamsTemplateEn,
     office: officeTemplateEn,
@@ -37,19 +37,26 @@ export const templates = {
   },
 };
 
-// The path to the DOCX contract templates
-const docxContractPath = {
-  en: "assets/templates/en/Contract.docx",
-  fr: "assets/templates/fr/Contract.docx",
+// DOCX templates paths
+const docxPaths = {
+  en: {
+    contract: "assets/templates/en/Contract.docx",
+    receipt: "assets/templates/en/PaymentReceipt.docx",
+  },
+  fr: {
+    contract: "assets/templates/fr/Contract.docx",
+    receipt: "assets/templates/fr/PaymentReceipt.docx",
+  },
 };
 
 /**
- * Loads the DOCX contract template for the specified language and prepares it for manipulation.
+ * Loads the requested DOCX template for the specified language and prepares it for manipulation.
  * @param {string} language - The language code (e.g., 'en' or 'fr').
+ * @param {string} type - The type of Word doc (e.g., 'contract' or 'receipt').
  * @returns {Promise<ArrayBuffer>} - A promise that resolves to the binary content of the template.
  */
-export async function loadTemplate(language) {
-  const templatePath = docxContractPath[language];
+export async function loadDocxTemplate(language, type) {
+  const templatePath = docxPaths[language][type];
 
   const content = await fetch(`${process.env.PUBLIC_PATH || ""}${templatePath}`)
     .then((res) => {

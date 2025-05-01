@@ -2,8 +2,8 @@ import {
   formState,
   getLawyer,
   getCaseDetails,
-  templates,
-  loadTemplate,
+  htmlTemplates,
+  loadDocxTemplate,
   isValidEmail,
 } from "../index.js";
 import Docxtemplater from "docxtemplater";
@@ -207,7 +207,7 @@ export async function createEmail(type) {
 
     // multilingual support
     const language = formState.clientLanguage === "Français" ? "fr" : "en";
-    const template = templates[language][type];
+    const template = htmlTemplates[language][type];
 
     if (!template) {
       throw new Error(`No template found for type "${type}" in language "${language}".`);
@@ -358,7 +358,7 @@ export async function createContract() {
 
   try {
     // Load the DOCX template as a binary string
-    const templateBinary = await loadTemplate(language);
+    const templateBinary = await loadDocxTemplate(language, "contract");
 
     // Initialize PizZip with the template binary
     const zip = new PizZip(templateBinary);
@@ -413,5 +413,64 @@ export async function createContract() {
     });
   } catch (error) {
     console.error("Error creating contract:", error);
+  }
+}
+
+export async function createReceipt() {
+  try {
+    const { clientName, lawyerId, depositAmount, clientLanguage } = formState;
+
+    // Basic input validation
+    if (!clientName || !lawyerId || !depositAmount) {
+      console.error("One or more inputs are missing.");
+      return;
+    }
+
+    if (!isValidEmail(clientEmail)) {
+      console.error("Invalid email format.");
+      return;
+    }
+
+    const language = clientLanguage === "Français" ? "fr" : "en";
+
+    // Load the DOCX template as a binary string
+    const templateBinary = await loadDocxTemplate(language, "receipt");
+
+    // Initialize PizZip with the template binary
+    const zip = new PizZip(templateBinary);
+
+    // Initialize Docxtemplater
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+    });
+
+    // Define placeholders
+    const placeholders = {
+      user,
+      clientName,
+      amount: Number(depositAmount).toFixed(),
+      paymentMethod,
+      reason,
+      lawyerName: getLawyer(lawyerId).name,
+      date: new Date().toLocaleDateString(),
+    };
+
+    // Render the document
+    doc.render(placeholders);
+
+    // Generate the processed document as a base64 string
+    const base64Template = doc.getZip().generate({ type: "base64" });
+
+    await Word.run(async (context) => {
+      // Create the new document
+      const newDoc = context.application.createDocument(base64Template);
+      context.trackedObjects.add(newDoc);
+      await context.sync();
+      newDoc.open();
+      context.trackedObjects.remove(newDoc);
+    });
+  } catch (error) {
+    console.error("Error creating receipt:", error);
   }
 }
