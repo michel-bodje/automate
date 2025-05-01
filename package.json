@@ -9,7 +9,7 @@
   "scripts": {
     "deploy": "npm run build && git add docs/ && git commit -m 'Deploy' && git push",
     "prebuild": "npm run validate:outlook && npm run validate:word",
-    "build": "rm -rf docs/* && webpack --mode production && cp app/404.html docs/404.html",
+    "build": "rimraf docs && webpack --mode production && mkdir docs && cp app/404.html docs/404.html",
     "lint": "office-addin-lint check",
     "lint:fix": "office-addin-lint fix",
     "prettier": "office-addin-lint prettier",
@@ -68,6 +68,7 @@
     "office-addin-prettier-config": "^2.0.1",
     "os-browserify": "^0.3.0",
     "process": "^0.11.10",
+    "rimraf": "^6.0.1",
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "wait-on": "^8.0.3",
