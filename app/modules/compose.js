@@ -243,7 +243,6 @@ export async function createEmail(type) {
       body = body
         .replace("{{date}}", date)
         .replace("{{time}}", time)
-        .concat(signature)
       ;
   
     }
@@ -270,6 +269,7 @@ export async function createEmail(type) {
       .replace("{{totalAmount}}", totalAmount)
       .replace("{{rates}}", rates)
       .replace("{{totalRates}}", totalRates)
+      .concat(signature)
     ;
 
     const subject = getSubject(language, type);
