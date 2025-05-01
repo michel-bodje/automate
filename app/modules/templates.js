@@ -12,7 +12,7 @@ import feedbackTemplateEn from "../../assets/templates/en/Feedback.html";
 import feedbackTemplateFr from "../../assets/templates/fr/Feedback.html";
 import suiviTemplateEn from "../../assets/templates/en/Suivi.html";
 import suiviTemplateFr from "../../assets/templates/fr/Suivi.html";
-// import teamSignature from "../../assets/templates/en/Signature.html";
+import teamSignature from "../../assets/templates/en/Equipe Allen Madelin (admin@amlex.ca).htm";
 
 /**
  * A dictionary of html email templates, indexed by language code (e.g., 'en' or 'fr').
@@ -26,7 +26,7 @@ export const htmlTemplates = {
     reply: replyTemplateEn,
     feedback: feedbackTemplateEn,
     suivi: suiviTemplateEn,
-    //signature: teamSignature,
+    signature: teamSignature,
   },
   fr: {
     teams: teamsTemplateFr,
