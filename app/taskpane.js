@@ -311,9 +311,8 @@ async function sendConfirmation() {
  */
 async function findSlots(scheduleMode) {
   try {
-    const lawyer   = getLawyer(formState.lawyerId);
+    const lawyer = getLawyer(formState.lawyerId);
     const location = formState.location;
-    const events   = await fetchCalendarEvents();
 
     // === Manual Scheduling Mode ===
     if (scheduleMode === 'manual') {
@@ -329,7 +328,7 @@ async function findSlots(scheduleMode) {
       const selectedSlot = { start, end, location };
 
       // Validate manually selected slot
-      if (!isValidSlot(lawyer.id, selectedSlot, events)) {
+      if (!isValidSlot(lawyer.id, selectedSlot, [])) { // Pass an empty array for events
         throw new Error("The selected time slot is not valid.");
       }
 
@@ -337,6 +336,7 @@ async function findSlots(scheduleMode) {
     }
 
     // === Auto-Scheduling Mode ===
+    const events = await fetchCalendarEvents();
     const rawSlots = generateSlots(lawyer, location, events);
 
     // Validate each slot
