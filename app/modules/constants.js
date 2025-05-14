@@ -14,6 +14,7 @@ export const ELEMENT_IDS = {
     contractPage: "contract-page",
     replyPage: "reply-page",
     wordContractPage: "word-contract-page",
+    wordReceiptPage: "word-receipt-page",
 
     // Button IDs
     backBtn: "back-btn",
@@ -24,55 +25,64 @@ export const ELEMENT_IDS = {
     replyMenuBtn: "reply-menu-btn",
     userManualMenuBtn: "user-manual-btn",
     wordContractMenuBtn: "word-contract-menu-btn",
+    wordReceiptMenuBtn: "word-receipt-menu-btn",
 
     scheduleSubmitBtn: "schedule-appointment-btn",
     confirmSubmitBtn: "send-confirmation-btn",
     contractSubmitBtn: "send-contract-btn",
     replySubmitBtn: "send-reply-btn",
     wordContractSubmitBtn: "generate-word-contract-btn",
+    wordReceiptSubmitBtn: "generate-word-receipt-btn",
 
     // Form input IDs
     scheduleLawyerId: "schedule-lawyer-id",
     confLawyerId: "conf-lawyer-id",
     contractLawyerId: "contract-lawyer-id",
     replyLawyerId: "reply-lawyer-id",
+    wordReceiptLawyerId: "receipt-lawyer-id",
 
     scheduleLocation: "schedule-location",
     confLocation: "conf-location",
 
     scheduleClientName: "schedule-client-name",
     scheduleClientPhone: "schedule-client-phone",
-    wordClientName: "word-client-name",
+    wordContractClientName: "word-client-name",
+    wordReceiptClientName: "receipt-client-name",
 
     scheduleClientEmail: "schedule-client-email",
     confClientEmail: "conf-client-email",
     contractClientEmail: "contract-client-email",
     replyClientEmail: "reply-client-email",
-    wordClientEmail: "word-client-email",
+    wordContractClientEmail: "word-client-email",
 
     scheduleClientLanguage: "schedule-client-language",
     confClientLanguage: "conf-client-language",
     contractClientLanguage: "contract-client-language",
     replyClientLanguage: "reply-client-language",
-    wordClientLanguage: "word-client-language",
+    wordContractClientLanguage: "word-client-language",
+    wordReceiptClientLanguage: "receipt-client-language",
 
     confDate: "conf-date",
     confTime: "conf-time",
-    scheduleMode: "schedule-mode",
     manualDate: "manual-date",
     manualTime: "manual-time",
+    scheduleMode: "schedule-mode",
     
     emailContractDeposit: "email-contract-deposit",
     wordContractDeposit: "word-contract-deposit",
+    wordReceiptDeposit: "word-receipt-deposit",
     wordContractTitle: "word-contract-title",
     customContractTitle: "custom-contract-title",
 
+    refBarreau: "ref-barreau",
+    existingClient: "existing-client",
+
     scheduleFirstConsultation: "schedule-first-consultation",
     confFirstConsultation: "conf-first-consultation",
-    refBarreau: "ref-barreau",
 
     paymentMade: "payment-made",
-    paymentMethod: "payment-method",
+    schedulePaymentMethod: "payment-method",
+    receiptPaymentMethod: "receipt-payment-method",
     paymentOptionsContainer: "payment-options-container",
 
     // Case details

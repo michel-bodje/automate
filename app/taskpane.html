@@ -46,6 +46,7 @@
                 <button type="button" id="contract-menu-btn" class="menu-btn">Send Contract</button>
                 <button type="button" id="reply-menu-btn" class="menu-btn">Send Reply</button>
                 <button type="button" id="word-contract-menu-btn" class="menu-btn">Create Contract</button>
+                <button type="button" id="word-receipt-menu-btn" class="menu-btn">Create Receipt</button>	
                 <br>
                 <button type="button" id="user-manual-btn" class="menu-btn">User Manual</button>
             </div>
@@ -157,6 +158,11 @@
                 <input type="time" id="manual-time" class="hidden">
 
                 <!-- Checkboxes -->
+                <div class="checkbox-container">
+                    <label for="existing-client">Existing Client?</label>
+                    <input type="checkbox" id="existing-client" title="Is this an existing client?">
+                </div>
+                
                 <div class="checkbox-container">
                     <label for="ref-barreau">Réf. Barreau?</label>
                     <input type="checkbox" id="ref-barreau" title="Is this client a reference from the Barreau?">
@@ -314,6 +320,45 @@
                 <input type="number" id="word-contract-deposit" placeholder="Enter required deposit" required>
             
                 <button type="button" id="generate-word-contract-btn" class="submit-btn">Generate</button>
+                <button type="button" class="back-btn">Back</button>
+            </form>
+        </div>
+
+        <!-- Receipt Creation Page -->
+        <!-- Should only show in MS Word, not Outlook. -->
+        <div id="word-receipt-page" class="page hidden">
+            <h1>Create Receipt</h1>
+            <form>
+                <label for="receipt-client-name">Client Name:</label>
+                <input type="text" id="receipt-client-name" required>
+        
+                <label for="receipt-lawyer-id">Lawyer ID:</label>
+                <select id="receipt-lawyer-id" required>
+                    <!-- Options will be dynamically populated by JavaScript -->
+                </select>
+        
+                <label for="receipt-deposit-amount">Deposit Amount:</label>
+                <input type="number" id="receipt-deposit-amount" required>
+        
+                <label for="receipt-client-language">Preferred Language:</label>
+                <select id="receipt-client-language" required>
+                    <!-- Options will be dynamically populated by JavaScript -->
+                </select>
+
+                <label for="word-receipt-deposit">Deposit:</label>
+                <input type="number" id="word-receipt-deposit" placeholder="Enter required deposit" required>
+        
+                <div id="receipt-payment-options-container">
+                    <label for="receipt-payment-method">Payment Method:</label>
+                    <select id="receipt-payment-method" required>
+                        <option value="" disabled selected>Select Payment Method</option>
+                        <option value="cash">Cash</option>
+                        <option value="credit">Credit</option>
+                        <option value="e-transfer">E-Transfer</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="generate-word-receipt-btn" class="submit-btn">Generate Receipt</button>
                 <button type="button" class="back-btn">Back</button>
             </form>
         </div>

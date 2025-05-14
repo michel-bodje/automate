@@ -300,6 +300,17 @@ export async function createMeeting(selectedSlot) {
     
     // Construct the subject and body
     const subject = `${formState.clientName} (ma)`;
+
+    const priceDetails = (() => {
+      if (formState.isRefBarreau) {
+        return '<u><em>Ref. Barreau ($60+tax)</em></u>';
+      } else if (formState.isFirstConsultation) {
+        return '<span style="background-color: yellow;">First Consultation ($125+tax)</span>';
+      } else {
+        return '<span style="background-color: #d3d3d3;">Follow-up ($350+tax)</span>';
+      }
+    })();
+    
     const body = `
       <p>Client:&nbsp;&nbsp;&nbsp;&nbsp;${formState.clientName}<br>
 
@@ -309,17 +320,15 @@ export async function createMeeting(selectedSlot) {
 
       Lang:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${formState.clientLanguage}</p>
 
-      ${formState.isRefBarreau ? "<p><u><em>Ref. Barreau</em></u></p>" : ""}
-
-      <p>${formState.isFirstConsultation
-        ? '<span style="background-color: yellow;">First Consultation</span>'
-        : '<span style="background-color: #d3d3d3;">Follow-up</span>'}
-      : ${caseDetails}</p>
+      ${formState.isExistingClient
+        ? '<p style="color: green;"><strong>Existing Client</strong></p>'
+        : `${priceDetails}: ${caseDetails}</p>
 
       <p><strong>Payment</strong>  ${formState.isPaymentMade ? "✔️" : "❌"}<br>
       
       ${formState.isPaymentMade ? `${formState.paymentMethod} (ma)` : ""}</p>
-      
+      `
+      }
       <p>Notes:<br>
       <span style="font-style: italic">${formState.notes}</span></p>
     `;

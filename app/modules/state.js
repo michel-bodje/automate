@@ -21,6 +21,7 @@ class FormState {
     this.appointmentTime = null;
     this.isFirstConsultation = false;
     this.isRefBarreau = false;
+    this.isExistingClient = false;
     this.isPaymentMade = false;
     this.paymentMethod = "";
     this.depositAmount = 0;

@@ -405,13 +405,9 @@ function populateDropdown(elementId, options, placeholder = "Select an option") 
 /** Dynamically loads the client language options. */
 export function populateLanguageDropdown() {
   // Language dropdown elements
-  const elements = [
-    ELEMENT_IDS.scheduleClientLanguage,
-    ELEMENT_IDS.confClientLanguage,
-    ELEMENT_IDS.contractClientLanguage,
-    ELEMENT_IDS.replyClientLanguage,
-    ELEMENT_IDS.wordClientLanguage,
-  ];
+  const elements = Object.keys(ELEMENT_IDS)
+    .filter(key => key.endsWith("ClientLanguage"))
+    .map(key => ELEMENT_IDS[key]);
 
   // Populate dropdowns
   elements.forEach(element => {
@@ -460,12 +456,9 @@ export function populateLawyerDropdown() {
   const selectedCaseType = formState.caseType;
 
   // Lawyer dropdown elements
-  const elements = [
-    ELEMENT_IDS.scheduleLawyerId,
-    ELEMENT_IDS.confLawyerId,
-    ELEMENT_IDS.contractLawyerId,
-    ELEMENT_IDS.replyLawyerId,
-  ];
+  const elements = Object.keys(ELEMENT_IDS)
+    .filter(key => key.endsWith("LawyerId"))
+    .map(key => ELEMENT_IDS[key]);
 
   // Get all lawyers
   const lawyers = getAllLawyers();

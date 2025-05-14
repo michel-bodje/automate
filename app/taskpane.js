@@ -21,6 +21,7 @@ import {
   createEmail,
   createMeeting,
   createContract,
+  createReceipt,
   showLoading,
   showErrorModal,
 } from "./index.js";
@@ -46,59 +47,51 @@ function attachEventListeners() {
 
   formInputs.forEach((input) => {
     input.addEventListener('change', (event) => {
-      const { id, value } = event.target;
       /**
        * Update form state
        * and activate events based on input id
        */
+      const { id, value } = event.target;
       console.log("changed: %s", input.id); // debug
-      switch (id) {
-        case ELEMENT_IDS.scheduleLawyerId:
-        case ELEMENT_IDS.confLawyerId:
-        case ELEMENT_IDS.contractLawyerId:
-        case ELEMENT_IDS.replyLawyerId:
+
+      // Find the matching ELEMENT_IDS key
+      const matchingKey = Object.keys(ELEMENT_IDS).find((key) => ELEMENT_IDS[key] === id);
+      console.log("matchingKey: %s", matchingKey); // debug
+
+      switch (matchingKey) {
+        case matchingKey.endsWith("LawyerId"):
           // lawyer dropdown change
           formState.update("lawyerId", value);
           break;
 
-        case ELEMENT_IDS.scheduleLocation:
-        case ELEMENT_IDS.confLocation:
+        case matchingKey.endsWith("Location"):
           // location dropdown change
           formState.update("location", value);
           break;
 
-        case ELEMENT_IDS.caseType:
+        case matchingKey.includes("caseType"):
           // case type dropdown change
           formState.update("caseType", value);
           populateLawyerDropdown();
           handleCaseDetails();
           break;
 
-        case ELEMENT_IDS.scheduleClientName:
-        case ELEMENT_IDS.wordClientName:
+        case matchingKey.endsWith("ClientName"):
           // client name input change
           formState.update("clientName", value);
           break;
 
-        case ELEMENT_IDS.scheduleClientPhone:
+        case matchingKey.endsWith("ClientPhone"):
           // client phone input change
           formState.update("clientPhone", value);
           break;
 
-        case ELEMENT_IDS.scheduleClientEmail:
-        case ELEMENT_IDS.confClientEmail:
-        case ELEMENT_IDS.contractClientEmail:
-        case ELEMENT_IDS.replyClientEmail:
-        case ELEMENT_IDS.wordClientEmail:
+        case matchingKey.endsWith("ClientEmail"):
           // client email input change
           formState.update("clientEmail", value);
           break;
 
-        case ELEMENT_IDS.scheduleClientLanguage:
-        case ELEMENT_IDS.confClientLanguage:
-        case ELEMENT_IDS.contractClientLanguage:
-        case ELEMENT_IDS.replyClientLanguage:
-        case ELEMENT_IDS.wordClientLanguage:
+        case matchingKey.endsWith("ClientLanguage"):
           // client language dropdown change
           formState.update("clientLanguage", value);
           if (Office.context.host === Office.HostType.Word) {
@@ -106,7 +99,7 @@ function attachEventListeners() {
           }
           break;
 
-        case ELEMENT_IDS.scheduleMode:
+        case matchingKey.endsWith("scheduleMode"):
           // appointment mode dropdown change
           const manualDate = document.getElementById(ELEMENT_IDS.manualDate);
           const manualTime = document.getElementById(ELEMENT_IDS.manualTime);
@@ -131,52 +124,53 @@ function attachEventListeners() {
           }
           break;
 
-        case ELEMENT_IDS.confDate:
-        case ELEMENT_IDS.manualDate:
+        case matchingKey.endsWith("Date"):
           console.log("Date changed:", value);
           formState.update("appointmentDate", value);
           break;
 
-        case ELEMENT_IDS.confTime:
-        case ELEMENT_IDS.manualTime:
+        case matchingKey.endsWith("Time"):
           console.log("Time changed:", value);
           formState.update("appointmentTime", value); 
           break;
 
-        case ELEMENT_IDS.scheduleFirstConsultation:
-        case ELEMENT_IDS.confFirstConsultation:
+        case matchingKey.endsWith("FirstConsultation"):
           // first consultation checkbox change
           formState.update("isFirstConsultation", event.target.checked);
           break;
 
-        case ELEMENT_IDS.refBarreau:
+        case matchingKey.endsWith("refBarreau"):
           // ref barreau checkbox change
           formState.update("isRefBarreau", event.target.checked);
           break;
-
-        case ELEMENT_IDS.paymentMade:
+        
+        case matchingKey.endsWith("existingClient"):
+          // existing client checkbox change
+          formState.update("isExistingClient", event.target.checked);
+          break;
+        
+        case matchingKey.endsWith("paymentMade"):
           // payment checkbox change
           formState.update("isPaymentMade", event.target.checked);
           handlePaymentOptions();
           break;
 
-        case ELEMENT_IDS.paymentMethod:
+        case matchingKey.endsWith("PaymentMethod"):
           // payment method dropdown change
           formState.update("paymentMethod", value);
           break;
 
-        case ELEMENT_IDS.notes:
+        case matchingKey.endsWith("notes"):
           // schedule notes textarea change
           formState.update("notes", value);
           break;
 
-        case ELEMENT_IDS.emailContractDeposit:
-        case ELEMENT_IDS.wordContractDeposit:
+        case matchingKey.endsWith("Deposit"):
           // contract deposit input change
           formState.update("depositAmount", value);
           break;
 
-        case ELEMENT_IDS.wordContractTitle:
+        case matchingKey.endsWith("wordContractTitle"):
           // Show/hide custom contract title input based on selection
           const customTitleInput = document.getElementById(ELEMENT_IDS.customContractTitle);
           if (value === "other") {
@@ -189,13 +183,12 @@ function attachEventListeners() {
           }
           break;
 
-        case ELEMENT_IDS.customContractTitle:
+        case matchingKey.endsWith("customContractTitle"):
           // Update form state with custom contract title
           formState.update("contractTitle", value);
           break;
 
         default:
-          // no change
           break;
       }
     });
@@ -231,6 +224,9 @@ function attachEventListeners() {
           break;
         case ELEMENT_IDS.wordContractMenuBtn:
           showPage(ELEMENT_IDS.wordContractPage);
+          break;
+        case ELEMENT_IDS.wordReceiptMenuBtn:
+          showPage(ELEMENT_IDS.wordReceiptPage);
           break;
         default:
           break;
@@ -270,6 +266,9 @@ function attachEventListeners() {
           break;
         case ELEMENT_IDS.wordContractSubmitBtn:
           createContract();
+          break;
+        case ELEMENT_IDS.wordReceiptSubmitBtn:
+          createReceipt();
           break;
         default:
           break;

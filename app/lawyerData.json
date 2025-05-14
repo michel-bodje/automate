@@ -53,6 +53,6 @@
             "breakMinutes": 30,
             "maxDailyAppointments": 3,
             "specialties": ["assermentation", "common"]
-        },
+        }
     ]
 }
