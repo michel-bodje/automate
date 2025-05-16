@@ -352,7 +352,13 @@ export async function createMeeting(selectedSlot) {
  * @returns {Promise<void>}
  */
 export async function createContract() {
-  const { clientName, clientEmail, clientLanguage, depositAmount, contractTitle } = formState;
+  const {
+    clientName,
+    clientEmail,
+    clientLanguage,
+    depositAmount,
+    contractTitle,
+  } = formState;
 
   // Basic input validation
   if (!clientName || !clientEmail || !contractTitle || !depositAmount) {
