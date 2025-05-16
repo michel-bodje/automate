@@ -31,7 +31,7 @@ export function showPage(pageId) {
       selectedPage.classList.remove("hidden");
     }
   }
-  
+
   // Scroll to the top of the page
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -442,9 +442,9 @@ export function populatePaymentDropdown() {
   elements.forEach(element => {
     populateDropdown(element, [
       { value: "cash", label: "Cash" },
-  
-      { value: "cheque", label: "Cheque" },    { value: "credit", label: "Credit" },
-        { value: "e-transfer", label: "E-Transfer" },
+      { value: "cheque", label: "Cheque" },
+      { value: "credit", label: "Credit" },
+      { value: "e-transfer", label: "E-Transfer" },
     ],
     "Select Payment Method");
   });
