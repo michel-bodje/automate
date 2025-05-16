@@ -147,15 +147,15 @@
 
                 <label for="schedule-mode">Scheduling Mode:</label>
                 <select id="schedule-mode" required>
-                    <option value="auto" selected>Auto</option>
-                    <option value="manual">Manual</option>
+                    <option value="manual" selected>Manual</option>
+                    <option value="auto">Auto</option>
                 </select>
                 
-                <label for="manual-date" class="hidden">Appointment Date:</label>
-                <input type="date" id="manual-date" class="hidden">
+                <label for="manual-date">Appointment Date:</label>
+                <input type="date" id="manual-date" required>
                 
-                <label for="manual-time" class="hidden">Appointment Time:</label>
-                <input type="time" id="manual-time" class="hidden">
+                <label for="manual-time">Appointment Time:</label>
+                <input type="time" id="manual-time" required>
 
                 <!-- Checkboxes -->
                 <div class="checkbox-container">
@@ -181,10 +181,7 @@
                 <div id="payment-options-container" hidden>
                     <label for="payment-method">Payment Method:</label>
                     <select id="payment-method" required>
-                        <option value="" disabled selected>Select Payment Method</option>
-                        <option value="cash">Cash</option>
-                        <option value="credit">Credit</option>
-                        <option value="e-transfer">E-Transfer</option>
+                        <!-- Options will be dynamically populated by JavaScript -->
                     </select>
                 </div>
 
@@ -303,6 +300,9 @@
                 <label for="word-client-email">Client Email:</label>
                 <input type="email" id="word-client-email" required>
 
+                <label for="word-contract-deposit">Deposit:</label>
+                <input type="number" id="word-contract-deposit" placeholder="Enter required deposit" required>
+
                 <label for="word-client-language">Preferred Language:</label>
                 <select id="word-client-language" required>
                     <!-- Options will be dynamically populated by JavaScript -->
@@ -316,10 +316,7 @@
                 <!-- Input field for custom contract title -->
                 <input type="text" id="custom-contract-title" class="hidden" placeholder="Enter custom contract title">
             
-                <label for="word-contract-deposit">Deposit:</label>
-                <input type="number" id="word-contract-deposit" placeholder="Enter required deposit" required>
-            
-                <button type="button" id="generate-word-contract-btn" class="submit-btn">Generate</button>
+                <button type="submit" id="generate-word-contract-btn" class="submit-btn">Generate Contract</button>
                 <button type="button" class="back-btn">Back</button>
             </form>
         </div>
@@ -331,32 +328,26 @@
             <form>
                 <label for="receipt-client-name">Client Name:</label>
                 <input type="text" id="receipt-client-name" required>
-        
-                <label for="receipt-lawyer-id">Lawyer ID:</label>
-                <select id="receipt-lawyer-id" required>
-                    <!-- Options will be dynamically populated by JavaScript -->
-                </select>
-        
-                <label for="receipt-deposit-amount">Deposit Amount:</label>
-                <input type="number" id="receipt-deposit-amount" required>
-        
+                
+                <label for="word-receipt-deposit">Deposit:</label>
+                <input type="number" id="word-receipt-deposit" placeholder="Enter required deposit" required>
+
+                <div id="receipt-payment-options-container">
+                    <label for="receipt-payment-method">Payment Method:</label>
+                    <select id="receipt-payment-method" required>
+                        <!-- Options will be dynamically populated by JavaScript -->
+                    </select>
+                </div>
+
                 <label for="receipt-client-language">Preferred Language:</label>
                 <select id="receipt-client-language" required>
                     <!-- Options will be dynamically populated by JavaScript -->
                 </select>
 
-                <label for="word-receipt-deposit">Deposit:</label>
-                <input type="number" id="word-receipt-deposit" placeholder="Enter required deposit" required>
-        
-                <div id="receipt-payment-options-container">
-                    <label for="receipt-payment-method">Payment Method:</label>
-                    <select id="receipt-payment-method" required>
-                        <option value="" disabled selected>Select Payment Method</option>
-                        <option value="cash">Cash</option>
-                        <option value="credit">Credit</option>
-                        <option value="e-transfer">E-Transfer</option>
-                    </select>
-                </div>
+                <label for="receipt-lawyer-id">Lawyer ID:</label>
+                <select id="receipt-lawyer-id" required>
+                    <!-- Options will be dynamically populated by JavaScript -->
+                </select>
 
                 <button type="submit" id="generate-word-receipt-btn" class="submit-btn">Generate Receipt</button>
                 <button type="button" class="back-btn">Back</button>

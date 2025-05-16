@@ -26,11 +26,14 @@ export function showPage(pageId) {
   if (selectedPage) {
     selectedPage.classList.add("active");
 
-    // If the "Create Contract" page is shown, unhide all elements
-    if (pageId === ELEMENT_IDS.wordContractPage) {
+    // If a Word page is shown, unhide all elements
+    if (pageId === ELEMENT_IDS.wordContractPage || pageId === ELEMENT_IDS.wordReceiptPage) {
       selectedPage.classList.remove("hidden");
     }
   }
+  
+  // Scroll to the top of the page
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /** Utility function to reset the page to its initial state. */
@@ -54,6 +57,7 @@ export function resetPage() {
   // Reset dropdowns
   populateLawyerDropdown();
   populateLanguageDropdown();
+  populatePaymentDropdown();
   if (Office.context.host === Office.HostType.Word) {
     populateContractTitles();
   }
@@ -70,10 +74,14 @@ export function resetPage() {
  */
 export function initTaskpaneOutlook() {
   // Hide the "Create Contract" button in Outlook
-  const createContractBtn = document.getElementById(ELEMENT_IDS.wordContractMenuBtn);
-  if (createContractBtn) {
-    createContractBtn.classList.add("hidden");
-  }
+  const menuButtons = document.querySelectorAll('.menu-btn');
+  menuButtons.forEach((button) => {
+    if (
+      button.id == ELEMENT_IDS.wordContractMenuBtn ||
+      button.id == ELEMENT_IDS.wordReceiptMenuBtn
+    ) {
+      button.classList.add("hidden");
+    }});
   // Check if the add-in is running in a draft message or draft meeting/appointment
   const extensionPoint = Office.context.mailbox.item ? Office.context.mailbox.item.itemType : null;
 
@@ -103,6 +111,7 @@ export function initTaskpaneOutlook() {
   populateLawyerDropdown();
   populateLocationDropdown();
   populateLanguageDropdown();
+  populatePaymentDropdown();
 }
 
 /**
@@ -112,18 +121,21 @@ export function initTaskpaneOutlook() {
  * This function is called when the application initializes.
  */
 export function initTaskpaneWord() {
-  // Hide all buttons except for the Word contract and user manual buttons
+  // Hide all buttons except for the Word contract, Word receipt, Word receipt and user manual buttons
   const menuButtons = document.querySelectorAll('.menu-btn');
   menuButtons.forEach((button) => {
     if (
       button.id !== ELEMENT_IDS.wordContractMenuBtn &&
+      button.id !== ELEMENT_IDS.wordReceiptMenuBtn &&
       button.id !== ELEMENT_IDS.userManualMenuBtn
     ) {
       button.classList.add("hidden");
     }
-    populateContractTitles();
-    populateLanguageDropdown();
   });
+    populateContractTitles();
+    populateLawyerDropdown();
+    populateLanguageDropdown();
+    populatePaymentDropdown();
 }
 
 /**
@@ -419,6 +431,25 @@ export function populateLanguageDropdown() {
   });
 }
 
+/** Dynamically loads the payment method options. */
+export function populatePaymentDropdown() {
+  // Payment dropdown elements
+  const elements = Object.keys(ELEMENT_IDS)
+    .filter(key => key.endsWith("PaymentMethod"))
+    .map(key => ELEMENT_IDS[key]);
+
+  // Populate dropdowns
+  elements.forEach(element => {
+    populateDropdown(element, [
+      { value: "cash", label: "Cash" },
+  
+      { value: "cheque", label: "Cheque" },    { value: "credit", label: "Credit" },
+        { value: "e-transfer", label: "E-Transfer" },
+    ],
+    "Select Payment Method");
+  });
+}
+
 /** Dynamically loads the case type options. */
 export function populateCaseTypeDropdown() {
   /** To add new case types,
@@ -484,10 +515,9 @@ export function populateLawyerDropdown() {
 /** Dynamically loads the location options based on the selected lawyer. */
 export function populateLocationDropdown() {
   // Location dropdown elements
-  const elements = [
-    ELEMENT_IDS.scheduleLocation,
-    ELEMENT_IDS.confLocation,
-  ];
+  const elements = Object.keys(ELEMENT_IDS)
+    .filter(key => key.endsWith("Location"))
+    .map(key => ELEMENT_IDS[key]);
 
   const locations = locationRules.locations;
 

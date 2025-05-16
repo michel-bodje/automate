@@ -269,7 +269,7 @@ export async function createEmail(type) {
       .replace("{{totalAmount}}", totalAmount)
       .replace("{{rates}}", rates)
       .replace("{{totalRates}}", totalRates)
-      //.concat(signature)
+      .concat(signature)
     ;
 
     const subject = getSubject(language, type);
@@ -352,7 +352,7 @@ export async function createMeeting(selectedSlot) {
  * @returns {Promise<void>}
  */
 export async function createContract() {
-  const { clientName, clientEmail, contractTitle, depositAmount, clientLanguage } = formState;
+  const { clientName, clientEmail, clientLanguage, depositAmount, contractTitle } = formState;
 
   // Basic input validation
   if (!clientName || !clientEmail || !contractTitle || !depositAmount) {
@@ -387,7 +387,12 @@ export async function createContract() {
       contractTitle,
       depositAmount: Number(depositAmount).toFixed(),
       totalAmount: Number(addTaxes(depositAmount, true)).toFixed(2),
-      date: new Date().toLocaleDateString(),
+      date: new Date().toLocaleDateString(language === "fr" ? "fr-CA" : "en-US", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        }),
     };
 
     // Render the document
@@ -429,16 +434,17 @@ export async function createContract() {
 
 export async function createReceipt() {
   try {
-    const { clientName, lawyerId, depositAmount, clientLanguage } = formState;
+    const {
+      clientName,
+      clientLanguage,
+      lawyerId,
+      depositAmount,
+      paymentMethod,
+    } = formState;
 
     // Basic input validation
     if (!clientName || !lawyerId || !depositAmount) {
       console.error("One or more inputs are missing.");
-      return;
-    }
-
-    if (!isValidEmail(clientEmail)) {
-      console.error("Invalid email format.");
       return;
     }
 
@@ -458,13 +464,18 @@ export async function createReceipt() {
 
     // Define placeholders
     const placeholders = {
-      user,
+      user: "Michel Assi-Bodje",
+      reason: "{}",
       clientName,
-      amount: Number(depositAmount).toFixed(),
       paymentMethod,
-      reason,
+      depositAmount: Number(depositAmount).toFixed(2),
       lawyerName: getLawyer(lawyerId).name,
-      date: new Date().toLocaleDateString(),
+      date: new Date().toLocaleDateString(language === "fr" ? "fr-CA" : "en-US", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      }),
     };
 
     // Render the document

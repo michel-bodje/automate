@@ -16,7 +16,7 @@
             "workingHours": {"start": "09:30", "end": "15:30"},
             "breakMinutes": 30,
             "maxDailyAppointments": 5,
-            "specialties": ["divorce", "employment", "business", "common"]
+            "specialties": ["divorce", "defamations", "employment", "business", "common"]
         },
         {
             "id": "TG",
