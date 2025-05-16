@@ -7,7 +7,7 @@
   xsi:type="MailApp">
 
   <Id>bf0f99cf-6ef7-4fa5-9ffe-7f3197a4b10a</Id>
-  <Version>1.0.0.0</Version>
+  <Version>2.0.0.0</Version>
   <ProviderName>Allen Madelin</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
 
