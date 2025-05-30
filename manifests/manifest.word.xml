@@ -12,9 +12,9 @@
 
   <DisplayName DefaultValue="Automate"/>
   <Description DefaultValue="Automate for Allen Madelin"/>
-  <IconUrl DefaultValue="https://localhost:3001/assets/images/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://localhost:3001/assets/images/icon-128.png"/>
-  <SupportUrl DefaultValue="https://localhost:3001/taskpane.html"/>
+  <IconUrl DefaultValue="https://michel-bodje.github.io/automate/assets/images/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://michel-bodje.github.io/automate/assets/images/icon-128.png"/>
+  <SupportUrl DefaultValue="https://michel-bodje.github.io/automate/taskpane.html"/>
 
   <Hosts>
     <Host Name="Document"/>
@@ -27,7 +27,7 @@
   </Requirements>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost:3001/taskpane.html"/>
+    <SourceLocation DefaultValue="https://michel-bodje.github.io/automate/taskpane.html"/>
   </DefaultSettings>
 
   <Permissions>ReadWriteDocument</Permissions>
@@ -78,13 +78,13 @@
 
     <Resources>
       <bt:Images>
-        <bt:Image id="Icon.16x16" DefaultValue="https://localhost:3001/assets/images/AM-icon.png"/>
-        <bt:Image id="Icon.32x32" DefaultValue="https://localhost:3001/assets/images/AM-icon.png"/>
-        <bt:Image id="Icon.80x80" DefaultValue="https://localhost:3001/assets/images/AM-icon.png"/>
+        <bt:Image id="Icon.16x16" DefaultValue="https://michel-bodje.github.io/automate/assets/images/AM-icon.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://michel-bodje.github.io/automate/assets/images/AM-icon.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://michel-bodje.github.io/automate/assets/images/AM-icon.png"/>
       </bt:Images>
       <bt:Urls>
-        <bt:Url id="Commands.Url" DefaultValue="https://localhost:3001/commands.html"/>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://localhost:3001/taskpane.html"/>
+        <bt:Url id="Commands.Url" DefaultValue="https://michel-bodje.github.io/automate/commands.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://michel-bodje.github.io/automate/taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GroupLabel" DefaultValue="Allen Madelin"/>

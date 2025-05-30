@@ -22,6 +22,7 @@ import {
   createMeeting,
   createContract,
   createReceipt,
+  prepareConfirmation,
   showLoading,
   showErrorModal,
 } from "./index.js";
@@ -33,6 +34,28 @@ Office.onReady(async (info) => {
     await msalInstance.initialize();
     // Setup taskpane UI for Outlook
     initTaskpaneOutlook();
+    
+
+    if (Office.context.mailbox.item.itemType === Office.MailboxEnums.ItemType.Message) {
+      const payloadString = localStorage.getItem('confirmationPayload');
+      if (payloadString) {
+        try {
+            const payload = JSON.parse(payloadString);
+            const { state, slot } = payload;
+            if (state && slot) {
+                console.log("Auto-filling confirmation email...");
+                createEmail(state.location, { state: state, slot: slot });
+                localStorage.removeItem('confirmationPayload');
+            } else {
+                console.warn("Invalid confirmation payload structure.");
+            }
+        } catch (e) {
+            console.error("Failed to parse confirmationPayload:", e);
+        }
+      }
+    }
+
+
   } else if (info.host === Office.HostType.Word) {
     // Setup taskpane UI for Word
     initTaskpaneWord();
@@ -255,8 +278,7 @@ async function sendContract() {
  * @async
  */
 async function sendConfirmation() {
-  const type = formState.location;
-  await createEmail(type);
+  await createEmail();
 }
 
 /**
@@ -357,6 +379,10 @@ async function scheduleAppointment() {
     // Create the appointment in the lawyer's calendar
     await createMeeting(selectedSlot);
     console.log("Scheduled appointment successfully.");
+
+    // Prepare confirmation email
+    prepareConfirmation(selectedSlot);
+
   } catch (error) {
     console.error("Scheduling Error:", error);
   } finally {

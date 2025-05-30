@@ -102,12 +102,40 @@ module.exports = async (env, options) => {
             to: "manifests/[name][ext]",
             transform(content, filename) {
               console.log(`Transforming ${filename}. Dev mode:`, dev);
-              if (dev) {
-                return content;
+              if (!dev) {
+              // In production, do not modify the manifest (assume it's production ready)
+              return content;
               } else {
-                return content.toString()
-                  .replace(new RegExp("https://localhost:3000/", "g"), urlProd)
-                  .replace(new RegExp("https://localhost:3001/", "g"), urlProd);
+              // In development, replace production URLs with localhost and update <Id> tag for dev manifest
+              const isOutlook = filename.includes("manifest.outlook.xml");
+              const isWord = filename.includes("manifest.word.xml");
+
+              // Define GUIDs for each manifest and environment
+              const IDS = {
+                outlook: {
+                  prod: "bf0f99cf-6ef7-4fa5-9ffe-7f3197a4b10a",
+                  dev: "4d546269-e983-4e12-aa50-ed569039df51",
+                },
+                word: {
+                  prod: "607de257-2aa6-4c5c-bdd4-e122d47e9d9e",
+                  dev: "cc48ccc7-2d17-4a3a-9fe9-41eb9bacf7bf",
+                },
+              };
+
+              const manifestType = isOutlook ? "outlook" : isWord ? "word" : null;
+              const prodId = manifestType ? IDS[manifestType].prod : undefined;
+              const devId = manifestType ? IDS[manifestType].dev : undefined;
+
+              // Replace production URLs with localhost
+              let result = content.toString()
+                .replace(new RegExp(urlProd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "g"), urlDev);
+
+              // Replace production GUID with dev GUID
+              if (prodId && devId) {
+                result = result.replace(new RegExp(`<Id>${prodId}<\/Id>`), `<Id>${devId}</Id>`);
+              }
+
+              return result;
               }
             },
           },
@@ -133,6 +161,9 @@ module.exports = async (env, options) => {
         options: env.WEBPACK_BUILD || options.https !== undefined ? options.https : await getHttpsOptions(),
       },
       port: devServerPort,
+      devMiddleware: {
+        writeToDisk: true
+      },
     },
   };
 

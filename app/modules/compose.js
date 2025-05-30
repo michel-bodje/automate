@@ -191,42 +191,44 @@ function addTaxes(amount, addFOF = false) {
   return total;
 }
 
+
 /**
- * Creates an email draft with the specified type and language.
- * @param {string} type - The type of email (e.g., "office", "teams", "phone", "contract" or "reply").
+ * Generates a draft email with the given type and options.
+ * @param {string} [type=formState.location] - The type of email to generate.
+ * @param {Object} [options={}] - Additional options to customize the email.
+ * @param {Object} [options.state=formState] - The state object containing client info.
+ * @param {Date} [options.slot=null] - A date and time slot to use for the appointment.
+ * @returns {Promise<void>} A promise that resolves if the email is created successfully.
+ * @throws {Error} If any of the required information is missing or invalid.
  */
-export async function createEmail(type) {
+export async function createEmail(type = formState.location, options = {}) {
+  const { state = formState, slot = null } = options;
   try {
-    const clientEmail = formState.clientEmail;
-    if (!clientEmail) {
-      throw new Error("No client email provided.");
-    }
+    const clientEmail = state.clientEmail;
+    const language = state.clientLanguage === "Français" ? "fr" : "en";
+    let body = htmlTemplates[language][type];
+    
+    const dateTime = slot
+      ? slot
+      : (state.appointmentDate && state.appointmentTime
+        ? new Date(`${state.appointmentDate}T${state.appointmentTime}`)
+        : null
+      )
+    ;
+
     if (!isValidEmail(clientEmail)) {
       throw new Error("Please provide a valid email address.");
     }
 
-    // multilingual support
-    const language = formState.clientLanguage === "Français" ? "fr" : "en";
-    const template = htmlTemplates[language][type];
-    const signature = htmlTemplates["en"]["signature"];
-
-    if (!template) {
+    if (!body) {
       throw new Error(`No template found for type "${type}" in language "${language}".`);
     }
 
-    const lawyer = getLawyer(formState.lawyerId);
-    let body = template;
-
-    const appointmentDateTime = new Date(
-      `${formState.appointmentDate}T${formState.appointmentTime}`
-    );
-
     // Only validate date and time for appointment confirmations
     if (type === "office" || type === "teams" || type === "phone") {
-      if (!appointmentDateTime) {
+      if (!dateTime) {
         throw new Error("No appointment date and time provided.");
       }
-      const dateTime = appointmentDateTime;
 
       const date = dateTime.toLocaleDateString(language == "fr" ? "fr-CA" : "en-US", {
         weekday: "long",
@@ -240,41 +242,31 @@ export async function createEmail(type) {
         minute: "2-digit",
       });
 
+      const rates = state.isFirstConsultation ? 125 : 350;
+      const totalRates = addTaxes(rates);
+      
       body = body
         .replace("{{date}}", date)
         .replace("{{time}}", time)
+        .replace("{{rates}}", Number(rates).toFixed())
+        .replace("{{totalRates}}", Number(totalRates).toFixed(2))
       ;
-  
+    } else if (type === "contract") {
+      // Deposit for contract email
+      const depositAmount = state.depositAmount;
+      const totalAmount = addTaxes(state.depositAmount, true);
+
+      body = body
+        .replace("{{depositAmount}}", Number(depositAmount).toFixed())
+        .replace("{{totalAmount}}", Number(totalAmount).toFixed(2))
+      ;
     }
 
-    // Deposit for contract email
-    let depositAmount = formState.depositAmount;
-    let totalAmount = addTaxes(formState.depositAmount, true);
-
-    depositAmount = Number(depositAmount).toFixed();
-    totalAmount = Number(totalAmount).toFixed(2);
-
-    // Adjusted rates for appointment confirmations
-    const isFirstConsultation = formState.isFirstConsultation;
-
-    let rates = isFirstConsultation ? 125 : 350;
-    let totalRates = addTaxes(rates)
-
-    rates = Number(rates).toFixed();
-    totalRates = Number(totalRates).toFixed(2);
-
     body = body
-      .replace("{{lawyerName}}", lawyer.name)
-      .replace("{{depositAmount}}", depositAmount)
-      .replace("{{totalAmount}}", totalAmount)
-      .replace("{{rates}}", rates)
-      .replace("{{totalRates}}", totalRates)
-      .concat(signature)
+      .replace("{{lawyerName}}", getLawyer(state.lawyerId).name)
     ;
-
-    const subject = getSubject(language, type);
-    
-    setSubject(subject);
+  
+    setSubject(getSubject(language, type));
     setRecipient(clientEmail);
     setBody(body);
 
@@ -345,6 +337,33 @@ export async function createMeeting(selectedSlot) {
     console.error("createMeeting:", error);
     throw error; // Rethrow the error for further handling if needed
   }
+}
+
+/**
+ * Prepares a confirmation email by storing the necessary data in localStorage
+ * and notifies the user to open a new email draft for auto-filling.
+ * @param {{ start: Date, end: Date, location: string }} slot - The chosen time slot
+ */
+export function prepareConfirmation(slot) {
+    // Only run if formState and slot are defined
+    if (!formState || !slot) {
+        console.error("Missing formState or selected slot for confirmation email.");
+        return;
+    }
+
+    const payload = {
+        formState,
+        slot
+    };
+
+    // Store data in localStorage so the taskpane in new draft can access it
+    localStorage.setItem('confirmationPayload', JSON.stringify(payload));
+
+    // Open a new email draft window
+    // Office.context.mailbox.displayNewMessageForm({});
+
+    // Notify user
+    console.warn("Confirmation data saved. Open a new email draft and the taskpane will auto-fill it.");
 }
 
 /**
