@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Manual</title>
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="updated-user-manual-for-allen-madelin-office-add-in">Updated User Manual for Allen Madelin Office Add-In</h1>
+<div style="text-align: center;">
+  <img src="assets/images/AM-INC.jpg" alt="Corporate Logo">
+</div>
+<h2 id="overview">Overview</h2>
+<p>The Allen Madelin Office Add-In (Automate) is designed to streamline common tasks for the law firm. It integrates directly into Office (Outlook and Word), allowing users to perform these tasks efficiently without leaving their email client. The add-in dynamically adapts its menu options based on the context:</p>
+<ul>
+<li><strong>Draft Email Message</strong>: Displays only email-related options.</li>
+<li><strong>Draft Appointment</strong>: Displays only the scheduling option.</li>
+<li><strong>Word Document</strong>: Displays only the contract-making option.</li>
+</ul>
+<p>Additionally, the add-in now supports two scheduling modes: <strong>Auto</strong> (default) and <strong>Manual</strong>.</p>
+<p>This manual is divided into two sections:</p>
+<ol>
+<li><strong>User Workflow</strong>: Instructions for using the add-in to schedule appointments and draft emails.</li>
+<li><strong>Developer Guide</strong>: A detailed explanation of the codebase to help future developers maintain and extend the add-in.</li>
+</ol>
+<hr>
+<h2 id="user-workflow">User Workflow</h2>
+<h3 id="accessing-the-add-in">Accessing the Add-In</h3>
+<ol>
+<li>Open Outlook or Word.</li>
+<li>Depending on the context, open a new <strong>email</strong>, <strong>meeting</strong>, or <strong>Word document</strong>.</li>
+<li>Select <strong>Automate</strong> from the ribbon options.</li>
+</ol>
+<br>
+<div style="text-align: center;">
+  <img src="assets/images/ribbon_location_message_AM.png" alt="Ribbon location" width="800">
+</div>
+<br>
+<h3 id="context-specific-menus">Context-Specific Menus</h3>
+<ul>
+<li><strong>Email Draft</strong>: Options include:
+<ul>
+<li><strong>Send Confirmation</strong></li>
+<li><strong>Send Contract</strong></li>
+<li><strong>Send Reply</strong></li>
+</ul>
+</li>
+<li><strong>Appointment Draft</strong>: Option includes:
+<ul>
+<li><strong>Schedule Appointment</strong></li>
+</ul>
+</li>
+<li><strong>Word Document</strong>: Option includes:
+<ul>
+<li><strong>Create Contract</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="scheduling-appointments">Scheduling Appointments</h3>
+<ol>
+<li>
+<p>From the main menu, click <strong>Schedule Appointment</strong>.</p>
+</li>
+<li>
+<p>Choose between <strong>Auto</strong> (default) or <strong>Manual</strong> scheduling modes:</p>
+<ul>
+<li><strong>Auto</strong>: Automatically finds the next available slot based on the lawyer's calendar.</li>
+<li><strong>Manual</strong>: Allows you to select a specific date and time.</li>
+</ul>
+</li>
+<li>
+<p>Fill out the required fields in the form:</p>
+<ul>
+<li><strong>Client Name</strong>: Enter the client's full name.</li>
+<li><strong>Client Phone</strong>: Provide the client's phone number.</li>
+<li><strong>Client Email</strong>: Enter the client's email address.</li>
+<li><strong>Preferred Language</strong>: Select the client's preferred language (English or French).</li>
+<li><strong>Lawyer ID</strong>: Choose the lawyer handling the case.</li>
+<li><strong>Preferred Location</strong>: Select the meeting location (Office, Phone, or Teams).</li>
+<li><strong>Type of Case</strong>: Choose the type of case (e.g., Divorce, Estate, Employment).</li>
+<li>Additional details may be required based on the case type (e.g., spouse name for divorce cases).</li>
+</ul>
+</li>
+<li>
+<p>Check any applicable boxes:</p>
+<ul>
+<li><strong>Réf. Barreau</strong>: If the client is a referral from the Barreau.</li>
+<li><strong>First Consultation</strong>: If this is the client's first consultation.</li>
+<li><strong>Payment Made</strong>: If the payment has already been made.</li>
+</ul>
+</li>
+<li>
+<p>Add any <strong>Notes</strong> if necessary.</p>
+</li>
+<li>
+<p>Click <strong>Schedule</strong> to finalize the appointment.</p>
+</li>
+</ol>
+<br>
+<p><em>Example appointment automation. By default, (ma) is appended to subject and payment method 😉</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_schedule2_AM.png" alt="After clicking 'Schedule'" width="800">
+</div>
+<br>
+<p>The add-in will:</p>
+<ul>
+<li>Validate the inputs.</li>
+<li>Check the calendar for a suitable time.</li>
+<li>Fill out the draft meeting with the chosen date and time.</li>
+</ul>
+<h3 id="writing-draft-emails">Writing Draft Emails</h3>
+<ol>
+<li>
+<p>From the main menu, select the type of email you want to draft:</p>
+<ul>
+<li><strong>Send Confirmation</strong>: Draft a confirmation email for an appointment.</li>
+<li><strong>Send Contract</strong>: Draft an email with a service contract.</li>
+<li><strong>Send Reply</strong>: Draft a reply to a client inquiry.</li>
+</ul>
+</li>
+<li>
+<p>Fill out the required fields in the form:</p>
+<ul>
+<li><strong>Client Email</strong>: Enter the recipient's email address.</li>
+<li><strong>Preferred Language</strong>: Select the language for the email.</li>
+<li><strong>Lawyer ID</strong>: Choose the lawyer associated with the email.</li>
+<li>Additional fields may appear depending on the email type (e.g., deposit amount for contracts).</li>
+</ul>
+</li>
+<li>
+<p>Click <strong>Create</strong> to generate the draft email.</p>
+</li>
+</ol>
+<p>The add-in will populate the email body using predefined templates and insert the necessary details.</p>
+<br>
+<p><em>Example confirmation email. You now also have a first consultation checkbox, which sets the appropriate rate.</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_email_conf_AM.png" alt="Example email conf" width="800">
+</div>
+<br>
+<p><em>Example contract email. Note that the amount + tax is automatically calculated.</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_email_contract_AM.png" alt="Example email contract" width="800">
+</div>
+<br>
+<h3 id="creating-contracts-in-word">Creating Contracts in Word</h3>
+<ol>
+<li>Open a Word document and select <strong>Automate</strong> from the ribbon.</li>
+<li>Click <strong>Create Contract</strong>.</li>
+<li>Fill out the required fields, such as client details and contract specifics.</li>
+<li>Click <strong>Generate</strong> to create the contract.</li>
+</ol>
+<p><em>Word interface with add-in location</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/word_ribbon.png" alt="Example email contract" width="800">
+</div>
+<br>
+<hr>
+<h2 id="developer-guide">Developer Guide</h2>
+<h3 id="codebase-overview">Codebase Overview</h3>
+<p>The add-in is built using JavaScript and integrates with the Office JavaScript API. The codebase is modular, with each module handling a specific aspect of the add-in's functionality.</p>
+<p>The source code is hosted on Github at <a href="https://github.com/michel-bodje/automate.git">https://github.com/michel-bodje/automate.git</a>.</p>
+<p>The add-in manifest files point to the Github Pages URL at <a href="https://michel-bodje.github.io/automate">https://michel-bodje.github.io/automate</a>, but it is not recommended to open in a browser as the app breaks outside of Office.</p>
+<h4 id="key-files-and-directories">Key Files and Directories</h4>
+<ul>
+<li><strong><code>app/</code></strong>: Contains the main application logic.
+<ul>
+<li><strong><code>taskpane.html</code></strong>: The main UI for the add-in.</li>
+<li><strong><code>taskpane.js</code></strong>: Handles user interactions and orchestrates the workflow.</li>
+<li><strong><code>modules/</code></strong>: Contains reusable modules for specific functionalities.
+<ul>
+<li><strong><code>auth.js</code></strong>: Handles authentication with Microsoft services.</li>
+<li><strong><code>graph.js</code></strong>: Interacts with the Microsoft Graph API to fetch calendar events.</li>
+<li><strong><code>compose.js</code></strong>: Manages email drafting.</li>
+<li><strong><code>lawyer.js</code></strong>: Manages lawyer data and operations.</li>
+<li><strong><code>rules.js</code></strong>: Implements business rules for scheduling.</li>
+<li><strong><code>state.js</code></strong>: Manages the form state.</li>
+<li><strong><code>ui.js</code></strong>: Handles UI interactions and updates.</li>
+<li><strong><code>util.js</code></strong>: Contains utility functions for validation and formatting.</li>
+<li><strong><code>timeUtils.js</code></strong>: Provides time-related utilities for scheduling.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong><code>assets/templates/</code></strong>: Stores email and docx templates in English and French.</li>
+<li><strong><code>manifests/</code></strong>: Defines the add-in's metadata and configuration for Outlook and Word.</li>
+<li><strong><code>webpack.config.js</code></strong>: Configures the build process.</li>
+<li><strong><code>package.json</code></strong>: Configures the build scripts.</li>
+</ul>
+<h4 id="workflow-explanation">Workflow Explanation</h4>
+<ol>
+<li><strong>User Interaction</strong>:
+<ul>
+<li>The user interacts with the UI in <code>taskpane.html</code>.</li>
+<li>Events are handled in <code>taskpane.js</code>, which updates the <code>formState</code> object and triggers the appropriate actions.</li>
+</ul>
+</li>
+</ol>
+<br>
+<p><em>Most dropdowns are dynamically generated. Other fields only become visible conditionally.</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_html.png" alt="HTML source" width="800">
+</div>
+<br>
+<ol start="2">
+<li>
+<p><strong>Scheduling Appointments</strong>:</p>
+<ul>
+<li>The <code>scheduleAppointment</code> function in <code>taskpane.js</code>:
+<ul>
+<li>Validates inputs using <code>util.js</code>.</li>
+<li>Fetches the lawyer's calendar events via <code>graph.js</code>.</li>
+<li>Generates available time slots using <code>rules.js</code> and <code>timeUtils.js</code>.</li>
+<li>Creates a meeting using <code>compose.js</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Drafting Emails</strong>:</p>
+<ul>
+<li>The <code>createEmail</code> function in <code>compose.js</code>:
+<ul>
+<li>Retrieves the appropriate email template from <code>templates.js</code>.</li>
+<li>Replaces placeholders with dynamic data from <code>formState</code>.</li>
+<li>Sets the email subject, body, and recipients using the Office JavaScript API.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+<p><em>In <code>compose.js</code>, the <code>createEmail</code> and <code>createMeeting</code> functions are the basis of this add-in.</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_compose.png" alt="Compose module" width="800">
+</div>
+<br>
+<ol start="4">
+<li>
+<p><strong>Authentication</strong>:</p>
+<ul>
+<li>The <code>auth.js</code> module initializes the MSAL library for authentication.</li>
+<li>Access tokens are acquired to interact with the Microsoft Graph API.</li>
+</ul>
+</li>
+<li>
+<p><strong>Calendar Integration</strong>:</p>
+<ul>
+<li>The <code>graph.js</code> module fetches and manages calendar events using the Microsoft Graph API.</li>
+</ul>
+</li>
+<li>
+<p><strong>Business Rules</strong>:</p>
+<ul>
+<li>The <code>rules.js</code> module enforces rules for scheduling, such as avoiding lunch breaks and respecting daily appointment limits.</li>
+</ul>
+</li>
+<li>
+<p><strong>Dynamic Menus</strong>:</p>
+<ul>
+<li>Implemented in <code>taskpane.js</code> to adapt options based on context.</li>
+</ul>
+</li>
+<li>
+<p><strong>Scheduling Modes</strong>:</p>
+<ul>
+<li>Added in <code>taskpane.js</code> and <code>ui.js</code> to support Auto and Manual modes.</li>
+</ul>
+</li>
+</ol>
+<h4 id="extending-functionality">Extending Functionality</h4>
+<ul>
+<li>
+<p><strong>Adding a New Email Template</strong>:</p>
+<ol>
+<li>Create a new HTML file in the <code>assets/templates/</code> directory.</li>
+<li>Use placeholders in the same format as existing templates (e.g., <code>${clientName}</code>, <code>${date}</code>) to ensure dynamic data can be inserted.</li>
+<li>Add the template to <code>templates.js</code> under the appropriate language.</li>
+<li>Update <code>compose.js</code> to handle the new template type.</li>
+<li>Test the new template by selecting the corresponding email type in the add-in and verifying the generated draft email.</li>
+</ol>
+</li>
+<li>
+<p><strong>Adding a New Word Template</strong>:</p>
+<ol>
+<li>Create a new <code>.docx</code> template file and save it in the <code>assets/templates/</code> directory.</li>
+<li>Use placeholders in the same format as existing templates (e.g., <code>{{clientName}}</code>, <code>{{clientEmail}}</code>) to ensure dynamic data can be inserted.</li>
+<li>Update <code>templates.js</code> to include the new template under the appropriate language and category.</li>
+<li>Modify <code>compose.js</code> to handle the new template type when generating Word documents.</li>
+<li>Test the new template by selecting <strong>Create Contract</strong> in Word and verifying the output.</li>
+</ol>
+</li>
+<li>
+<p><strong>Adding a New Case Type</strong>:</p>
+<ol>
+<li>Update <code>lawyerData.json</code> to include the new case type for relevant lawyers.</li>
+<li>Add a handler for the case type in <code>util.js</code>.</li>
+<li>Update <code>taskpane.html</code> to include any additional fields required for the case type.</li>
+</ol>
+</li>
+<li>
+<p><strong>Modifying Business Rules</strong>:</p>
+<ul>
+<li>Update the <code>rules.js</code> module to implement new rules or modify existing ones.</li>
+</ul>
+</li>
+</ul>
+<br>
+<p><em>Lawyer representation in JSON</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_lawyerdata.png" alt="Lawyer representation in JSON" width="800">
+</div>
+<br>
+<p><em>Editing case types</em>
+<br></p>
+<div style="text-align: center;">
+  <img src="assets/images/example_casetypes.png" alt="Editing case types" width="800">
+</div>
+<br>
+<h4 id="debugging-and-testing">Debugging and Testing</h4>
+<ul>
+<li>
+<p>Ensure that all dependencies are installed by running <code>npm install</code> before starting the server.</p>
+</li>
+<li>
+<p>To run the add-in locally, use the following npm scripts:</p>
+<ol>
+<li>Start the development server: <code>npm start</code>.
+This will launch both Outlook and Word for concurrent debugging.</li>
+<li>Stop the development server: Press <code>Ctrl+C</code> in the terminal where the server is running, or use <code>npm stop</code>.</li>
+</ol>
+</li>
+<li>
+<p>The <code>webpack.config.js</code> file is already configured to handle differences between development and production environments. To test the production build:</p>
+<ol>
+<li>Run <code>npm run build</code> to generate the production files.</li>
+<li>Access the production version of the add-in via Outlook logged to <a href="mailto:admin@amlex.ca">admin@amlex.ca</a>.</li>
+</ol>
+</li>
+<li>
+<p>Test the add-in in both development and production environments to ensure compatibility.</p>
+</li>
+</ul>
+<br>
+<div style="text-align: center;">
+  <img src="assets/images/webpack-console.png" alt="Web server" width="800">
+</div>
+<br>
+<hr>
+<h2 id="conclusion">Conclusion</h2>
+<p>This add-in simplifies appointment scheduling, email drafting, and contract creation for Allen Madelin. The dynamic menus and scheduling modes enhance usability and efficiency.</p>
+
+</body>
+</html>

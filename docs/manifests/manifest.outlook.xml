@@ -9,6 +9,7 @@
   <IconUrl DefaultValue="https://michel-bodje.github.io/automate/assets/images/icon-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://michel-bodje.github.io/automate/assets/images/icon-128.png"/>
   <SupportUrl DefaultValue="https://michel-bodje.github.io/automate/taskpane.html"/>
+
   <Hosts>
     <Host Name="Mailbox"/>
   </Hosts>
