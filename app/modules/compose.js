@@ -291,7 +291,7 @@ export async function createMeeting(selectedSlot) {
     const caseDetails = getCaseDetails();
     
     // Construct the subject and body
-    const subject = `${formState.clientName} (ma)`;
+    const subject = `${formState.clientName}`;
 
     const priceDetails = (() => {
       if (formState.isRefBarreau) {
@@ -318,7 +318,7 @@ export async function createMeeting(selectedSlot) {
 
       <p><strong>Payment</strong>  ${formState.isPaymentMade ? "✔️" : "❌"}<br>
       
-      ${formState.isPaymentMade ? `${formState.paymentMethod} (ma)` : ""}</p>
+      ${formState.isPaymentMade ? `${formState.paymentMethod}` : ""}</p>
       `
       }
       <p>Notes:<br>
